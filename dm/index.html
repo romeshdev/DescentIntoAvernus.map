@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+    <html>
+      <head>
+        <title>DM Dashboard</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+          }
+          .dashboard {
+            background-color: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+          }
+          h1 { color: #ff6b6b; }
+          .nav-links a {
+            display: inline-block;
+            margin: 10px 15px 10px 0;
+            padding: 10px 20px;
+            background-color: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+          }
+          .nav-links a:hover { background-color: #ff5252; }
+          .api-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 5px;
+          }
+          pre {
+            background-color: #1a1a1a;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="dashboard">
+          <h1>DM Dashboard</h1>
+          <p>Welcome to the Descent into Avernus Map DM Interface</p>
+          
+          <div class="nav-links">
+            <a href="/dm/locations">Locations</a>
+            <a href="/player" target="_blank">Player View</a>
+            <form method="POST" action="/dm/logout" style="display: inline;">
+              <button type="submit" style="background-color: #666; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Logout</button>
+            </form>
+          </div>
+          
+          <div class="api-section">
+            <h3>API Endpoints</h3>
+            <p><strong>GET /api/data</strong> - Get all location data</p>
+            <p><strong>PUT /api/data/:hex</strong> - Update single location</p>
+            <p><strong>PUT /api/data</strong> - Bulk update locations</p>
+            
+            <h4>Example: Mark location as explored</h4>
+            <pre>curl -X PUT http://localhost:3000/api/data/a1 \\
+  -H "Content-Type: application/json" \\
+  -H "Cookie: connect.sid=YOUR_SESSION_COOKIE" \\
+  -d '{"status": "E"}'</pre>
+          </div>
+        </div>
+      </body>
+    </html>

@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" type="text/css" href="style/avernus-map.css" />
-    <link rel="stylesheet" href="style/infernal-button.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/dm/style/avernus-map.css" />
+    <link rel="stylesheet" href="/dm/style/infernal-button.css" media="screen" />
     <link
       id="u-theme-google-font"
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=MedievalSharp"
     />
 
-    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="/dm/images/favicon.ico" />
 
     <!--<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>-->
-    <script src="javascript/vue.js"></script>
-    <script src="../data/avernus-data.js"></script>
-    <script src="javascript/auxiliary.js"></script>
+    <script src="/dm/javascript/vue.js"></script>
+    <!-- <script src="../data/avernus-data.js"></script> -->
+    <script src="/dm/javascript/auxiliary.js"></script>
   </head>
 
   <!-- Templates -->
@@ -40,29 +40,29 @@
   <!-- Body -->
 
   <body>
-    <div class="honeycomb" :class="[!showTerrain ? map : lowLv]" id="app">
+    <div class="honeycomb" :class="map" id="app">
       <div v-for="element in printable">
         <row :element="element"></row>
 
         <div
-          :class="[showTerrain ? visTerr : invisTerr]"
+          :class="invisTerr"
           style="position: absolute"
         >
           <img
             class="hexImg noselect"
             v-for="terr in element"
             :id="terr.hex"
-            :src="'images/avernus-tiles/'+terr.terrain[0]+'.png'"
+            :src="'/dm/images/avernus-tiles/'+terr.terrain[0]+'.png'"
           />
         </div>
       </div>
-      <img class="upperLev" src="images/upper.png" v-if="showTerrain" />
+      <img class="upperLev" src="/dm/images/upper.png" v-if="!showTerrain" />
     </div>
 
     <button class="infernal-button floating" onclick="app.swapMap()">
       Swap map
     </button>
 
-    <script src="javascript/avernus.js"></script>
+    <script src="/dm/javascript/avernus.js"></script>
   </body>
 </html>

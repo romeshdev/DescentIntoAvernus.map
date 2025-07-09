@@ -1,0 +1,255 @@
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <title>Avernus Map</title>
+
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+  </head> -->
+
+  <!DOCTYPE html>
+    <html>
+      <head>
+        <title>DM Locations</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            max-width: 1200px; 
+            margin: 20px auto; 
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+          }
+          .header {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          h1 { 
+            color: #ff6b6b; 
+            margin: 0;
+          }
+          .nav-links a {
+            margin-right: 15px;
+            padding: 8px 16px;
+            background-color: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+          }
+          .nav-links a:hover { background-color: #ff5252; }
+          .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+          }
+          .search-box {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #3a3a3a;
+            color: #ffffff;
+          }
+          .filter-buttons {
+            margin-top: 10px;
+          }
+          .filter-btn {
+            padding: 5px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9em;
+          }
+          .filter-btn.active {
+            box-shadow: 0 0 0 2px #ff6b6b;
+          }
+          .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+          }
+          .location-card {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            position: relative;
+            transition: all 0.3s ease;
+          }
+          .location-card:hover {
+            border-color: #ff6b6b;
+            transform: translateY(-2px);
+          }
+          .location-hex {
+            font-weight: bold;
+            color: #ff6b6b;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+          }
+          .location-name {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #ffffff;
+          }
+          .location-status {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            display: inline-block;
+          }
+          .status-U { background-color: #666; color: white; }
+          .status-K { background-color: #ff9800; color: white; }
+          .status-E { background-color: #4caf50; color: white; }
+          .terrain { 
+            color: #ccc; 
+            font-style: italic; 
+            margin-bottom: 10px;
+            font-size: 0.9em;
+          }
+          .location-text {
+            color: #ddd;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .location-item {
+            background-color: #6a1b9a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+            display: inline-block;
+          }
+          .status-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+          }
+          .status-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+            color: white;
+            transition: opacity 0.3s;
+          }
+          .status-btn:hover {
+            opacity: 0.8;
+          }
+          .status-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+          .btn-unknown { background-color: #666; }
+          .btn-known { background-color: #ff9800; }
+          .btn-explored { background-color: #4caf50; }
+          .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+          }
+          .error {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+          }
+          .success {
+            color: #4caf50;
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: rgba(76, 175, 80, 0.1);
+            border-radius: 5px;
+          }
+        </style>
+
+        <link rel="stylesheet" type="text/css" href="/dm/style/avernus-map.css" />
+        <link rel="stylesheet" href="/dm/style/infernal-button.css" media="screen" />
+        <link
+          id="u-theme-google-font"
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=MedievalSharp"
+        />
+
+        <link rel="shortcut icon" type="image/x-icon" href="/dm/images/favicon.ico" />
+
+        <!--<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>-->
+        <script src="/dm/javascript/vue.js"></script>
+        <!-- <script src="../data/avernus-data.js"></script> -->
+        <script src="/dm/javascript/auxiliary.js"></script>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Location Manager</h1>
+          <div class="nav-links">
+            <a href="/dm">Dashboard</a>
+            <a href="/player" target="_blank">Player View</a>
+            <form method="POST" action="/dm/logout" style="display: inline;">
+              <button type="submit" style="background-color: #666; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Logout</button>
+            </form>
+          </div>
+        </div>
+        
+        <div class="controls">
+          <input type="text" id="search-box" class="search-box" placeholder="Search locations..." onkeyup="filterLocations()">
+          <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterByStatus('all')">All</button>
+            <button class="filter-btn btn-unknown" onclick="filterByStatus('U')">Unknown</button>
+            <button class="filter-btn btn-known" onclick="filterByStatus('K')">Known</button>
+            <button class="filter-btn btn-explored" onclick="filterByStatus('E')">Explored</button>
+          </div>
+        </div>
+        
+        <div id="message-container"></div>
+
+        <!-- Templates -->
+
+        <script type="text/x-template" id="hexagon-template">
+          <a :href="urlMaker" :id="hex" class="hexagon">
+              <div class="hexagontent">{{ name }}</div>
+          </a>
+        </script>
+
+        <script type="text/x-template" id="row-template">
+          <div class="ibws-fix noselect">
+              <hexagon v-for="location in element" :key="location.hex" :hex="location.hex" :name="location.name" url="urlMaker"></hexagon>
+          </div>
+        </script>
+
+        <div class="honeycomb" :class="map" id="app">
+          <div v-for="element in printable">
+            <row :element="element"></row>
+
+            <div
+              :class="invisTerr"
+              style="position: absolute"
+            >
+              <img
+                class="hexImg noselect"
+                v-for="terr in element"
+                :id="terr.hex"
+                :src="'images/avernus-tiles/'+terr.terrain[0]+'.png'"
+              />
+            </div>
+          </div>
+          <img class="upperLev" src="images/upper.png" v-if="showTerrain" />
+        </div>
+
+      <script src="/dm/javascript/avernus.js"></script>
+    </body>
+</html>

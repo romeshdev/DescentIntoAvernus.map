@@ -1,13 +1,22 @@
 Vue.component("place", {
   template: "#place-template",
   props: {
+    hex: String,
     name: String,
     item: String,
     terrain: String,
     text: String,
     end: Number,
     index: Number,
+    status: String
   },
+  methods: {
+    updateStatus(hex, status) {
+      console.log('Status update requested:', hex, status);
+      // emit up to parent if needed
+      this.$emit('status-updated', { hex, status });
+    }
+  }
 });
 
 var app = new Vue({
@@ -17,21 +26,32 @@ var app = new Vue({
   },
   methods: {
     filter() {
-      let vm = this;
-      let query = window.location.search
-        .substring(1)
-        .split("&")
-        .reduce((accumulator, singleQueryParam) => {
-          const [key, value] = singleQueryParam.split("=");
-          accumulator[key] = value;
-          return accumulator;
-        }, {});
 
-      locations.forEach((item) => {
-        if (item.hex === query.hex) vm.printable.push(item);
-      });
+      fetch('/api/data')
+        .then(response => response.json())
+        .then(data => {
+          locations = data;
+          
+          let vm = this;
+          let query = window.location.search
+            .substring(1)
+            .split("&")
+            .reduce((accumulator, singleQueryParam) => {
+              const [key, value] = singleQueryParam.split("=");
+              accumulator[key] = value;
+              return accumulator;
+            }, {});
 
-      document.title = "Hex " + query.hex.toUpperCase();
+          locations.forEach((item) => {
+            if (item.hex === query.hex) vm.printable.push(item);
+          });
+
+          document.title = "Hex " + query.hex.toUpperCase();
+        })
+        .catch(error => {
+          console.error('Error loading locations:', error);
+          showError('Failed to load locations. Check console for details.');
+        });
     },
     renderTerrain(item) {
       switch (item.terrain[0]) {
@@ -58,6 +78,44 @@ var app = new Vue({
           return "???";
       }
     },
+    handleStatusUpdate(e) {
+      fetch(`/api/data/${e.hex}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: e.status })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          app.showSuccess(`Location ${e.hex.toUpperCase()} updated to ${e.status === 'U' ? 'Unknown' : e.status === 'K' ? 'Known' : 'Explored'}`);
+        } else {
+          app.showError('Error updating status: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error updating status:', error);
+        app.showError('Error updating status: ' + error.message);
+      });
+    },
+    showSuccess(message) {
+      const container = document.getElementById('message-container');
+      container.innerHTML = `<div class="success">${message}</div>`;
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 3000);
+    },
+    showError(message) {
+      const container = document.getElementById('message-container');
+      container.innerHTML = `<div class="error">${message}</div>`;
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    },
+    status(status, ifis){
+      return status === ifis;
+    }
   },
   beforeMount: function () {
     this.filter();

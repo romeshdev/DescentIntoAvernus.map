@@ -15,16 +15,13 @@ var app = new Vue({
       let vm = this;
       vm.responseAvailable = false;
       // fetch locations
-      fetch("/data/locations", {
-        method: "POST",
+      fetch("/player/api/data", {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
       })
         .then((response) => {
           if (response.ok) return response.json();
-          else
-            console.log(
-              "Server returned " + response.status + " : " + response.statusText
-            );
+          else console.log("Server returned " + response.status + " : " + response.statusText);
         })
         .then((response) => {
           vm.locations = response;
@@ -35,23 +32,22 @@ var app = new Vue({
         });
 
       // fetch quests
-      fetch("/data/quests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-        .then((response) => {
-          if (response.ok) return response.json();
-          else
-            console.log(
-              "Server returned " + response.status + " : " + response.statusText
-            );
-        })
-        .then((response) => {
-          vm.quests = response;
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      // fetch("/data/quests", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      // }).then((response) => {
+      //     if (response.ok) return response.json();
+      //     else
+      //       console.log(
+      //         "Server returned " + response.status + " : " + response.statusText
+      //       );
+      //   })
+      //   .then((response) => {
+      //     vm.quests = response;
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
     },
     //Saves the readable content of the locations array (from JSON) to the less-intuitive printable array
     //requested by the hexagon grid format

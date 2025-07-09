@@ -17,7 +17,7 @@ COPY . .
 RUN mkdir -p /app/player/data
 
 # Copy data.js to player data directory if it exists
-RUN if [ -f /app/data/data.js ]; then cp /app/data/data.js /app/player/data/; fi
+RUN if [ -f /app/data/data.js ]; then cp /app/data/data.js /app/player/data/data.js; fi
 
 # RUN cd /app/player && npm-install --omit=dev
 
