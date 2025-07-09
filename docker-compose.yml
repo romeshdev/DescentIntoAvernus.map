@@ -1,0 +1,20 @@
+services:
+  avernus-map:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - SESSION_SECRET=your-secure-session-secret-change-me
+      - ADMIN_USERNAME=dm
+      - ADMIN_PASSWORD=pwd
+    volumes:
+      - ./data:/app/data
+      - ./player/data:/app/player/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/player"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
