@@ -6,7 +6,7 @@ let hexagonComponent = {
   },
   computed: {
     urlMaker() {
-      return "avernus-locations.html?hex=" + this.hex;
+      return "/dm/locations/avernus/hex/" + this.hex;
     },
   },
 };
@@ -41,8 +41,7 @@ var app = new Vue({
     //Saves the readable content of the locations array (from JSON) to the less-intuitive printable array
     //requested by the hexagon grid format
     fetchData() {
-
-      fetch('/api/data')
+      fetch('/api/data/locations/avernus')
         .then(response => response.json())
         .then(data => {
           locations = data;

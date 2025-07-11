@@ -132,12 +132,6 @@ body {
   background-image: url("../images/avernus-map.jpg");
 }
 
-a:link,
-a:visited {
-  color: black;
-  text-decoration: none;
-}
-
 .noselect {
   -webkit-touch-callout: none;
   /* iOS Safari */

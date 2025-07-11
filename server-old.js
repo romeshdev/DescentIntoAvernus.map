@@ -138,309 +138,289 @@ app.post('/dm/logout', (req, res) => {
 });
 
 // Protected DM routes
-app.get('/dm', requireAuth, (req, res) => {
-  const dmIndexPath = path.join(__dirname, 'dm', 'index.html');
-  if (fs.existsSync(dmIndexPath)) {
-    res.sendFile(dmIndexPath);
-  } else {
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>DM Dashboard</title>
-        <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            max-width: 800px; 
-            margin: 50px auto; 
-            padding: 20px;
-            background-color: #1a1a1a;
-            color: #ffffff;
-          }
-          .dashboard {
-            background-color: #2a2a2a;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-          }
-          h1 { color: #ff6b6b; }
-          .nav-links a {
-            display: inline-block;
-            margin: 10px 15px 10px 0;
-            padding: 10px 20px;
-            background-color: #ff6b6b;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-          }
-          .nav-links a:hover { background-color: #ff5252; }
-          .api-section {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #333;
-            border-radius: 5px;
-          }
-          pre {
-            background-color: #1a1a1a;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="dashboard">
-          <h1>DM Dashboard</h1>
-          <p>Welcome to the Descent into Avernus Map DM Interface</p>
+// app.get('/dm', requireAuth, (req, res) => {
+//   const dmIndexPath = path.join(__dirname, 'dm', 'index.html');
+//   if (fs.existsSync(dmIndexPath)) {
+//     res.sendFile(dmIndexPath);
+//   } else {
+//     res.send(`
+//       <!DOCTYPE html>
+//       <html>
+//       <head>
+//         <title>DM Dashboard</title>
+//         <style>
+//           body { 
+//             font-family: Arial, sans-serif; 
+//             max-width: 800px; 
+//             margin: 50px auto; 
+//             padding: 20px;
+//             background-color: #1a1a1a;
+//             color: #ffffff;
+//           }
+//           .dashboard {
+//             background-color: #2a2a2a;
+//             padding: 30px;
+//             border-radius: 10px;
+//             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+//           }
+//           h1 { color: #ff6b6b; }
+//           .nav-links a {
+//             display: inline-block;
+//             margin: 10px 15px 10px 0;
+//             padding: 10px 20px;
+//             background-color: #ff6b6b;
+//             color: white;
+//             text-decoration: none;
+//             border-radius: 5px;
+//           }
+//           .nav-links a:hover { background-color: #ff5252; }
+//           .api-section {
+//             margin-top: 30px;
+//             padding: 20px;
+//             background-color: #333;
+//             border-radius: 5px;
+//           }
+//           pre {
+//             background-color: #1a1a1a;
+//             padding: 15px;
+//             border-radius: 5px;
+//             overflow-x: auto;
+//           }
+//         </style>
+//       </head>
+//       <body>
+//         <div class="dashboard">
+//           <h1>DM Dashboard</h1>
+//           <p>Welcome to the Descent into Avernus Map DM Interface</p>
           
-          <div class="nav-links">
-            <a href="/dm/locations">Locations</a>
-            <a href="/player" target="_blank">Player View</a>
-            <form method="POST" action="/dm/logout" style="display: inline;">
-              <button type="submit" style="background-color: #666; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Logout</button>
-            </form>
-          </div>
+//           <div class="nav-links">
+//             <a href="/dm/locations">Locations</a>
+//             <a href="/player" target="_blank">Player View</a>
+//             <form method="POST" action="/dm/logout" style="display: inline;">
+//               <button type="submit" style="background-color: #666; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Logout</button>
+//             </form>
+//           </div>
           
-          <div class="api-section">
-            <h3>API Endpoints</h3>
-            <p><strong>GET /api/data</strong> - Get all location data</p>
-            <p><strong>PUT /api/data/:hex</strong> - Update single location</p>
-            <p><strong>PUT /api/data</strong> - Bulk update locations</p>
+//           <div class="api-section">
+//             <h3>API Endpoints</h3>
+//             <p><strong>GET /api/data</strong> - Get all location data</p>
+//             <p><strong>PUT /api/data/:hex</strong> - Update single location</p>
+//             <p><strong>PUT /api/data</strong> - Bulk update locations</p>
             
-            <h4>Example: Mark location as explored</h4>
-            <pre>curl -X PUT http://localhost:3000/api/data/a1 \\
-  -H "Content-Type: application/json" \\
-  -H "Cookie: connect.sid=YOUR_SESSION_COOKIE" \\
-  -d '{"status": "E"}'</pre>
-          </div>
-        </div>
-      </body>
-      </html>
-    `);
-  }
-});
+//             <h4>Example: Mark location as explored</h4>
+//             <pre>curl -X PUT http://localhost:3000/api/data/a1 \\
+//   -H "Content-Type: application/json" \\
+//   -H "Cookie: connect.sid=YOUR_SESSION_COOKIE" \\
+//   -d '{"status": "E"}'</pre>
+//           </div>
+//         </div>
+//       </body>
+//       </html>
+//     `);
+//   }
+// });
 
-app.get('/dm/locations', requireAuth, (req, res) => {
-  const dmLocationsPath = path.join(__dirname, 'dm', 'locations.html');
-  if (fs.existsSync(dmLocationsPath)) {
-    res.sendFile(dmLocationsPath);
-  } else {
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>DM Locations</title>
-        <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            max-width: 1200px; 
-            margin: 20px auto; 
-            padding: 20px;
-            background-color: #1a1a1a;
-            color: #ffffff;
-          }
-          .header {
-            background-color: #2a2a2a;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-          }
-          h1 { color: #ff6b6b; }
-          .nav-links a {
-            margin-right: 15px;
-            padding: 8px 16px;
-            background-color: #ff6b6b;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-          }
-          .locations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-          }
-          .location-card {
-            background-color: #2a2a2a;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #444;
-          }
-          .location-hex {
-            font-weight: bold;
-            color: #ff6b6b;
-            font-size: 1.2em;
-          }
-          .location-status {
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 0.9em;
-            margin-left: 10px;
-          }
-          .status-U { background-color: #666; }
-          .status-K { background-color: #ff9800; }
-          .status-E { background-color: #4caf50; }
-          .terrain { color: #ccc; font-style: italic; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>Location Manager</h1>
-          <div class="nav-links">
-            <a href="/dm">Dashboard</a>
-            <a href="/player" target="_blank">Player View</a>
-            <form method="POST" action="/dm/logout" style="display: inline;">
-              <button type="submit" style="background-color: #666; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Logout</button>
-            </form>
-          </div>
-        </div>
+// app.get('/dm/locations', requireAuth, (req, res) => {
+//   const dmLocationsPath = path.join(__dirname, 'dm', 'locations.html');
+//   if (fs.existsSync(dmLocationsPath)) {
+//     res.sendFile(dmLocationsPath);
+//   } else {
+//     res.send(`
+//       <!DOCTYPE html>
+//       <html>
+//       <head>
+//         <title>DM Locations</title>
+//         <style>
+//           body { 
+//             font-family: Arial, sans-serif; 
+//             max-width: 1200px; 
+//             margin: 20px auto; 
+//             padding: 20px;
+//             background-color: #1a1a1a;
+//             color: #ffffff;
+//           }
+//           .header {
+//             background-color: #2a2a2a;
+//             padding: 20px;
+//             border-radius: 10px;
+//             margin-bottom: 20px;
+//           }
+//           h1 { color: #ff6b6b; }
+//           .nav-links a {
+//             margin-right: 15px;
+//             padding: 8px 16px;
+//             background-color: #ff6b6b;
+//             color: white;
+//             text-decoration: none;
+//             border-radius: 5px;
+//           }
+//           .locations-grid {
+//             display: grid;
+//             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+//             gap: 20px;
+//           }
+//           .location-card {
+//             background-color: #2a2a2a;
+//             padding: 20px;
+//             border-radius: 10px;
+//             border: 1px solid #444;
+//           }
+//           .location-hex {
+//             font-weight: bold;
+//             color: #ff6b6b;
+//             font-size: 1.2em;
+//           }
+//           .location-status {
+//             padding: 4px 8px;
+//             border-radius: 3px;
+//             font-size: 0.9em;
+//             margin-left: 10px;
+//           }
+//           .status-U { background-color: #666; }
+//           .status-K { background-color: #ff9800; }
+//           .status-E { background-color: #4caf50; }
+//           .terrain { color: #ccc; font-style: italic; }
+//         </style>
+//       </head>
+//       <body>
+//         <div class="header">
+//           <h1>Location Manager</h1>
+//           <div class="nav-links">
+//             <a href="/dm">Dashboard</a>
+//             <a href="/player" target="_blank">Player View</a>
+//             <form method="POST" action="/dm/logout" style="display: inline;">
+//               <button type="submit" style="background-color: #666; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Logout</button>
+//             </form>
+//           </div>
+//         </div>
         
-        <div id="locations-container">
-          <p>Loading locations...</p>
-        </div>
+//         <div id="locations-container">
+//           <p>Loading locations...</p>
+//         </div>
         
-        <script>
-          // Fetch and display locations
-          fetch('/api/data')
-            .then(response => response.json())
-            .then(data => {
-              const container = document.getElementById('locations-container');
-              container.innerHTML = '';
+//         <script>
+//           // Fetch and display locations
+//           fetch('/api/data')
+//             .then(response => response.json())
+//             .then(data => {
+//               const container = document.getElementById('locations-container');
+//               container.innerHTML = '';
               
-              if (data.length === 0) {
-                container.innerHTML = '<p>No locations found. Make sure your data.js file is properly formatted.</p>';
-                return;
-              }
+//               if (data.length === 0) {
+//                 container.innerHTML = '<p>No locations found. Make sure your data.js file is properly formatted.</p>';
+//                 return;
+//               }
               
-              const grid = document.createElement('div');
-              grid.className = 'locations-grid';
+//               const grid = document.createElement('div');
+//               grid.className = 'locations-grid';
               
-              data.forEach(location => {
-                const card = document.createElement('div');
-                card.className = 'location-card';
+//               data.forEach(location => {
+//                 const card = document.createElement('div');
+//                 card.className = 'location-card';
                 
-                const status = location.status || 'U';
-                const statusText = status === 'U' ? 'Unknown' : status === 'K' ? 'Known' : 'Explored';
+//                 const status = location.status || 'U';
+//                 const statusText = status === 'U' ? 'Unknown' : status === 'K' ? 'Known' : 'Explored';
                 
-                card.innerHTML = \`
-                  <div class="location-hex">\${location.hex.toUpperCase()}</div>
-                  <h3>\${location.name}</h3>
-                  <div class="terrain">Terrain: \${location.terrain.join(', ')}</div>
-                  <div>Status: <span class="location-status status-\${status}">\${statusText}</span></div>
-                  \${location.item ? \`<div>Item: \${location.item}</div>\` : ''}
-                  <div style="margin-top: 10px;">
-                    <button onclick="updateStatus('\${location.hex}', 'U')" style="background-color: #666; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">Unknown</button>
-                    <button onclick="updateStatus('\${location.hex}', 'K')" style="background-color: #ff9800; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">Known</button>
-                    <button onclick="updateStatus('\${location.hex}', 'E')" style="background-color: #4caf50; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">Explored</button>
-                  </div>
-                \`;
+//                 card.innerHTML = \`
+//                   <div class="location-hex">\${location.hex.toUpperCase()}</div>
+//                   <h3>\${location.name}</h3>
+//                   <div class="terrain">Terrain: \${location.terrain.join(', ')}</div>
+//                   <div>Status: <span class="location-status status-\${status}">\${statusText}</span></div>
+//                   \${location.item ? \`<div>Item: \${location.item}</div>\` : ''}
+//                   <div style="margin-top: 10px;">
+//                     <button onclick="updateStatus('\${location.hex}', 'U')" style="background-color: #666; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">Unknown</button>
+//                     <button onclick="updateStatus('\${location.hex}', 'K')" style="background-color: #ff9800; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">Known</button>
+//                     <button onclick="updateStatus('\${location.hex}', 'E')" style="background-color: #4caf50; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">Explored</button>
+//                   </div>
+//                 \`;
                 
-                grid.appendChild(card);
-              });
+//                 grid.appendChild(card);
+//               });
               
-              container.appendChild(grid);
-            })
-            .catch(error => {
-              console.error('Error loading locations:', error);
-              document.getElementById('locations-container').innerHTML = '<p>Error loading locations. Check console for details.</p>';
-            });
+//               container.appendChild(grid);
+//             })
+//             .catch(error => {
+//               console.error('Error loading locations:', error);
+//               document.getElementById('locations-container').innerHTML = '<p>Error loading locations. Check console for details.</p>';
+//             });
             
-          // Update location status
-          function updateStatus(hex, status) {
-            fetch(\`/api/data/\${hex}\`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ status: status })
-            })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                location.reload(); // Refresh the page to show updated status
-              } else {
-                alert('Error updating status: ' + (data.error || 'Unknown error'));
-              }
-            })
-            .catch(error => {
-              console.error('Error updating status:', error);
-              alert('Error updating status');
-            });
-          }
-        </script>
-      </body>
-      </html>
-    `);
-  }
-});
+//           // Update location status
+//           function updateStatus(hex, status) {
+//             fetch(\`/api/data/\${hex}\`, {
+//               method: 'PUT',
+//               headers: {
+//                 'Content-Type': 'application/json',
+//               },
+//               body: JSON.stringify({ status: status })
+//             })
+//             .then(response => response.json())
+//             .then(data => {
+//               if (data.success) {
+//                 location.reload(); // Refresh the page to show updated status
+//               } else {
+//                 alert('Error updating status: ' + (data.error || 'Unknown error'));
+//               }
+//             })
+//             .catch(error => {
+//               console.error('Error updating status:', error);
+//               alert('Error updating status');
+//             });
+//           }
+//         </script>
+//       </body>
+//       </html>
+//     `);
+//   }
+// });
 
 // DM API - Get all data
 app.get('/api/data', requireAuth, (req, res) => {
   try {
 
-    let locations = require("./data/data.js"); //Importing dataset
-//   locations.forEach((i) => {
-//     if(i.status == "U"){
-//         i.name = "?";
-//         i.text = "?";
-//         i.terrain = "?";
-//         i.item = "?";
-//     }
-//   });
-
+    let locations = require("./data/data.js"); 
     res.send(locations);
-
-    // const dataPath = path.join(__dirname, 'data', 'data.js');
-    // const dataContent = fs.readFileSync(dataPath, 'utf8');
-    // // Extract the JSON from the module.exports
-    // const jsonMatch = dataContent.match(/module\.exports\s*=\s*(\[[\s\S]*\])/);
-    // if (jsonMatch) {
-    //   const data = JSON.parse(jsonMatch[1]);
-    //   res.json(data);
-    // } else {
-    //   res.status(500).json({ error: 'Failed to parse data file' });
-    // }
   } catch (error) {
     res.status(500).json({ error: 'Failed to read data file' });
   }
 });
 
 // DM API - Update single location
-app.put('/api/data/:hex', requireAuth, (req, res) => {
-  try {
-    const { hex } = req.params;
-    const updates = req.body;
+// app.put('/api/data/:hex', requireAuth, (req, res) => {
+//   try {
+//     const { hex } = req.params;
+//     const updates = req.body;
     
-    const dataPath = path.join(__dirname, 'data', 'data.js');
-    const dataContent = fs.readFileSync(dataPath, 'utf8');
-    const jsonMatch = dataContent.match(/module\.exports\s*=\s*(\[[\s\S]*\])/);
+//     const dataPath = path.join(__dirname, 'data', 'data.js');
+//     const dataContent = fs.readFileSync(dataPath, 'utf8');
+//     const jsonMatch = dataContent.match(/module\.exports\s*=\s*(\[[\s\S]*\])/);
     
-    if (jsonMatch) {
-      const data = JSON.parse(jsonMatch[1]);
-      const locationIndex = data.findIndex(item => item.hex === hex);
+//     if (jsonMatch) {
+//       const data = JSON.parse(jsonMatch[1]);
+//       const locationIndex = data.findIndex(item => item.hex === hex);
       
-      if (locationIndex !== -1) {
-        // Update the location
-        data[locationIndex] = { ...data[locationIndex], ...updates };
+//       if (locationIndex !== -1) {
+//         // Update the location
+//         data[locationIndex] = { ...data[locationIndex], ...updates };
         
-        // Write back to file
-        const newContent = `module.exports = ${JSON.stringify(data, null, 2)};`;
-        fs.writeFileSync(dataPath, newContent, 'utf8');
+//         // Write back to file
+//         const newContent = `module.exports = ${JSON.stringify(data, null, 2)};`;
+//         fs.writeFileSync(dataPath, newContent, 'utf8');
         
-        // Also update player data
-        const playerDataPath = path.join(__dirname, 'player', 'data', 'data.js');
-        fs.writeFileSync(playerDataPath, newContent, 'utf8');
+//         // Also update player data
+//         const playerDataPath = path.join(__dirname, 'player', 'data', 'data.js');
+//         fs.writeFileSync(playerDataPath, newContent, 'utf8');
         
-        res.json({ success: true, data: data[locationIndex] });
-      } else {
-        res.status(404).json({ error: 'Location not found' });
-      }
-    } else {
-      res.status(500).json({ error: 'Failed to parse data file' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update data' });
-  }
-});
+//         res.json({ success: true, data: data[locationIndex] });
+//       } else {
+//         res.status(404).json({ error: 'Location not found' });
+//       }
+//     } else {
+//       res.status(500).json({ error: 'Failed to parse data file' });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to update data' });
+//   }
+// });
 
 // DM API - Bulk update locations (for status changes)
 app.put('/api/data', requireAuth, (req, res) => {

@@ -10,29 +10,16 @@
     <link rel="stylesheet" type="text/css" href="/player/static/style/map.css" />
     <link rel="stylesheet" type="text/css" href="/player/static/style/buttons.css" />
     <link rel="stylesheet" type="text/css" href="/player/static/style/quest-journal.css" />
-    <link
-      id="u-theme-google-font"
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=MedievalSharp"
-    />
-
+    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=MedievalSharp" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
-
     <link rel="shortcut icon" type="image/x-icon" href="/player/static/images/favicon.ico" />
   </head>
 
   <body>
     <div id="app">
       <div class="honeycomb-container">
-        <div
-          class="honeycomb mapClass"
-          v-if="responseAvailable == true && !questBoardOpen"
-        >
-          <row
-            v-for="element in printable"
-            :element="element"
-            :printable="printable"
-          ></row>
+        <div class="honeycomb mapClass" v-if="responseAvailable == true && !questBoardOpen" >
+          <row v-for="element in printable" :element="element" :printable="printable"></row>
         </div>
       </div>
 
@@ -84,20 +71,9 @@
 
     <script type="text/x-template" id="collapsible-list-template">
       <div class="collapsible-list">
-        <div
-          class="collapsible-item"
-          v-for="(item, index) in items"
-          :key="index"
-          @click.stop="toggle(item)"
-        >
+        <div class="collapsible-item" v-for="(item, index) in items" :key="index" @click.stop="toggle(item)">
           <div :class="['collapsible-title', depthClass(depth), {'expanded': item.expanded, 'renderDropdown': item.children && item.children.length > 0}]">{{ item.title }}</div>
-          <collapsible-list
-            v-if="item.children && item.expanded"
-            :items="item.children"
-            :depth="depth+1"
-            @item-clicked="$emit('item-clicked', $event)"
-          >
-          </collapsible-list>
+          <collapsible-list v-if="item.children && item.expanded" :items="item.children" :depth="depth+1" @item-clicked="$emit('item-clicked', $event)"></collapsible-list>
         </div>
       </div>
     </script>

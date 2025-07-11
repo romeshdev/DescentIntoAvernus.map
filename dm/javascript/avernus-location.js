@@ -26,31 +26,16 @@ var app = new Vue({
   },
   methods: {
     filter() {
-
-      fetch('/api/data')
+      let hex = window.location.pathname.split("/hex/")[1];
+      fetch(`/api/data/locations/avernus/hex/${hex}`)
         .then(response => response.json())
         .then(data => {
-          locations = data;
-          
-          let vm = this;
-          let query = window.location.search
-            .substring(1)
-            .split("&")
-            .reduce((accumulator, singleQueryParam) => {
-              const [key, value] = singleQueryParam.split("=");
-              accumulator[key] = value;
-              return accumulator;
-            }, {});
-
-          locations.forEach((item) => {
-            if (item.hex === query.hex) vm.printable.push(item);
-          });
-
-          document.title = "Hex " + query.hex.toUpperCase();
+          this.printable.push(data.data);
+          document.title = "Hex " + hex.toUpperCase();
         })
         .catch(error => {
           console.error('Error loading locations:', error);
-          showError('Failed to load locations. Check console for details.');
+          showError('Failed to load location. Check console for details.');
         });
     },
     renderTerrain(item) {
@@ -79,11 +64,10 @@ var app = new Vue({
       }
     },
     handleStatusUpdate(e) {
-      fetch(`/api/data/${e.hex}`, {
+      fetch(`/api/data/locations/avernus/hex/${e.hex}`, 
+      {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify({ status: e.status })
       })
       .then(response => response.json())

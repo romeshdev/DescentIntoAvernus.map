@@ -44,24 +44,15 @@
       <div v-for="element in printable">
         <row :element="element"></row>
 
-        <div
-          :class="invisTerr"
-          style="position: absolute"
-        >
-          <img
-            class="hexImg noselect"
-            v-for="terr in element"
-            :id="terr.hex"
-            :src="'/dm/images/avernus-tiles/'+terr.terrain[0]+'.png'"
-          />
+        <div :class="invisTerr" style="position: absolute" >
+          <img class="hexImg noselect" v-for="terr in element" :id="terr.hex" :src="'/dm/images/avernus-tiles/'+terr.terrain[0]+'.png'" />
         </div>
       </div>
       <img class="upperLev" src="/dm/images/upper.png" v-if="!showTerrain" />
     </div>
 
-    <button class="infernal-button floating" onclick="app.swapMap()">
-      Swap map
-    </button>
+    <button class="infernal-button floating-2" onclick="app.swapMap()">Swap map</button>
+    <a href="/dm/locations/elturel" class="infernal-button floating">Elturel</a>
 
     <script src="/dm/javascript/avernus.js"></script>
   </body>

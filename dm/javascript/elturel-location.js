@@ -7,20 +7,22 @@ Vue.component("place", {
 
 var app = new Vue({
   el: "#app",
-  data: {},
+  data: {
+    locationData: {}
+  },
   methods: {
     loadData() {
-      let query = window.location.search.substring(1);
-      let vars = query.split("&");
-
-      const nodeId = vars[0].split("=")[1];
-      document.title = "Location " + nodeId;
-
-      const loc = locations.find((location) => location.numId === nodeId);
-
-      if (loc) {
-        this.locationData = loc;
-      }
+      let nodeId = window.location.pathname.split("/hex/")[1];
+      fetch(`/api/data/locations/elturel/hex/${nodeId}`)
+      .then(response => response.json())
+      .then(data => {
+        this.locationData = data.data;
+        document.title = "Location " + nodeId;
+      })
+      .catch(error => {
+        console.error('Error loading locations:', error);
+        showError('Failed to load location. Check console for details.');
+      });
     },
   },
   beforeMount: function () {

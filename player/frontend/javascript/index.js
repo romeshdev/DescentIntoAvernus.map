@@ -15,7 +15,7 @@ var app = new Vue({
       let vm = this;
       vm.responseAvailable = false;
       // fetch locations
-      fetch("/player/api/data", {
+      fetch("/player/api/data/locations/avernus", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       })

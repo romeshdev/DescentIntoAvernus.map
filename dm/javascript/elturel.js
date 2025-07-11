@@ -15,7 +15,7 @@ let locationComponent = {
       };
     },
     urlMaker() {
-      return "elturel-locations.html?node=" + this.numId;
+      return "/dm/locations/elturel/hex/" + this.numId;
     },
     parsedNumId() {
       // Using a regular expression to retain only numbers
@@ -73,7 +73,7 @@ let mapComponent = {
 var app = new Vue({
   el: "#app",
   data: {
-    locations: locations,
+    locations: [],
     generatorsOpen: false,
     encountersOpen: false,
     mapOpen: true,
@@ -92,6 +92,17 @@ var app = new Vue({
     encounter: encounterComponent,
   },
   methods: {
+    fetchData() {
+      fetch('/api/data/locations/elturel')
+        .then(response => response.json())
+        .then(data => {
+          this.locations = data;
+        })
+        .catch(error => {
+          console.error('Error loading locations:', error);
+          showError('Failed to load locations. Check console for details.');
+        });
+    },
     toggleMap() {
       this.generatorsOpen = false;
       this.mapOpen = true;
@@ -136,5 +147,8 @@ var app = new Vue({
       this.crisis = rng.crisis;
       this.npcName = rng.name;
     },
+  },
+  beforeMount: function () {
+    this.fetchData();
   },
 });

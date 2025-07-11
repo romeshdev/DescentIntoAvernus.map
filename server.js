@@ -65,7 +65,7 @@ function writeDataFile(filePath, data) {
 
 // Root redirect
 app.get('/', (req, res) => {
-  res.redirect('/player');
+  res.redirect('/player/avernus');
 });
 
 // DM Login page
@@ -88,7 +88,7 @@ app.post('/dm/login', (req, res) => {
   
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
     req.session.authenticated = true;
-    res.redirect('/dm');
+    res.redirect('/dm/locations/avernus');
   } else {
     res.redirect('/dm/login?error=1');
   }
@@ -110,12 +110,32 @@ app.get('/dm', requireAuth, (req, res) => {
   }
 });
 
-app.get('/dm/locations', requireAuth, (req, res) => {
-  const dmLocationsPath = path.join(__dirname, 'dm', 'avernus.html');
+// app.get('/dm/locations', requireAuth, (req, res) => {
+//   const dmLocationsPath = path.join(__dirname, 'dm', 'avernus.html');
+//   if (fs.existsSync(dmLocationsPath)) {
+//     res.sendFile(dmLocationsPath);
+//   } else {
+//     res.sendFile(path.join(__dirname, 'locations.html'));
+//   }
+// });
+
+app.get('/dm/locations/:location', requireAuth, (req, res) => {
+  const { location } = req.params;
+  const dmLocationsPath = path.join(__dirname, 'dm', `${location}.html`);
   if (fs.existsSync(dmLocationsPath)) {
     res.sendFile(dmLocationsPath);
   } else {
-    res.sendFile(path.join(__dirname, 'locations.html'));
+    res.sendFile(path.join(__dirname, 'notfound.html'));
+  }
+});
+
+app.get('/dm/locations/:location/hex/:hex', requireAuth, (req, res) => {
+  const { location, hex } = req.params;
+  const dmLocationPath = path.join(__dirname, 'dm', `${location}-location.html`);
+  if (fs.existsSync(dmLocationPath)) {
+    res.sendFile(dmLocationPath);
+  } else {
+    res.sendFile(path.join(__dirname, 'notfound.html'));
   }
 });
 
@@ -131,13 +151,44 @@ app.get('/api/data', requireAuth, (req, res) => {
   }
 });
 
-// DM API - Update single location
-app.put('/api/data/:hex', requireAuth, (req, res) => {
+app.get('/api/data/locations/:location', requireAuth, (req, res) => {
   try {
-    const { hex } = req.params;
+    const { location } = req.params;
+    const dataPath = path.join(__dirname, 'data', `${location}-data.js`);
+    const data = readDataFile(dataPath);
+    res.json(data);
+  } catch (error) {
+    console.error('Error reading data:', error);
+    res.status(500).json({ error: 'Failed to read data file' });
+  }
+});
+
+app.get('/api/data/locations/:location/hex/:id', requireAuth, (req, res) => {
+  try {
+    const { location, id } = req.params;
+    
+    const dataPath = path.join(__dirname, 'data', `${location}-data.js`);
+    const data = readDataFile(dataPath);
+    const locationIndex = data.findIndex(item => (item.hex !== null && item.hex === id) || (item.numId !== null && item.numId === id));
+    
+    if (locationIndex !== -1) {
+      res.json({ success: true, data: data[locationIndex] });
+    } else {
+      res.status(404).json({ error: 'Location not found' });
+    }
+  } catch (error) {
+    console.error('Error updating data:', error);
+    res.status(500).json({ error: 'Failed to update data' });
+  }
+});
+
+// DM API - Update single location
+app.put('/api/data/locations/:location/hex/:hex', requireAuth, (req, res) => {
+  try {
+    const { location, hex } = req.params;
     const updates = req.body;
     
-    const dataPath = path.join(__dirname, 'data', 'data.js');
+    const dataPath = path.join(__dirname, 'data', `${location}-data.js`);
     const data = readDataFile(dataPath);
     
     const locationIndex = data.findIndex(item => item.hex === hex);
@@ -150,7 +201,7 @@ app.put('/api/data/:hex', requireAuth, (req, res) => {
       writeDataFile(dataPath, data);
       
       // Also update player data
-      const playerDataPath = path.join(__dirname, 'player', 'data', 'data.js');
+      const playerDataPath = path.join(__dirname, 'player', 'data', `${location}-data.js`);
       if (fs.existsSync(path.dirname(playerDataPath))) {
         writeDataFile(playerDataPath, data);
       }
@@ -199,7 +250,12 @@ app.put('/api/data', requireAuth, (req, res) => {
 
 // Player view routes
 app.get('/player', (req, res) => {
-  const playerIndexPath = path.join(__dirname, 'player', 'frontend', 'index.html');
+  res.redirect('/player/avernus');
+});
+
+app.get('/player/:region', (req, res) => {
+  const { region } = req.params;
+  const playerIndexPath = path.join(__dirname, 'player', 'frontend', `${region}.html`);
   if (fs.existsSync(playerIndexPath)) {
     res.sendFile(playerIndexPath);
   } else {
@@ -208,34 +264,41 @@ app.get('/player', (req, res) => {
 });
 
 // Player API - Get filtered data (only known/explored locations)
-app.get('/player/api/data', (req, res) => {
+app.get('/player/api/data/locations/:region', (req, res) => {
   try {
-    const dataPath = path.join(__dirname, 'player', 'data', 'data.js');
-    const dataContent = fs.readFileSync(dataPath, 'utf8');
-    const jsonMatch = dataContent.match(/module\.exports\s*=\s*(\[[\s\S]*\])/);
+    const { region } = req.params;
+    const dataPath = path.join(__dirname, 'player', 'data', `${region}-data.js`);
+    const data = readDataFile(dataPath);
     
-    if (jsonMatch) {
-      const data = JSON.parse(jsonMatch[1]);
-      // Filter out unknown locations (status !== 'U')
-      const filteredData = data; //.filter(item => !item.status || item.status !== 'U');
-      
-      // Remove DM-only information from player view
-      const playerData = filteredData.map(item => {
-        const playerItem = { ...item };
-        // Remove detailed text for unexplored locations
-        if (item.status === 'K') {
-          playerItem.text = ''; // Known but not explored - no details
-        }
-        return playerItem;
-      });
-      
-      res.json(playerData);
-    } else {
-      res.status(500).json({ error: 'Failed to parse data file' });
-    }
+    const filteredData = data;//.filter(item => !item.status || item.status !== 'U');
+    res.json(filteredData);
   } catch (error) {
+    console.error('Error reading data:', error);
     res.status(500).json({ error: 'Failed to read data file' });
   }
+
+
+  // try {
+  //   const { region } = req.params;
+  //   const dataPath = path.join(__dirname, 'player', 'data', `${region}-data.js`);
+  //   const data = readDataFile(dataPath);
+  //   // Filter out unknown locations (status !== 'U')
+  //   const filteredData = data; //.filter(item => !item.status || item.status !== 'U');
+    
+  //   // Remove DM-only information from player view
+  //   const playerData = filteredData.map(item => {
+  //     const playerItem = { ...item };
+  //     // Remove detailed text for unexplored locations
+  //     if (item.status === 'K') {
+  //       playerItem.text = ''; // Known but not explored - no details
+  //     }
+  //     return playerItem;
+  //   });
+    
+  //   res.json(playerData);
+  // } catch (error) {
+  //   res.status(500).json({ error: 'Failed to read data file' });
+  // }
 });
 
 
