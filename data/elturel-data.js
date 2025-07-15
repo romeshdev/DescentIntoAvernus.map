@@ -151,7 +151,7 @@ module.exports = [
       "2",
       "20"
     ],
-    "status": "U",
+    "status": "K",
     "name": "Torm's Bridges",
     "text": "<p>These bridges are described in <em>Descent Into Avernus</em> (p. 58). The ravine which they cross was created during the Spellplague.</p><p>Your choice whether the devils here are Hell Knights (seeking to keep the city divided) or a group of Avernian devil raiders (charging a steep toll; perhaps even demanding soul coins). Or both. Different factions could control each bridge. The factions controlling each bridge could even change over time (perhaps with assistance from the PCs).</p><p>Note that Torm’s Blade goes from the Dock Districts directly to the top of the bluff, so the angle of the bridge must be incredibly steep.</p>"
   },

@@ -123,7 +123,7 @@
         <div class="ornaments"></div>
       </div> -->
 
-      <location-modal v-if="showLocationModal" :region="'elturel'" :hex="selectedHex" @close-modal="closeLocationModal" @location-updated="handleLocationUpdate" ></location-modal>
+      <location-modal v-if="showLocationModal" :region="'elturel'" :hex="selectedHex" @close-modal="closeLocationModal" @location-updated="handleLocationUpdate" :editable="true"></location-modal>
     </div>
     <!-- <button class="infernal-button floating-4" onclick="app.toggleEncounters()">Encounters</button>
     <button class="infernal-button floating-3" onclick="app.toggleMap()">Map</button>
