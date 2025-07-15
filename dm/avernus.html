@@ -9,6 +9,13 @@
 
     <link rel="stylesheet" type="text/css" href="/dm/style/avernus-map.css" />
     <link rel="stylesheet" href="/dm/style/infernal-button.css" media="screen" />
+    
+    <link rel="stylesheet" href="/dm/style/imported.css" media="screen" />
+    <link rel="stylesheet" href="/dm/style/locations.css" media="screen" />
+    <link rel="stylesheet" href="/dm/style/modals.css" media="screen" />
+
+    <link rel="stylesheet" href="/dm/style/hexagon.css" media="screen" />
+
     <link
       id="u-theme-google-font"
       rel="stylesheet"
@@ -22,38 +29,24 @@
     <!-- <script src="../data/avernus-data.js"></script> -->
     <script src="/dm/javascript/auxiliary.js"></script>
   </head>
-
-  <!-- Templates -->
-
-  <script type="text/x-template" id="hexagon-template">
-    <a :href="urlMaker" :id="hex" class="hexagon">
-        <div class="hexagontent">{{ name }}</div>
-    </a>
-  </script>
-
-  <script type="text/x-template" id="row-template">
-    <div class="ibws-fix noselect">
-        <hexagon v-for="location in element" :key="location.hex" :hex="location.hex" :name="location.name" url="urlMaker"></hexagon>
-    </div>
-  </script>
-
-  <!-- Body -->
-
   <body>
     <div class="honeycomb" :class="map" id="app">
       <div v-for="element in printable">
-        <row :element="element"></row>
-
+        <row :element="element" @open-modal="openLocationModal"></row>
         <div :class="invisTerr" style="position: absolute" >
           <img class="hexImg noselect" v-for="terr in element" :id="terr.hex" :src="'/dm/images/avernus-tiles/'+terr.terrain[0]+'.png'" />
         </div>
       </div>
       <img class="upperLev" src="/dm/images/upper.png" v-if="!showTerrain" />
+      
+      <!-- Location Modal -->
+      <location-modal v-if="showLocationModal" :region="'avernus'" :hex="selectedHex" @close-modal="closeLocationModal" @location-updated="handleLocationUpdate" :editable="true"></location-modal>
     </div>
 
     <button class="infernal-button floating-2" onclick="app.swapMap()">Swap map</button>
     <a href="/dm/locations/elturel" class="infernal-button floating">Elturel</a>
 
+    <script src="/components/components.js"></script>
     <script src="/dm/javascript/avernus.js"></script>
   </body>
 </html>

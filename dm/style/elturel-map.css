@@ -54,6 +54,15 @@ body {
   z-index: 100;
 }
 
+.mapNode.status-explored {
+  background-color: #579304; /* Green for explored */
+}
+
+.mapNode.status-known {
+  background-color: #936f04; /* Yellow for known */
+}
+
+
 .line {
   position: absolute;
 }

@@ -47,7 +47,7 @@ module.exports = [
     "terrain": [
       "mountains"
     ],
-    "status": "K",
+    "status": "U",
     "item": "astral pistons"
   },
   {
@@ -67,7 +67,7 @@ module.exports = [
     "terrain": [
       "mountains"
     ],
-    "status": "K",
+    "status": "U",
     "item": ""
   },
   {
@@ -232,7 +232,7 @@ module.exports = [
     "terrain": [
       "hills"
     ],
-    "status": "U",
+    "status": "K",
     "item": "Nirvanan Cogbox"
   },
   {
@@ -252,7 +252,7 @@ module.exports = [
     "terrain": [
       "fire"
     ],
-    "status": "K",
+    "status": "U",
     "item": "astral pistons"
   },
   {
@@ -402,7 +402,7 @@ module.exports = [
     "terrain": [
       "cracks"
     ],
-    "status": "U",
+    "status": "K",
     "item": ""
   },
   {
@@ -492,7 +492,7 @@ module.exports = [
     "terrain": [
       "waste"
     ],
-    "status": "E",
+    "status": "U",
     "item": ""
   },
   {
@@ -502,7 +502,7 @@ module.exports = [
     "terrain": [
       "waste"
     ],
-    "status": "U",
+    "status": "K",
     "item": "astral pistons"
   },
   {
@@ -512,7 +512,7 @@ module.exports = [
     "terrain": [
       "waste"
     ],
-    "status": "K",
+    "status": "U",
     "item": ""
   },
   {
@@ -562,7 +562,7 @@ module.exports = [
     "terrain": [
       "waste"
     ],
-    "status": "E",
+    "status": "U",
     "item": ""
   },
   {

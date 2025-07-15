@@ -37,9 +37,6 @@ let mapComponent = {
   props: {
     locations: Array,
   },
-  components: {
-    "location-marker": locationComponent,
-  },
   methods: {
     calculateLineStyle(location1, location2, numId, numId2) {
       if (!location2 || numId > numId2) {
@@ -86,6 +83,8 @@ var app = new Vue({
     encounterText: "",
     buildingHistory: [],
     npcHistory: [],
+    showLocationModal: false,
+    selectedHex: null,
   },
   components: {
     "map-grid": mapComponent,
@@ -102,7 +101,16 @@ var app = new Vue({
           console.error('Error loading locations:', error);
           showError('Failed to load locations. Check console for details.');
         });
-    }
+    },
+    openLocationModal(loc) {
+      this.selectedHex = loc;
+      this.showLocationModal = true;
+    },
+    
+    closeLocationModal() {
+      this.showLocationModal = false;
+      this.selectedHex = null;
+    },
   },
   beforeMount: function () {
     this.fetchData();

@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" type="text/css" href="/player/static/style/elturel-map.css" />
     <link rel="stylesheet" href="/player/static/style/infernal-button.css" media="screen" />
+    <link rel="stylesheet" href="/dm/style/modals.css" media="screen" />
     <!-- <link rel="stylesheet" type="text/css" href="/player/static/style/map.css" /> -->
     <link rel="stylesheet" type="text/css" href="/player/static/style/buttons.css" />
     <link rel="stylesheet" type="text/css" href="/player/static/style/quest-journal.css" />
@@ -32,7 +33,8 @@
     <div>
         <!-- Render location markers -->
         <location-marker v-for="location in locations" :key="`node${location.numId}`"
-                         :x="location.x" :y="location.y" :numId="location.numId" :locName="location.name">
+                         :x="location.x" :y="location.y" :numId="location.numId" :locName="location.name" 
+                         @open-modal="$emit('open-modal', $event)">>
         </location-marker>
 
         <!-- Render connecting lines -->
@@ -60,10 +62,10 @@
   <body>
     <div id="app">
       <div class="mapClass" v-if="mapOpen">
-        <map-grid :locations="locations"></map-grid>
+        <map-grid :locations="locations" @open-modal="openLocationModal"></map-grid>
       </div>
 
-      <div class="generatorContainer" v-if="encountersOpen">
+      <!-- <div class="generatorContainer" v-if="encountersOpen">
         <encounter :name="encounterName" :text="encounterText"></encounter>
       </div>
 
@@ -116,11 +118,13 @@
         </div>
 
         <div class="ornaments"></div>
-      </div>
+      </div> -->
+      
+      <location-modal v-if="showLocationModal" :region="'elturel'" :hex="selectedHex" @close-modal="closeLocationModal" :editable="false"></location-modal>
     </div>
     <a href="/player/avernus" class="infernal-button floating">Avernus</a>
 
-    <script src="/player/static/javascript/components.js"></script>
+    <script src="/components/components.js"></script>
     <script src="/player/static/javascript/elturel.js"></script>
   </body>
 </html>

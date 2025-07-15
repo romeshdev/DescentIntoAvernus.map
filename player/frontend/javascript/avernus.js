@@ -7,6 +7,8 @@ var app = new Vue({
     responseAvailable: false,
     questBoardOpen: false,
     selectedQuest: null,
+    showLocationModal: false,
+    selectedHex: null,
   },
   methods: {
     //Receives the processed JSON data from the backend (which performs information hiding). Prints any error in the console
@@ -97,6 +99,14 @@ var app = new Vue({
       } else {
         this.selectedQuest = item;
       }
+    },
+    openLocationModal(loc) {
+      this.selectedHex = loc;
+      this.showLocationModal = true;
+    },
+    closeLocationModal() {
+      this.showLocationModal = false;
+      this.selectedHex = null;
     },
   },
   created() {

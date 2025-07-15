@@ -18,6 +18,15 @@ app.use(session({
   cookie: { secure: false } // Set to true if using HTTPS
 }));
 
+
+// Root redirect
+app.get('/', (req, res) => {
+  res.redirect('/player/avernus');
+});
+
+
+app.use('/components', express.static(path.join(__dirname, 'components')));
+
 // Serve static files for DM view
 app.use('/dm', express.static(path.join(__dirname, 'dm')));
 
@@ -63,10 +72,6 @@ function writeDataFile(filePath, data) {
 
 // Routes
 
-// Root redirect
-app.get('/', (req, res) => {
-  res.redirect('/player/avernus');
-});
 
 // DM Login page
 app.get('/dm/login', (req, res) => {
@@ -183,16 +188,21 @@ app.get('/api/data/locations/:location/hex/:id', requireAuth, (req, res) => {
 });
 
 // DM API - Update single location
-app.put('/api/data/locations/:location/hex/:hex', requireAuth, (req, res) => {
+app.put('/api/data/locations/:region/hex/:id', requireAuth, (req, res) => {
   try {
-    const { location, hex } = req.params;
+    const { region, id } = req.params;
     const updates = req.body;
     
-    const dataPath = path.join(__dirname, 'data', `${location}-data.js`);
+    const dataPath = path.join(__dirname, 'data', `${region}-data.js`);
     const data = readDataFile(dataPath);
-    
-    const locationIndex = data.findIndex(item => item.hex === hex);
-    
+
+    var searchProp = 'hex';
+    if (region == 'elturel') {
+      searchProp = 'numId';
+    }
+
+    const locationIndex = data.findIndex(item => item[searchProp] === id);
+
     if (locationIndex !== -1) {
       // Update the location
       data[locationIndex] = { ...data[locationIndex], ...updates };
@@ -201,7 +211,7 @@ app.put('/api/data/locations/:location/hex/:hex', requireAuth, (req, res) => {
       writeDataFile(dataPath, data);
       
       // Also update player data
-      const playerDataPath = path.join(__dirname, 'player', 'data', `${location}-data.js`);
+      const playerDataPath = path.join(__dirname, 'player', 'data', `${region}-data.js`);
       if (fs.existsSync(path.dirname(playerDataPath))) {
         writeDataFile(playerDataPath, data);
       }
@@ -270,35 +280,61 @@ app.get('/player/api/data/locations/:region', (req, res) => {
     const dataPath = path.join(__dirname, 'player', 'data', `${region}-data.js`);
     const data = readDataFile(dataPath);
     
-    const filteredData = data;//.filter(item => !item.status || item.status !== 'U');
+    var filteredData = data;//.filter(item => !item.status || item.status !== 'U');
+
+    if (region == "elturel") {
+        filteredData = filteredData.filter(item => !item.status || item.status !== 'U');
+    }
+    else if (region == "avernus") {
+        filteredData.forEach((i) => {
+          if(i.status == "U"){
+              i.name = "?";
+              i.text = "?";
+              i.terrain = "?";
+              i.item = "?";
+          }
+        });
+    }
     res.json(filteredData);
   } catch (error) {
     console.error('Error reading data:', error);
     res.status(500).json({ error: 'Failed to read data file' });
   }
+});
+
+app.get('/player/api/data/locations/:location/hex/:id', (req, res) => {
+  try {
+    const { location, id } = req.params;
+    
+    const dataPath = path.join(__dirname, 'data', `${location}-data.js`);
+    const data = readDataFile(dataPath);
+    const locationIndex = data.findIndex(item => (item.hex !== null && item.hex === id) || (item.numId !== null && item.numId === id));
+    
+    if (locationIndex !== -1) {
+      var foundLocation = data[locationIndex];
+      
+      if(foundLocation.status == "K"){
+        foundLocation.text = "?";
+        foundLocation.terrain = "?";
+        foundLocation.item = "?";
+      }
+      
+      if(foundLocation.status == "U"){
+        foundLocation.name = "?";
+        foundLocation.text = "?";
+        foundLocation.terrain = "?";
+        foundLocation.item = "?";
+      }
 
 
-  // try {
-  //   const { region } = req.params;
-  //   const dataPath = path.join(__dirname, 'player', 'data', `${region}-data.js`);
-  //   const data = readDataFile(dataPath);
-  //   // Filter out unknown locations (status !== 'U')
-  //   const filteredData = data; //.filter(item => !item.status || item.status !== 'U');
-    
-  //   // Remove DM-only information from player view
-  //   const playerData = filteredData.map(item => {
-  //     const playerItem = { ...item };
-  //     // Remove detailed text for unexplored locations
-  //     if (item.status === 'K') {
-  //       playerItem.text = ''; // Known but not explored - no details
-  //     }
-  //     return playerItem;
-  //   });
-    
-  //   res.json(playerData);
-  // } catch (error) {
-  //   res.status(500).json({ error: 'Failed to read data file' });
-  // }
+      res.json({ success: true, data: foundLocation });
+    } else {
+      res.status(404).json({ error: 'Location not found' });
+    }
+  } catch (error) {
+    console.error('Error updating data:', error);
+    res.status(500).json({ error: 'Failed to update data' });
+  }
 });
 
 

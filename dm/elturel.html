@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" type="text/css" href="/dm/style/elturel-map.css" />
     <link rel="stylesheet" href="/dm/style/infernal-button.css" media="screen" />
+    <link rel="stylesheet" href="/dm/style/modals.css" media="screen" />
     <link
       id="u-theme-google-font"
       rel="stylesheet"
@@ -26,19 +27,17 @@
 
   <!-- Templates -->
 
-  <script type="text/x-template" id="location-template">
-    <a :href="urlMaker">
-        <div class="mapNode" :style="styleObject" :title="locName">
-            <div>{{ parsedNumId }}</div>
-        </div>
-    </a>
-  </script>
-
   <script type="text/x-template" id="map-template">
     <div>
         <!-- Render location markers -->
-        <location-marker v-for="location in locations" :key="`node${location.numId}`"
-                         :x="location.x" :y="location.y" :numId="location.numId" :locName="location.name">
+        <location-marker v-for="location in locations" 
+                         :key="`node${location.numId}`"
+                         :x="location.x" 
+                         :y="location.y" 
+                         :status="location.status"
+                         :numId="location.numId" 
+                         :locName="location.name"
+                         @open-modal="$emit('open-modal', $event)">
         </location-marker>
 
         <!-- Render connecting lines -->
@@ -66,10 +65,10 @@
   <body>
     <div id="app">
       <div class="mapClass" v-if="mapOpen">
-        <map-grid :locations="locations"></map-grid>
+        <map-grid :locations="locations" @open-modal="openLocationModal"></map-grid>
       </div>
 
-      <div class="generatorContainer" v-if="encountersOpen">
+      <!-- <div class="generatorContainer" v-if="encountersOpen">
         <encounter :name="encounterName" :text="encounterText"></encounter>
       </div>
 
@@ -122,13 +121,16 @@
         </div>
 
         <div class="ornaments"></div>
-      </div>
-    </div>
-    <button class="infernal-button floating-4" onclick="app.toggleEncounters()">Encounters</button>
-    <button class="infernal-button floating-3" onclick="app.toggleMap()">Map</button>
-    <button class="infernal-button floating-2" onclick="app.toggleRandomGenerators()">Buildings & NPCs</button>
-    <a href="/dm/locations/avernus" class="infernal-button floating">Avernus</a>
+      </div> -->
 
+      <location-modal v-if="showLocationModal" :region="'elturel'" :hex="selectedHex" @close-modal="closeLocationModal" @location-updated="handleLocationUpdate" ></location-modal>
+    </div>
+    <!-- <button class="infernal-button floating-4" onclick="app.toggleEncounters()">Encounters</button>
+    <button class="infernal-button floating-3" onclick="app.toggleMap()">Map</button>
+    <button class="infernal-button floating-2" onclick="app.toggleRandomGenerators()">Buildings & NPCs</button> -->
+    <a href="/dm/locations/avernus" class="infernal-button floating">Avernus</a>
+    
+    <script src="/components/components.js"></script>
     <script src="/dm/javascript/elturel.js"></script>
   </body>
 </html>

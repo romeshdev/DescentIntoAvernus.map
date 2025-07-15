@@ -1,29 +1,3 @@
-let locationComponent = {
-  template: "#location-template",
-  props: {
-    x: Number,
-    y: Number,
-    numId: String,
-    locName: String,
-  },
-  computed: {
-    styleObject() {
-      return {
-        position: "absolute",
-        top: this.y + "px",
-        left: this.x + "px",
-      };
-    },
-    urlMaker() {
-      return "/dm/locations/elturel/hex/" + this.numId;
-    },
-    parsedNumId() {
-      // Using a regular expression to retain only numbers
-      return this.numId.replace(/\D/g, "");
-    },
-  },
-};
-
 let encounterComponent = {
   template: "#encounter-template",
   props: {
@@ -36,9 +10,6 @@ let mapComponent = {
   template: "#map-template",
   props: {
     locations: Array,
-  },
-  components: {
-    "location-marker": locationComponent,
   },
   methods: {
     calculateLineStyle(location1, location2, numId, numId2) {
@@ -86,6 +57,8 @@ var app = new Vue({
     encounterText: "",
     buildingHistory: [],
     npcHistory: [],
+    showLocationModal: false,
+    selectedHex: null,
   },
   components: {
     "map-grid": mapComponent,
@@ -146,6 +119,29 @@ var app = new Vue({
       this.job = rng.job;
       this.crisis = rng.crisis;
       this.npcName = rng.name;
+    },
+    openLocationModal(loc) {
+      this.selectedHex = loc;
+      this.showLocationModal = true;
+    },
+    
+    closeLocationModal() {
+      this.showLocationModal = false;
+      this.selectedHex = null;
+    },
+    handleLocationUpdate(event) {
+      // Update the local data in the printable array
+      const { hex, data } = event;
+      // Find the location in printable array and update it
+      for (let node of this.locations) {
+        if (node.numId === hex) {
+          for (let prop in data) {
+            location[prop] = data[prop];
+          }
+          break;
+        }
+      }
+      this.fetchData();
     },
   },
   beforeMount: function () {

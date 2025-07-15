@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" type="text/css" href="/player/static/style/avernus-map.css" />
     <link rel="stylesheet" href="/player/static/style/infernal-button.css" media="screen" />
+    <link rel="stylesheet" href="/dm/style/modals.css" media="screen" />
     <!-- <link rel="stylesheet" type="text/css" href="/player/static/style/map.css" /> -->
     <link rel="stylesheet" type="text/css" href="/player/static/style/buttons.css" />
     <link rel="stylesheet" type="text/css" href="/player/static/style/quest-journal.css" />
@@ -21,12 +22,11 @@
     <div id="app">
       <div class="honeycomb-container">
         <div class="honeycomb mapClass" v-if="responseAvailable == true && !questBoardOpen" >
-          <row v-for="element in printable" :element="element" :printable="printable"></row>
+          <row v-for="element in printable" :element="element" :printable="printable" @open-modal="openLocationModal"></row>
         </div>
       </div>
 
-      <button class="button quest-button" onclick="app.toggleQuests()">Journal</button>
-
+      <!-- <button class="button quest-button" onclick="app.toggleQuests()">Journal</button> -->
       <div v-if="questBoardOpen" class="quest-container">
         <div class="quest-journal">
           Quest Journal
@@ -57,32 +57,8 @@
         </div>
       </div>
     </div>
-    <!--vue.js scripts below here-->
-
-    <script type="text/x-template" id="hexagon-template">
-      <div :id="hex" class="hexagon">
-          <div class="hexagontent">{{ name }}</div>
-      </div>
-    </script>
-
-    <script type="text/x-template" id="row-template">
-      <div class="ibws-fix noselect">
-          <hexagon v-for="location in element" :key="location.hex" :hex="location.hex" :name="location.name" :class="location.status"></hexagon>
-      </div>
-    </script>
-
-    <script type="text/x-template" id="collapsible-list-template">
-      <div class="collapsible-list">
-        <div class="collapsible-item" v-for="(item, index) in items" :key="index" @click.stop="toggle(item)">
-          <div :class="['collapsible-title', depthClass(depth), {'expanded': item.expanded, 'renderDropdown': item.children && item.children.length > 0}]">{{ item.title }}</div>
-          <collapsible-list v-if="item.children && item.expanded" :items="item.children" :depth="depth+1" @item-clicked="$emit('item-clicked', $event)"></collapsible-list>
-        </div>
-      </div>
-    </script>
-    
     <a href="/player/elturel" class="infernal-button floating">Elturel</a>
-
-    <script src="/player/static/javascript/components.js"></script>
+    <script src="/components/components.js"></script>
     <script src="/player/static/javascript/avernus.js"></script>
   </body>
 </html>
