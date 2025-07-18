@@ -6,10 +6,6 @@ on:
       - master
 
 env:
-  AZURE_CONTAINER_APP_NAME: avernus-campain-app
-  AZURE_RESOURCE_GROUP: portfolio
-  AZURE_LOCATION: australiaeast  # Change as needed
-  AZURE_ENV_NAME: live
   DOCKER_IMAGE_NAME: romeshpanditha/avernusmap:latest
   CONTAINER_PORT: 3000
 
@@ -39,21 +35,7 @@ jobs:
 
       - name: Deploy to Azure Container Apps
         run: |
-          az containerapp create \
-            --name ${{ env.AZURE_CONTAINER_APP_NAME }} \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --environment ${{ env.AZURE_ENV_NAME }} \
-            --image ${{ env.DOCKER_IMAGE_NAME }} \
-            --target-port ${{ env.CONTAINER_PORT }} \
-            --ingress external \
-            --registry-login-server docker.io \
-            --registry-username ${{ secrets.REGISTRY_USERNAME }} \
-            --registry-password ${{ secrets.REGISTRY_SECRET }} \
-          || \
           az containerapp update \
             --name ${{ env.AZURE_CONTAINER_APP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --image ${{ env.DOCKER_IMAGE_NAME }} \
-            --registry-login-server docker.io \
-            --registry-username ${{ secrets.REGISTRY_USERNAME }} \
-            --registry-password ${{ secrets.REGISTRY_SECRET }} 
