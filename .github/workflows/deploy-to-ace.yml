@@ -46,10 +46,14 @@ jobs:
             --image ${{ env.DOCKER_IMAGE_NAME }} \
             --target-port ${{ env.CONTAINER_PORT }} \
             --ingress external \
-            --registry-server docker.io \
+            --registry-login-server docker.io \
+            --registry-username ${{ secrets.REGISTRY_USERNAME }} \
+            --registry-password ${{ secrets.REGISTRY_SECRET }} \
           || \
           az containerapp update \
             --name ${{ env.AZURE_CONTAINER_APP_NAME }} \
             --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
             --image ${{ env.DOCKER_IMAGE_NAME }} \
-            --registry-server docker.io
+            --registry-login-server docker.io \
+            --registry-username ${{ secrets.REGISTRY_USERNAME }} \
+            --registry-password ${{ secrets.REGISTRY_SECRET }} 
