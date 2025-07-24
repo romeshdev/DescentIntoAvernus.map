@@ -2,13 +2,16 @@
   <div class="hello">
     <h2>{{ msg }}</h2>
     <p>
-      This is a full-stack application template with Express.js backend and Vue.js frontend.
+      This is a full-stack application template with Express.js backend, Vue.js frontend, and JWT authentication.
     </p>
     <div class="features">
       <h3>Features included:</h3>
       <ul>
-        <li>Express.js API server</li>
-        <li>Vue.js 3 with Vite</li>
+        <li>Express.js API server with JWT authentication</li>
+        <li>Vue.js 3 with Vue Router and Pinia state management</li>
+        <li>Protected routes and middleware</li>
+        <li>Login/Register functionality</li>
+        <li>Role-based access control</li>
         <li>Docker multi-stage build</li>
         <li>Docker Compose for development</li>
         <li>CORS and security middleware</li>
@@ -18,7 +21,6 @@
     </div>
   </div>
 </template>
-
 <script>
 export default {
   name: 'HelloWorld',
@@ -27,7 +29,6 @@ export default {
   }
 }
 </script>
-
 <style scoped>
 .hello {
   max-width: 600px;

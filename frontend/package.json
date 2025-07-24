@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "description": "Vue.js frontend",
+  "description": "Vue.js frontend with authentication",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "vue": "^3.3.4",
-    "axios": "^1.4.0"
+    "vue-router": "^4.2.4",
+    "axios": "^1.4.0",
+    "pinia": "^2.1.6"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
     "vite": "^4.4.5"
-  },
-  "license": " GPL-3.0-only"
+  }
 }

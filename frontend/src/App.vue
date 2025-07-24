@@ -1,101 +1,154 @@
 <template>
   <div id="app">
-    <header>
-      <h1>My Full-Stack App</h1>
-    </header>
-    
+    <Navbar />
     <main>
-      <HelloWorld msg="Welcome to Vue.js + Express.js!" />
-      
-      <section class="users-section">
-        <h2>Users</h2>
-        <div v-if="loading">Loading users...</div>
-        <div v-else-if="error" class="error">{{ error }}</div>
-        <div v-else>
-          <ul class="users-list">
-            <li v-for="user in users" :key="user.id" class="user-item">
-              <strong>{{ user.name }}</strong> - {{ user.email }}
-            </li>
-          </ul>
-        </div>
-      </section>
+      <router-view />
     </main>
   </div>
 </template>
-
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-import axios from 'axios'
+import Navbar from './components/Navbar.vue'
+import { useAuthStore } from './store/auth'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    Navbar
   },
-  data() {
-    return {
-      users: [],
-      loading: false,
-      error: null
-    }
-  },
-  async mounted() {
-    await this.fetchUsers()
-  },
-  methods: {
-    async fetchUsers() {
-      this.loading = true
-      this.error = null
-      
-      try {
-        const response = await axios.get('/api/users')
-        this.users = response.data
-      } catch (error) {
-        this.error = 'Failed to fetch users'
-        console.error('Error fetching users:', error)
-      } finally {
-        this.loading = false
-      }
-    }
+  async created() {
+    const authStore = useAuthStore()
+    await authStore.initializeAuth()
   }
 }
 </script>
-
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 
-header {
-  margin-bottom: 2rem;
-}
-
-.users-section {
-  margin-top: 2rem;
-}
-
-.users-list {
-  list-style: none;
+* {
+  margin: 0;
   padding: 0;
-  max-width: 400px;
-  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.user-item {
-  padding: 0.5rem;
-  margin: 0.5rem 0;
-  background: #f8f9fa;
-  border-radius: 4px;
-  border: 1px solid #dee2e6;
+body {
+  background-color: #f8f9fa;
+}
+
+main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .error {
   color: #dc3545;
   margin: 1rem 0;
+}
+
+.success {
+  color: #28a745;
+  margin: 1rem 0;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 0.25rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #545b62;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.stat-label {
+  color: #6c757d;
+  margin-top: 0.5rem;
 }
 </style>
