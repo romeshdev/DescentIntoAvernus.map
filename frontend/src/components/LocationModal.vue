@@ -23,8 +23,8 @@
               placeholder="Enter location name"
             />
             <div class="edit-buttons">
-              <button class="infernal-button" @click="saveTitle">Save</button>
-              <button class="infernal-button" @click="cancelEditTitle">Cancel</button>
+              <InfernalButton :onClick="saveTitle">Save</InfernalButton>
+              <InfernalButton :onClick="cancelEditTitle">Cancel</InfernalButton>
             </div>
           </div>
           
@@ -51,8 +51,8 @@
               placeholder="Enter location description (HTML allowed)"
             ></textarea>
             <div class="edit-buttons">
-              <button class="infernal-button" @click="saveText">Save</button>
-              <button class="infernal-button" @click="cancelEditText">Cancel</button>
+              <InfernalButton :onClick="saveText">Save</InfernalButton>
+              <InfernalButton :onClick="cancelEditText">Cancel</InfernalButton>
             </div>
           </div>
           
@@ -60,9 +60,12 @@
           
           <div v-if="editable" class="status-buttons" style="margin-top: 20px;">
             <strong>Status:</strong>
-            <button class="infernal-button" @click="updateStatus('U')" :class="{ 'active': locationData.status === 'U' }">Unknown</button>
+            <InfernalButton :onClick="() => updateStatus('U')">Unknown</InfernalButton>
+            <InfernalButton :onClick="() => updateStatus('K')">Known</InfernalButton>
+            <InfernalButton :onClick="() => updateStatus('E')">Explored</InfernalButton>
+            <!-- <button class="infernal-button" @click="updateStatus('U')" :class="{ 'active': locationData.status === 'U' }">Unknown</button>
             <button class="infernal-button" @click="updateStatus('K')" :class="{ 'active': locationData.status === 'K' }">Known</button>
-            <button class="infernal-button" @click="updateStatus('E')" :class="{ 'active': locationData.status === 'E' }">Explored</button>
+            <button class="infernal-button" @click="updateStatus('E')" :class="{ 'active': locationData.status === 'E' }">Explored</button> -->
           </div>
         </div>
         
@@ -73,8 +76,11 @@
     </div>
 </template>
 <script>
+import InfernalButton from './InfernalButton.vue';
+
 export default {
   name: "LocationModal",
+  components: { InfernalButton },
   props: {
     hex: String,
     region: String,
@@ -107,7 +113,7 @@ export default {
       this.loading = true;
       this.locationData = null;
       
-      fetch(`${this.editable ? '': '/player'}/api/data/locations/${this.region}/hex/${this.hex}`)
+      fetch(`/api/data/maps/${this.region}/hex/${this.hex}`)
         .then(response => response.json())
         .then(data => {
           this.locationData = data.data;
@@ -201,7 +207,7 @@ export default {
     },
     
     sendUpdate(updateData) {
-      fetch(`${this.editable ? '': '/player'}/api/data/locations/${this.region}/hex/${this.hex}`, {
+      fetch(`/api/data/maps/${this.region}/hex/${this.hex}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData)
@@ -253,5 +259,131 @@ export default {
 }
 </script>
 <style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
+.modal-content {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  border: 1px solid #333;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ccc;
+}
+
+.modal-close:hover {
+  color: #fff;
+}
+
+.edit-mode {
+  border: 2px dashed #666;
+  padding: 5px;
+  margin: 5px 0;
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #333;
+  color: #e0e0e0;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #777;
+  background: #404040;
+}
+
+.edit-textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  resize: vertical;
+  background: #333;
+  color: #e0e0e0;
+}
+
+.edit-textarea:focus {
+  outline: none;
+  border-color: #777;
+  background: #404040;
+}
+
+.edit-buttons {
+  margin: 10px 0;
+}
+
+.edit-buttons button {
+  margin-right: 10px;
+}
+
+.success {
+  color: #28a745;
+  background-color: #1e3a24;
+  border: 1px solid #28a745;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.error {
+  color: #dc3545;
+  background-color: #3a1e1e;
+  border: 1px solid #dc3545;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #ccc;
+}
+
+.clickable-hint {
+  opacity: 0.6;
+  font-size: 0.8em;
+  font-style: italic;
+  cursor: pointer;
+  color: #bbb;
+}
+
+.clickable-hint:hover {
+  opacity: 1;
+  color: #ddd;
+}
 </style>

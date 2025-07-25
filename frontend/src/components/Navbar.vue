@@ -6,7 +6,7 @@
       </router-link>
   <div class="nav-menu" :class="{ active: isMenuOpen }">
     <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton>
-      <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
+    <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
     
     <template v-if="isAuthenticated">
       <InfernalButton to="/dashboard" :onClick="closeMenu">Dashboard</InfernalButton>

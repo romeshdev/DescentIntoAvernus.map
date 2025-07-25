@@ -75,7 +75,7 @@ export default {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  background-image: url("../images/buttons/button.png");
+  background-image: url("../buttons/button.png");
   color: #fff;
   width: 160px;
   height: 45px;
@@ -93,13 +93,13 @@ export default {
 
 .infernal-button:hover {
   color: #fff;
-  background-image: url("../images/buttons/button3.png");
+  background-image: url("../buttons/button3.png");
   outline: none;
 }
 
 .infernal-button:focus {
   outline: none;
-  background-image: url("../images/buttons/button2.png");
+  background-image: url("../buttons/button2.png");
 }
 
 .floating {

@@ -1,38 +1,60 @@
 <template>
-  <div class="honeycomb" :class="map" :style="{ backgroundImage: `url('../avernus-map.jpg')` }">
+  <div id="hexcrawl" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="mapId == 'avernus'">
     <div v-for="(element, rowIndex) in printable" :key="rowIndex">
       <Row :element="element" @open-modal="openLocationModal" />
       <div :class="invisTerr" style="position: absolute">
         <img
           class="hexImg noselect"
           v-for="terr in element"
-          :key="terr.hex"
-          :id="terr.hex"
+          :key="terr.id"
+          :id="terr.id"
           :src="'/avernus-tiles/' + terr.terrain[0] + '.png'"
         />
       </div>
     </div>
 
     <!-- Location Modal -->
-    <location-modal
+    <LocationModal
       v-if="showLocationModal"
-      :region="'avernus'"
+      :region="mapId"
       :hex="selectedHex"
       @close-modal="closeLocationModal"
       @location-updated="handleLocationUpdate"
       :editable="true"
     />
   </div>
+  <div id="nodes" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="mapId != 'avernus'">
+    <!-- Render location markers -->
+    <LocationMarker v-for="location in locations" 
+                      :key="`node${location.id}`"
+                      :x="location.x" 
+                      :y="location.y" 
+                      :status="location.status"
+                      :numId="location.id" 
+                      :locName="location.name"
+                      @open-modal="$emit('open-modal', $event)">
+    </LocationMarker>
+
+    <!-- Render connecting lines -->
+    <div v-for="location in locations" :key="location.id">
+        <div v-for="connectedId in location.connectedTo" :key="connectedId"
+              :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId), location.id, connectedId)"
+              class="line"></div>
+    </div>
+</div>
 </template>
 
 <script>
 import Row from '../components/Row.vue'
+import LocationModal from '../components/LocationModal.vue'
+import LocationMarker from '../components/LocationMarker.vue';
 
 export default {
   name: "MapView",
-  components: { Row },
+  components: { Row, LocationModal, LocationMarker },
   data() {
     return {
+      mapId: "",
       printable: [],
       showTerrain: false,
       map: "mapClass",
@@ -48,10 +70,11 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const response = await fetch('/api/data/maps/avernus');
+        const response = await fetch(`/api/data/maps/${this.mapId}`);
         const data = await response.json();
         this.locations = data;
-        this.filterData();
+        if (this.mapId == 'avernus')
+          this.filterData();
       } catch (error) {
         console.error('Error loading locations:', error);
         this.showError('Failed to load locations. Check console for details.');
@@ -60,14 +83,14 @@ export default {
 
     filterData() {
       let prevH = {};
-      const rows = Number(this.locations.at(-1).hex.charAt(1));
+      const rows = Number(this.locations.at(-1).id.charAt(1));
       this.printable = Array.from({ length: rows }, () => []);
 
       this.locations.forEach((item, index) => {
-        const rowIdx = Number(item.hex.charAt(1)) - 1;
-        const colIdx = parseInt(item.hex.charAt(0), 36) - 10; // 'a' = 10
+        const rowIdx = Number(item.id.charAt(1)) - 1;
+        const colIdx = parseInt(item.id.charAt(0), 36) - 10; // 'a' = 10
 
-        if (item.hex !== prevH.hex) {
+        if (item.id !== prevH.id) {
           this.printable[rowIdx].push(item);
         } else {
           this.printable[rowIdx][colIdx].name += "\n" + item.name;
@@ -98,23 +121,57 @@ export default {
 
       for (let row of this.printable) {
         for (let location of row) {
-          if (location.hex === hex) {
+          if (location.id === hex) {
             Object.assign(location, data);
             break;
           }
         }
       }
 
-      this.filterData();
+      // this.filterData();
     },
 
     showError(message) {
       console.error(message);
-    }
+    },
+    
+    calculateLineStyle(location1, location2, numId, numId2) {
+      if (!location2 || numId > numId2) {
+        // If no matching location is found, return an empty style object or handle the error as needed
+        return {};
+      }
+
+      const x1 = location1.x;
+      const y1 = location1.y;
+      const x2 = location2.x;
+      const y2 = location2.y;
+      const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+      const angle = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
+
+      return {
+        position: "absolute",
+        top: y1 + "px",
+        left: x1 + "px",
+        width: length + "px",
+        transform: `rotate(${angle}deg)`,
+        transformOrigin: "0 0",
+        height: "4px",
+        border: "1px solid black",
+        backgroundColor: "white",
+        zIndex: 20,
+      };
+    },
   },
-  beforeMount() {
-    this.fetchData();
-  }
+  watch: {
+    '$route.params.id': {
+      handler(newId) {
+        this.mapId = newId;
+        // Re-fetch data if needed
+        this.fetchData();
+      },
+      immediate: true, // Run the handler immediately when the component is created
+    },
+  },
 };
 </script>
 
@@ -164,10 +221,10 @@ export default {
   /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 
-.hexImg {
+.idImg {
   position: relative;
   display: inline-block;
-  /* left/right margin approx. 25% of .hexagon width + spacing */
+  /* left/right margin approx. 25% of .idagon width + spacing */
   text-align: center;
   height: 145px;
   width: 169.5px;
@@ -177,8 +234,8 @@ export default {
   margin-left: -48px;
 }
 
-.hexImg:nth-child(even) {
-  /* top approx. 50% of .hexagon height + spacing */
+.idImg:nth-child(even) {
+  /* top approx. 50% of .idagon height + spacing */
   top: -71px;
 }
 
@@ -202,120 +259,4 @@ export default {
   margin-left: -632px;
   width: 1292px;
 }
-
-html {
-  font-family: "MedievalSharp", cursive;
-}
-
-.u-section-1 {
-  background-color: #69171c;
-  padding: 20px 0;
-  min-height: 100vh;
-  background-image: url("../avernus3.png");
-  background-blend-mode: multiply;
-  background-size: cover;
-  background-position: bottom;
-}
-
-.u-section-1 .u-sheet-1 {
-  min-height: 600px;
-  min-width: 1292.4px;
-  background-color: #262626;
-  border: 1px solid #404040;
-  padding: 20px;
-  margin-top: 50px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border: 8px ridge #69171c;
-
-  background-image: url("../slab.jpg");
-  background-blend-mode: multiply;
-  background-size: cover;
-  background-position: bottom;
-}
-
-.u-section-1 .u-sheet-1::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate(
-    -50%,
-    -50%
-  ); /* Center the image horizontally and move it up by half its height */
-  width: 100px;
-  height: 100px;
-  background-image: url("../skull.png");
-  background-size: contain; /* Keeps the aspect ratio */
-  background-repeat: no-repeat;
-}
-
-.u-section-1 .u-text-1 {
-  font-size: 3rem;
-  color: #f4f4f4;
-  margin-bottom: 20px;
-  margin-top: 40px;
-}
-
-.u-section-1 .u-text-2 {
-  font-size: 1.25rem;
-  color: #e0e0e0;
-  margin: 20px auto;
-  height: 40px;
-}
-
-.u-section-1 .u-text-3 {
-  line-height: 1.6;
-  font-size: 1rem;
-  color: #ccc;
-  width: 800px;
-  padding: 0 20px;
-}
-
-.u-section-1 .u-btn-1 {
-  background-color: #ad5c3d;
-  color: #fff;
-  border-radius: 5px;
-  padding: 10px 20px;
-  margin-top: 30px;
-  text-transform: none;
-}
-
-@media (max-width: 767px) {
-  .u-section-1 .u-text-1 {
-    font-size: 2rem;
-  }
-
-  .u-section-1 .u-text-3 {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 575px) {
-  .u-section-1 .u-sheet-1 {
-    min-height: auto;
-  }
-  .u-section-1 .u-text-1,
-  .u-section-1 .u-text-2,
-  .u-section-1 .u-text-3 {
-    width: auto;
-  }
-}
-
-h5 {
-  font-size: 1.1rem;
-  color: #f4f4f4;
-  margin: 15px 0;
-}
-
-ul {
-  margin-top: 10px;
-  padding-left: 20px;
-  list-style-type: disc;
-  color: #e0e0e0;
-}
-
-
-
 </style>

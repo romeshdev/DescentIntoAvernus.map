@@ -25,7 +25,7 @@ router.get('/maps/:mapId/hex/:id', (req, res) => {
     
     const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
     const data = readDataFile(dataPath);
-    const mapIndex = data.findIndex(item => (item.hex !== null && item.hex === id) || (item.numId !== null && item.numId === id));
+    const mapIndex = data.findIndex(item => item.id === id);
     
     if (mapIndex !== -1) {
       res.json({ success: true, data: data[mapIndex] });
@@ -46,12 +46,7 @@ router.put('/maps/:mapId/hex/:id', (req, res) => {
     const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
     const data = readDataFile(dataPath);
 
-    var searchProp = 'hex';
-    if (mapId == 'elturel') {
-      searchProp = 'numId';
-    }
-
-    const locationIndex = data.findIndex(item => item[searchProp] === id);
+    const locationIndex = data.findIndex(item => item['id'] === id);
 
     if (locationIndex !== -1) {
       // Update the location
@@ -61,7 +56,7 @@ router.put('/maps/:mapId/hex/:id', (req, res) => {
       writeDataFile(dataPath, data);
       
       // Also update player data
-      const playerDataPath = path.join(__dirname, 'player', 'data', `${region}-data.js`);
+      const playerDataPath = path.join(__dirname, 'player', 'data', `${mapId}-data.js`);
       if (fs.existsSync(path.dirname(playerDataPath))) {
         writeDataFile(playerDataPath, data);
       }
@@ -92,6 +87,11 @@ function readDataFile(filePath) {
     console.error('Error reading data file:', error);
     return [];
   }
+}
+
+function writeDataFile(filePath, data) {
+  const content = `module.exports = ${JSON.stringify(data, null, 2)};`;
+  fs.writeFileSync(filePath, content, 'utf8');
 }
 
 module.exports = router;

@@ -137,7 +137,7 @@ export default {
       try {
         loading.value = true
         // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // await new Promise(resolve => setTimeout(resolve, 1000))
         
         // In a real app, you would fetch from an API:
         // const response = await fetch('/api/maps')

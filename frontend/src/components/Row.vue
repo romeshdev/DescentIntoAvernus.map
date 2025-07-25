@@ -1,6 +1,6 @@
 <template>
     <div class="ibws-fix noselect">
-        <Hexagon v-for="location in element" :key="location.hex" :hex="location.hex" :name="location.name" :status="location.status" @open-modal="$emit('open-modal', $event)"></Hexagon>
+        <Hexagon v-for="location in element" :key="location.id" :hex="location.id" :name="location.name" :status="location.status" @open-modal="$emit('open-modal', $event)"></Hexagon>
     </div>
 </template>
 <script>

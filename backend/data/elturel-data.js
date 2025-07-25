@@ -2,7 +2,7 @@ module.exports = [
   {
     "x": 976,
     "y": 392,
-    "numId": "1",
+    "id": "1",
     "connectedTo": [
       "2",
       "8",
@@ -17,7 +17,7 @@ module.exports = [
   {
     "x": 875,
     "y": 540,
-    "numId": "2",
+    "id": "2",
     "connectedTo": [
       "1",
       "9b",
@@ -30,7 +30,7 @@ module.exports = [
   {
     "x": 870,
     "y": 640,
-    "numId": "3",
+    "id": "3",
     "connectedTo": [
       "2",
       "5",
@@ -43,7 +43,7 @@ module.exports = [
   {
     "x": 942,
     "y": 696,
-    "numId": "4",
+    "id": "4",
     "connectedTo": [
       "3",
       "5",
@@ -56,7 +56,7 @@ module.exports = [
   {
     "x": 757,
     "y": 672,
-    "numId": "5",
+    "id": "5",
     "connectedTo": [
       "3",
       "4"
@@ -68,7 +68,7 @@ module.exports = [
   {
     "x": 1063,
     "y": 587,
-    "numId": "6a",
+    "id": "6a",
     "connectedTo": [
       "4",
       "6b"
@@ -80,7 +80,7 @@ module.exports = [
   {
     "x": 1085,
     "y": 440,
-    "numId": "6b",
+    "id": "6b",
     "connectedTo": [
       "1",
       "6c",
@@ -93,7 +93,7 @@ module.exports = [
   {
     "x": 1037,
     "y": 300,
-    "numId": "6c",
+    "id": "6c",
     "connectedTo": [
       "1",
       "6b",
@@ -106,7 +106,7 @@ module.exports = [
   {
     "x": 1033,
     "y": 208,
-    "numId": "7",
+    "id": "7",
     "connectedTo": [
       "6c",
       "8"
@@ -118,7 +118,7 @@ module.exports = [
   {
     "x": 880,
     "y": 260,
-    "numId": "8",
+    "id": "8",
     "connectedTo": [
       "9a",
       "9b",
@@ -132,7 +132,7 @@ module.exports = [
   {
     "x": 831,
     "y": 213,
-    "numId": "9a",
+    "id": "9a",
     "connectedTo": [
       "8",
       "10"
@@ -144,7 +144,7 @@ module.exports = [
   {
     "x": 783,
     "y": 325,
-    "numId": "9b",
+    "id": "9b",
     "connectedTo": [
       "8",
       "1",
@@ -158,7 +158,7 @@ module.exports = [
   {
     "x": 672,
     "y": 170,
-    "numId": "10",
+    "id": "10",
     "connectedTo": [
       "11",
       "13",
@@ -171,7 +171,7 @@ module.exports = [
   {
     "x": 395,
     "y": 163,
-    "numId": "11",
+    "id": "11",
     "connectedTo": [
       "10",
       "12",
@@ -184,7 +184,7 @@ module.exports = [
   {
     "x": 312,
     "y": 190,
-    "numId": "12",
+    "id": "12",
     "connectedTo": [
       "11",
       "13",
@@ -197,7 +197,7 @@ module.exports = [
   {
     "x": 425,
     "y": 350,
-    "numId": "13",
+    "id": "13",
     "connectedTo": [
       "10",
       "11",
@@ -212,7 +212,7 @@ module.exports = [
   {
     "x": 293,
     "y": 463,
-    "numId": "14",
+    "id": "14",
     "connectedTo": [
       "12",
       "13",
@@ -227,7 +227,7 @@ module.exports = [
   {
     "x": 164,
     "y": 512,
-    "numId": "15",
+    "id": "15",
     "connectedTo": [
       "14",
       "16"
@@ -239,7 +239,7 @@ module.exports = [
   {
     "x": 230,
     "y": 698,
-    "numId": "16",
+    "id": "16",
     "connectedTo": [
       "15",
       "14",
@@ -252,7 +252,7 @@ module.exports = [
   {
     "x": 420,
     "y": 540,
-    "numId": "17",
+    "id": "17",
     "connectedTo": [
       "13",
       "14",
@@ -266,7 +266,7 @@ module.exports = [
   {
     "x": 559,
     "y": 512,
-    "numId": "18a",
+    "id": "18a",
     "connectedTo": [
       "21",
       "20",
@@ -279,7 +279,7 @@ module.exports = [
   {
     "x": 635,
     "y": 296,
-    "numId": "18b",
+    "id": "18b",
     "connectedTo": [
       "19",
       "20"
@@ -291,7 +291,7 @@ module.exports = [
   {
     "x": 653,
     "y": 232,
-    "numId": "19",
+    "id": "19",
     "connectedTo": [
       "18b"
     ],
@@ -302,7 +302,7 @@ module.exports = [
   {
     "x": 640,
     "y": 370,
-    "numId": "20",
+    "id": "20",
     "connectedTo": [
       "18a",
       "18b",
@@ -316,7 +316,7 @@ module.exports = [
   {
     "x": 514,
     "y": 390,
-    "numId": "21",
+    "id": "21",
     "connectedTo": [
       "17",
       "20",
@@ -329,7 +329,7 @@ module.exports = [
   {
     "x": 524,
     "y": 593,
-    "numId": "22",
+    "id": "22",
     "connectedTo": [
       "18a"
     ],
