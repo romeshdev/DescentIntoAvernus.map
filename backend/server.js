@@ -35,9 +35,12 @@ app.use('/api/auth', authLimiter);
 // API routes
 app.use('/api', require('./routes/api'));
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/data', require('./routes/data/maps'));
 
 // Serve static files from Vue.js build
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(express.static(path.join(__dirname, 'images')));
 
 // Handle client-side routing
 app.get('*', (req, res) => {

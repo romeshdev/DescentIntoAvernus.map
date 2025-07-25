@@ -23,11 +23,7 @@
       >
         <!-- Map Thumbnail -->
         <div class="map-thumbnail">
-          <img 
-            :src="map.thumbnail" 
-            :alt="map.name"
-            @error="handleImageError"
-          />
+          <img :src="map.thumbnail" :alt="map.name" />
           <div class="overlay">
             <span class="view-text">View Map</span>
           </div>
@@ -92,10 +88,10 @@ export default {
     // Sample map data - in a real app, this would come from an API or data store
     const sampleMaps = [
       {
-        id: 'avernus-layer-1',
+        id: 'avernus',
         name: 'Avernus - First Layer of Hell',
         description: 'The primary battleground of the Blood War, featuring ash plains, bone brambles, and infernal war machines.',
-        thumbnail: '/images/avernus-map.jpg',
+        thumbnail: '/avernus-map.jpg',
         hexCount: 156,
         terrainTypes: ['ash', 'bog', 'brambles', 'cracks', 'fire', 'hills', 'mountains', 'volcano', 'waste'],
         dreamMachineComponents: 12,
@@ -106,7 +102,7 @@ export default {
         id: 'baldurs-gate',
         name: "Baldur's Gate",
         description: 'The city where it all begins. Explore the upper and lower city before descending into hell.',
-        thumbnail: '/images/baldurs-gate-thumb.jpg',
+        thumbnail: '/baldurs-gate-map.png',
         hexCount: 45,
         terrainTypes: ['urban', 'docks', 'residential'],
         dreamMachineComponents: 3,
@@ -114,10 +110,10 @@ export default {
         featured: false
       },
       {
-        id: 'elturel-ruins',
+        id: 'elturel',
         name: 'Elturel Ruins',
         description: 'The fallen city, now trapped in Avernus. Navigate the ruins and rescue survivors.',
-        thumbnail: '/images/elturel-map.jpg',
+        thumbnail: '/elturel-map.jpg',
         hexCount: 32,
         terrainTypes: ['ruins', 'fire', 'ash'],
         dreamMachineComponents: 5,
