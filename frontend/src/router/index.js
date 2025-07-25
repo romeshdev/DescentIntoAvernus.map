@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
-import Maps from '../views/Maps.vue'
+import MapsView from '../views/MapsView.vue'
+import MapView from '../views/MapView.vue'
 import Dashboard from '../views/Dashboard.vue'
 const routes = [
     {
@@ -18,8 +19,14 @@ const routes = [
     },
     {
         path: '/maps',
-        name: 'Maps',
-        component: Maps,
+        name: 'MapsView',
+        component: MapsView,
+        meta: { requiresGuest: true }
+    },
+    {
+        path: '/maps/:id',
+        name: 'MapView',
+        component: MapView,
         meta: { requiresGuest: true }
     },
     {
