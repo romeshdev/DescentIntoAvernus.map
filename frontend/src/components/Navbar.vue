@@ -5,26 +5,17 @@
         My Full-Stack App
       </router-link>
   <div class="nav-menu" :class="{ active: isMenuOpen }">
-    <router-link to="/" class="nav-link" @click="closeMenu">
-      Home
-    </router-link>
+    <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton>
     
     <template v-if="isAuthenticated">
-      <router-link to="/dashboard" class="nav-link" @click="closeMenu">
-        Dashboard
-      </router-link>
+      <InfernalButton to="/dashboard" :onClick="closeMenu">Dashboard</InfernalButton>
       <div class="nav-user">
         <span class="user-info">{{ user?.username }}</span>
-        <button @click="handleLogout" class="btn btn-secondary">
-          Logout
-        </button>
+        <InfernalButton :onClick="handleLogout">Logout</InfernalButton>
       </div>
     </template>
-    
     <template v-else>
-      <router-link to="/login" class="nav-link" @click="closeMenu">
-        Login
-      </router-link>
+      <InfernalButton to="/login" :onClick="closeMenu">DM Login</InfernalButton>
     </template>
   </div>
   
@@ -40,9 +31,13 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
+import InfernalButton from '../components/InfernalButton.vue' 
 
 export default {
   name: 'Navbar',
+  components: {
+    InfernalButton
+  },
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
@@ -78,7 +73,7 @@ export default {
 </script>
 <style scoped>
 .navbar {
-  background-color: #343a40;
+  background-color: #1a1a1a;
   color: white;
   padding: 1rem 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -96,7 +91,7 @@ export default {
 .nav-brand {
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: #ff6b6b;
   text-decoration: none;
 }
 

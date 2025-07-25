@@ -38,13 +38,15 @@
     
     <div v-if="error" class="error">{{ error }}</div>
     
-    <button 
+
+    <InfernalButton type="submit" @onClick="handleSubmit" :disabled="loading">{{ loading ? 'Processing...' : (isRegistering ? 'Register' : 'Login') }}</InfernalButton>
+    <!-- <button 
       type="submit" 
       class="btn btn-primary" 
       :disabled="loading"
     >
       {{ loading ? 'Processing...' : (isRegistering ? 'Register' : 'Login') }}
-    </button>
+    </button> -->
   </form>
   
   <div class="toggle-auth">
@@ -67,9 +69,13 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
+import InfernalButton from '../components/InfernalButton.vue' 
 
 export default {
   name: 'Login',
+  components: {
+    InfernalButton
+  },
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
@@ -127,7 +133,8 @@ export default {
 }
 
 .login-card {
-  background: white;
+  background: #292929;
+  color: white;
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -138,27 +145,27 @@ export default {
 .login-card h2 {
   text-align: center;
   margin-bottom: 2rem;
-  color: #333;
+  color: #ff6b6b;
 }
 
 .toggle-auth {
   text-align: center;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #ff6b6b;
 }
 
 .btn-link {
   background: none;
   border: none;
-  color: #007bff;
+  color: #ff6b6b;
   cursor: pointer;
   text-decoration: underline;
   font-size: inherit;
 }
 
 .btn-link:hover {
-  color: #0056b3;
+  color: #ea6262;
 }
 
 .btn-link:disabled {

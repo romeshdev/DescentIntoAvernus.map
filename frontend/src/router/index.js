@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import Maps from '../views/Maps.vue'
 import Dashboard from '../views/Dashboard.vue'
 const routes = [
     {
@@ -13,6 +14,12 @@ const routes = [
         path: '/login',
         name: 'Login',
         component: Login,
+        meta: { requiresGuest: true }
+    },
+    {
+        path: '/maps',
+        name: 'Maps',
+        component: Maps,
         meta: { requiresGuest: true }
     },
     {
