@@ -5,7 +5,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - SESSION_SECRET=your-secure-session-secret-change-me
+      - SESSION_SECRET=1234
       - ADMIN_USERNAME=dm
       - ADMIN_PASSWORD=pwd
     volumes:

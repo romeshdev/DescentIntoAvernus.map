@@ -11,75 +11,40 @@
       <form @submit.prevent="handleSubmit">
         <div v-if="isRegistering" class="form-group">
           <label for="modal-email">Email:</label>
-          <input
-            type="email"
-            id="modal-email"
-            v-model="form.email"
-            required
-            :disabled="loading"
-            class="form-input"
-          />
+          <input type="email" id="modal-email" v-model="form.email" required :disabled="loading" class="form-input" />
         </div>
         
         <div class="form-group">
           <label for="modal-username">Username:</label>
-          <input
-            type="text"
-            id="modal-username"
-            v-model="form.username"
-            required
-            :disabled="loading"
-            class="form-input"
-          />
+          <input type="text" id="modal-username" v-model="form.username" required :disabled="loading" class="form-input" />
         </div>
         
         <div class="form-group">
           <label for="modal-password">Password:</label>
-          <input
-            type="password"
-            id="modal-password"
-            v-model="form.password"
-            required
-            :disabled="loading"
-            class="form-input"
-          />
+          <input type="password" id="modal-password" v-model="form.password" required :disabled="loading" class="form-input" />
         </div>
         
         <div v-if="error" class="error">{{ error }}</div>
         
         <div class="form-buttons">
-          <InfernalButton 
-            type="submit" 
-            :disabled="loading"
-            :onClick="handleSubmit"
-          >
+          <InfernalButton  type="submit" :disabled="loading" :onClick="handleSubmit" >
             {{ loading ? 'Processing...' : (isRegistering ? 'Register' : 'Login') }}
           </InfernalButton>
           
-          <button 
-            type="button" 
-            @click="closeModal" 
-            class="btn-cancel"
-            :disabled="loading"
-          >
+          <button type="button" @click="closeModal" class="btn-cancel" :disabled="loading">
             Cancel
           </button>
         </div>
       </form>
       
-      <div class="toggle-auth">
+      <!-- <div class="toggle-auth">
         <p>
           {{ isRegistering ? 'Already have an account?' : "Don't have an account?" }}
-          <button 
-            type="button" 
-            @click="toggleAuthMode" 
-            class="btn-link"
-            :disabled="loading"
-          >
+          <button type="button" @click="toggleAuthMode" class="btn-link" :disabled="loading">
             {{ isRegistering ? 'Login' : 'Register' }}
           </button>
         </p>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

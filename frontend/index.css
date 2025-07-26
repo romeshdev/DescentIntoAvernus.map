@@ -159,3 +159,33 @@ ul {
   list-style-type: disc;
   color: #e0e0e0;
 }
+
+
+.tag {
+  background: #444;
+  color: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.tag-primary {
+  background: #ff6b35;
+}
+
+.tag-city {
+  background: #4a90e2;
+}
+
+.tag-ruins {
+  background: #8b4513;
+}
+
+.tag-river {
+  background: #1e90ff;
+}
+
+.tag-hexcrawl {
+  background: #32cd32;
+}

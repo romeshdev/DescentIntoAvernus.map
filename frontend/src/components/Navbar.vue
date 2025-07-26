@@ -5,24 +5,23 @@
         Orphan's of Avernus
       </router-link>
       
+      <div class="tag tag-city">{{ isAuthenticated ? 'DM View' : 'Player View' }}</div>
+
       <div class="nav-menu" :class="{ active: isMenuOpen }">
-        <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton>
+        <!-- <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton> -->
         <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
         
         <!-- Edit Mode Toggle -->
-        <div class="edit-mode-section">
-          <button 
-            @click="toggleEditMode" 
-            class="edit-mode-toggle"
-            :class="{ 'active': editMode, 'authenticated': isAuthenticated }"
-          >
+        <div class="edit-mode-section" style="z-index: 999999">
+          <button @click="toggleEditMode" class="edit-mode-toggle" :class="{ 'active': editMode, 'authenticated': isAuthenticated }">
             <span class="toggle-icon">✏️</span>
-            <span class="toggle-text">
-              {{ editMode ? 'Exit Edit' : 'Edit Mode' }}
-            </span>
-            <span v-if="editMode && isAuthenticated" class="edit-indicator">ON</span>
+            <span class="toggle-text">Edit Mode</span>
+            <span class="edit-indicator">{{ editMode ? 'ON' : 'OFF' }}</span>
           </button>
         </div>
+
+        
+        <!-- <InfernalButton :onClick="handleLogout">Logout</InfernalButton> -->
       </div>
       
       <div class="nav-toggle" @click="toggleMenu">
@@ -42,9 +41,8 @@
 </template>
 
 <script>
-import { ref, computed, provide } from 'vue'
+import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../store/auth'
 import InfernalButton from '../components/InfernalButton.vue'
 import LoginModal from '../components/LoginModal.vue'
 
@@ -56,17 +54,14 @@ export default {
   },
   setup() {
     const router = useRouter()
-    const authStore = useAuthStore()
     const isMenuOpen = ref(false)
     const showLoginModal = ref(false)
-    const editMode = ref(false)
     
-    const isAuthenticated = computed(() => authStore.isAuthenticated)
-    const user = computed(() => authStore.user)
-    
-    // Provide edit mode to child components
-    provide('editMode', editMode)
-    provide('isAuthenticated', isAuthenticated)
+    const editMode = inject('editMode', { value: false })
+    const isAuthenticated = inject('isAuthenticated', { value: false })
+
+    console.log(editMode)
+    console.log(isAuthenticated)
     
     const toggleMenu = () => {
       isMenuOpen.value = !isMenuOpen.value
@@ -112,7 +107,6 @@ export default {
     return {
       isMenuOpen,
       isAuthenticated,
-      user,
       editMode,
       showLoginModal,
       toggleMenu,
@@ -128,7 +122,7 @@ export default {
 
 <style scoped>
 .navbar {
-  background-color: #1a1a1a;
+  background-color: #101010;
   color: white;
   padding: 1rem 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -200,25 +194,25 @@ export default {
 }
 
 .edit-mode-toggle.active {
-  background: #ff6b6b;
-  border-color: #ff6b6b;
+  border-color: #28a745;
+  background: #1e3a24;
   color: white;
   box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
 }
 
 .edit-mode-toggle.active:hover {
-  background: #ea6262;
-  border-color: #ea6262;
+  border-color: #28a745;
+  background: #2d4a32;
 }
 
 .edit-mode-toggle.authenticated:not(.active) {
-  border-color: #28a745;
-  background: #1e3a24;
+  background: #2a2a2a;
+  border: 2px solid #555;
 }
 
 .edit-mode-toggle.authenticated:not(.active):hover {
-  border-color: #28a745;
-  background: #2d4a32;
+  border-color: #ff6b6b;
+  background: #333;
 }
 
 .toggle-icon {

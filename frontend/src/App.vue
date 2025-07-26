@@ -7,6 +7,7 @@
   </div>
 </template>
 <script>
+import { ref, computed, provide } from 'vue'
 import Navbar from './components/Navbar.vue'
 import { useAuthStore } from './store/auth'
 
@@ -18,6 +19,18 @@ export default {
   async created() {
     const authStore = useAuthStore()
     await authStore.initializeAuth()
+  },
+  setup() {
+    const authStore = useAuthStore()
+    const editMode = ref(false)
+    
+    const isAuthenticated = computed(() => authStore.isAuthenticated)
+    const user = computed(() => authStore.user)
+    
+    // Provide edit mode to child components
+    provide('editMode', editMode)
+    provide('isAuthenticated', isAuthenticated)
+    provide('user', user)
   }
 }
 </script>
@@ -41,7 +54,6 @@ export default {
 
 main {
   padding: 2rem;
-  max-width: 1200px;
   margin: 0 auto;
 }
 

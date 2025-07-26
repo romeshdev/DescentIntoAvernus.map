@@ -99,17 +99,6 @@ export default {
         featured: true
       },
       {
-        id: 'baldurs-gate',
-        name: "Baldur's Gate",
-        description: 'The city where it all begins. Explore the upper and lower city before descending into hell.',
-        thumbnail: '/baldurs-gate-map.png',
-        hexCount: 45,
-        terrainTypes: ['urban', 'docks', 'residential'],
-        dreamMachineComponents: 3,
-        tags: ['City', 'Starting Area'],
-        featured: false
-      },
-      {
         id: 'elturel',
         name: 'Elturel Ruins',
         description: 'The fallen city, now trapped in Avernus. Navigate the ruins and rescue survivors.',
@@ -118,6 +107,17 @@ export default {
         terrainTypes: ['ruins', 'fire', 'ash'],
         dreamMachineComponents: 5,
         tags: ['Ruins', 'Rescue Mission'],
+        featured: false
+      },
+      {
+        id: 'baldurs-gate',
+        name: "Baldur's Gate",
+        description: 'The city where it all begins. Explore the upper and lower city before descending into hell.',
+        thumbnail: '/baldurs-gate-map.png',
+        hexCount: 45,
+        terrainTypes: ['urban', 'docks', 'residential'],
+        dreamMachineComponents: 3,
+        tags: ['City', 'Starting Area'],
         featured: false
       },
       // {
@@ -345,34 +345,6 @@ export default {
   gap: 0.5rem;
 }
 
-.tag {
-  background: #444;
-  color: #fff;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.tag-primary {
-  background: #ff6b35;
-}
-
-.tag-city {
-  background: #4a90e2;
-}
-
-.tag-ruins {
-  background: #8b4513;
-}
-
-.tag-river {
-  background: #1e90ff;
-}
-
-.tag-hexcrawl {
-  background: #32cd32;
-}
 
 .empty-state {
   text-align: center;

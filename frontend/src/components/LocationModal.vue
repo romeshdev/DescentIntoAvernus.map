@@ -1,7 +1,7 @@
 <template>
     <div class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
-        <button class="modal-close" @click="closeModal">&times;</button>
+        <!-- <button class="modal-close" @click="closeModal">&times;</button> -->
         
         <div v-if="loading" class="loading">
           Loading location data...
@@ -11,7 +11,7 @@
           <!-- Edit Mode Indicator -->
           <div v-if="isEditModeActive" class="edit-mode-banner">
             <span class="edit-icon">✏️</span>
-            Edit Mode Active - Click to edit content
+            Edit Mode Active - Click content to edit
           </div>
           
           <!-- Editable Title -->
@@ -91,7 +91,7 @@
           
           <!-- Show current status even when not in edit mode -->
           <div v-else-if="locationData.status" class="status-display">
-            <strong>Player Status:</strong> 
+            <strong>Player Status: </strong> 
             <span class="status-badge" :class="`status-${locationData.status.toLowerCase()}`">
               {{ locationData.status === 'U' ? 'Unknown' : locationData.status === 'K' ? 'Known' : 'Explored' }}
             </span>
@@ -337,30 +337,49 @@ export default {
 
 .modal-close {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
+  top: 12px;
+  right: 12px;
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 28px;
+  text-align: center;
   color: #ccc;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .modal-close:hover {
-  color: #fff;
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+  color: white;
+  transform: scale(1.1);
 }
 
 .edit-mode-banner {
-  background: linear-gradient(45deg, #ff6b6b, #ea6262);
-  color: white;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
   gap: 0.5rem;
-  font-weight: 500;
-  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  background: #28a745;
+  border: 1px solid #28a745;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: inset 0 0 0 1px rgba(255, 107, 107, 0.2);
+}
+
+.edit-mode-banner .edit-icon {
+  font-size: 1.1rem;
+  background: #28a745;
+  color: white;
+  border-radius: 4px;
+  padding: 2px 6px;
+  line-height: 1;
 }
 
 .edit-icon {
