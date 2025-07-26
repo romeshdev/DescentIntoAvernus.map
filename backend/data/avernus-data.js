@@ -358,12 +358,15 @@ module.exports = [
   {
     "id": "f4",
     "name": "Bloody cist",
-    "text": "<ul> <li>Visible</li> <li><em>Descent Into Avernus</em>, p. 134</li> </ul> <p>There are several important changes to this location:</p> <ul> <li>The citadel cannot be seen; it is completely subsumed by the Cyst.</li> <li>No one knows that this is where the Sword of Zariel lies hidden. As noted previously, this secret is held only in Lulu’s lost memories.</li> <li>Therefore, there are no devils or demons here excavating the site. (You could have them here just harvesting the bloody pulp of the cyst for one reason or another, but you’d want to make significant changes to the key.)</li> <li>Yael’s ghost does not give the PCs’ visions of Idyllglen. (They already experienced those in the Dream Machine.) See <a href=\"https://thealexandrian.net/?p=46059\">Part 6D-L</a> for what happens when the PCs encounter her.</li> </ul> <blockquote> <p><em>Design Note: As mentioned previously, the goal is for the PCs to recognize the Bloody Cyst so that the moment that it’s revealed as the hiding place of the Sword of Zariel it’s a cool revelation and not a, “Wait? Where?” moment. (It’s okay if they need to follow up on their vision; lots of people in this area of Avernus know the location of the Bloody Cyst and can direct them – it’s just not ideal.)</em></p> <p><em>It’s positioned in Hex F4 because (a) characters crossing the bridge in Hex G5a will likely run into it and (b) this also makes it a convenient landmark for NPCs to use while giving directions.</em></p> <p><em>One of my <a href=\"https://patreon.com/justinalexander\">patrons</a> also recommended that Mahadi’s Emporium could be camped out at the base of the Bloody Cyst at some point.</em></p> </blockquote>",
+    "text": "",
     "terrain": [
       "waste"
     ],
     "status": "U",
-    "item": ""
+    "item": "",
+    "x": 0,
+    "y": 0,
+    "connectedTo": []
   },
   {
     "id": "f5",
@@ -428,22 +431,28 @@ module.exports = [
   {
     "id": "g4",
     "name": "Pool of ichor",
-    "text": "<ul> <li><a href=\"https://www.dmsguild.com/product/289061/Encounters-in-Avernus?affiliate_id=81207\"><em>Encounters in Avernus</em></a>, p. 10</li> </ul> <p>“The ongoing Blood War has left substantial pools of demon ichor all over Avernus.”</p>",
+    "text": "",
     "terrain": [
       "hills"
     ],
     "status": "U",
-    "item": ""
+    "item": "",
+    "x": 0,
+    "y": 0,
+    "connectedTo": []
   },
   {
     "id": "g5",
     "name": "Zariel's bridge",
-    "text": "<p>A bridge spans the Styx here, guarded on each end by a Styx Watchtower. The original bridge which stood here was destroyed during the Rift War and the new bridge was dedicated to Zariel’s glorious victory and ascension to Archduchess. Bas reliefs along the bridge depict various incidents from Zariel’s life, with accompany infernal inscriptions:</p> <ul> <li><strong>Averniad</strong>: Zariel is depicted (anachronistically in her fiendish form) in the midst of a lush, verdant paradise. (Inscription: “She served in the armies of the Lord of the Nine in the younger days, when Avernus had not yet become the Ninth.”)</li> <li><strong>Zariel &amp; Lulu</strong>: Zariel (anachronistically in her fiendish form) is depicted with Lulu, Yael, Haruman, and five devils. Their names are listed in Infernal cartouches (the otherwise unknwon devil’s names being given as Zilannen, Tozromon, Brullmerath, Xilka, and Venthroxoth). (Inscription: “In memory of her comrades lost over the long eons of struggle.”)</li> <li><strong>Zariel’s Fall</strong>: Zariel is depicted kneeling before Asmodeus, her wings aflame as her “impurities” are burnt away. (Inscription: “At the feet of the Archfiend her heart was opened to the truth, and she ascended to the ranks of the esteemed.”)</li> <li><strong>Zariel’s Imprisonment</strong>: Zariel is depicted in chains. Above her are the five heads of Tiamat. (Inscription: “At the false word of the coward Bel, she was sealed in the prisons of the Progenitor.” <em>Note</em>: <em>One of Tiamat’s titles is the Progenitor of Hell</em>.)</li> <li><strong>Second Avernian March</strong>: Zariel is on the front lines of a titanic battle between devils and strange creatures which seem neither demon nor devil. A DC 16 Intelligence (Arcana) check recognizes the creatures as baatorians. (Inscription: “In glory did she triumph where false Bel failed, in the name of the Lord of Nessus.”)</li> <li><strong>Zariel Becomes Archduchess</strong>: Zariel is crowned by Asmodeus. (“All hail the Archduchess of Avernus, may she rule eternal at the left hand of the Archfiend.”)</li> </ul>",
+    "text": "",
     "terrain": [
       "waste"
     ],
     "status": "U",
-    "item": ""
+    "item": "",
+    "x": 0,
+    "y": 0,
+    "connectedTo": []
   },
   {
     "id": "g5",

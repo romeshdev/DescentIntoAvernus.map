@@ -12,13 +12,13 @@
         <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
         
         <!-- Edit Mode Toggle -->
-        <div class="edit-mode-section" style="z-index: 999999">
+        <!-- <div class="edit-mode-section" style="z-index: 999999">
           <button @click="toggleEditMode" class="edit-mode-toggle" :class="{ 'active': editMode, 'authenticated': isAuthenticated }">
             <span class="toggle-icon">✏️</span>
             <span class="toggle-text">Edit Mode</span>
             <span class="edit-indicator">{{ editMode ? 'ON' : 'OFF' }}</span>
           </button>
-        </div>
+        </div> -->
 
         
         <!-- <InfernalButton :onClick="handleLogout">Logout</InfernalButton> -->
@@ -32,11 +32,11 @@
     </div>
     
     <!-- Login Modal -->
-    <LoginModal 
+    <!-- <LoginModal 
       v-if="showLoginModal" 
       @close-modal="closeLoginModal"
       @login-success="onLoginSuccess"
-    />
+    /> -->
   </nav>
 </template>
 
@@ -59,9 +59,6 @@ export default {
     
     const editMode = inject('editMode', { value: false })
     const isAuthenticated = inject('isAuthenticated', { value: false })
-
-    console.log(editMode)
-    console.log(isAuthenticated)
     
     const toggleMenu = () => {
       isMenuOpen.value = !isMenuOpen.value
@@ -71,38 +68,38 @@ export default {
       isMenuOpen.value = false
     }
     
-    const toggleEditMode = () => {
-      if (!editMode.value) {
-        // Turning edit mode ON
-        if (isAuthenticated.value) {
-          // Already authenticated, just enable edit mode
-          editMode.value = true
-        } else {
-          // Not authenticated, show login modal
-          showLoginModal.value = true
-        }
-      } else {
-        // Turning edit mode OFF
-        editMode.value = false
-      }
-    }
+    // const toggleEditMode = () => {
+    //   if (!editMode.value) {
+    //     // Turning edit mode ON
+    //     if (isAuthenticated.value) {
+    //       // Already authenticated, just enable edit mode
+    //       editMode.value = true
+    //     } else {
+    //       // Not authenticated, show login modal
+    //       showLoginModal.value = true
+    //     }
+    //   } else {
+    //     // Turning edit mode OFF
+    //     editMode.value = false
+    //   }
+    // }
     
-    const closeLoginModal = () => {
-      showLoginModal.value = false
-    }
+    // const closeLoginModal = () => {
+    //   showLoginModal.value = false
+    // }
     
-    const onLoginSuccess = () => {
-      // Enable edit mode after successful login
-      editMode.value = true
-      showLoginModal.value = false
-    }
+    // const onLoginSuccess = () => {
+    //   // Enable edit mode after successful login
+    //   editMode.value = true
+    //   showLoginModal.value = false
+    // }
     
-    const handleLogout = () => {
-      authStore.logout()
-      editMode.value = false // Disable edit mode on logout
-      router.push('/')
-      closeMenu()
-    }
+    // const handleLogout = () => {
+    //   authStore.logout()
+    //   editMode.value = false // Disable edit mode on logout
+    //   router.push('/')
+    //   closeMenu()
+    // }
     
     return {
       isMenuOpen,
@@ -111,10 +108,10 @@ export default {
       showLoginModal,
       toggleMenu,
       closeMenu,
-      toggleEditMode,
-      closeLoginModal,
-      onLoginSuccess,
-      handleLogout
+      // toggleEditMode,
+      // closeLoginModal,
+      // onLoginSuccess,
+      // handleLogout
     }
   }
 }

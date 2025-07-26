@@ -115,7 +115,8 @@ export default {
   props: {
     hex: String,
     region: String,
-    editable: Boolean // Keep for backward compatibility, but now use injected edit mode
+    editable: Boolean, // Keep for backward compatibility, but now use injected edit mode
+    pendingLocation: Object
   },
   setup() {
     // Inject edit mode and authentication state from parent
@@ -146,9 +147,9 @@ export default {
   watch: {
     hex: {
       handler(newHex) {
-        if (newHex) {
+        // if (newHex) {
           this.loadLocationData();
-        }
+        // }
       },
       immediate: true
     }
@@ -157,20 +158,39 @@ export default {
     loadLocationData() {
       this.loading = true;
       this.locationData = null;
-      
-      fetch(`/api/data/maps/${this.region}/hex/${this.hex}`)
-        .then(response => response.json())
-        .then(data => {
-          this.locationData = data.data;
+
+      if (this.pendingLocation != null) {
+          this.locationData = {
+            "x": this.pendingLocation.x,
+            "y": this.pendingLocation.y,
+            "id": this.pendingLocation.id,
+            "connectedTo": [],
+            "status": "U",
+            "name": this.pendingLocation.name,
+            "text": ""
+          };
+          
           this.localName = this.locationData.name;
           this.localText = this.locationData.text;
           this.loading = false;
-        })
-        .catch(error => {
-          console.error('Error loading location:', error);
-          this.loading = false;
-          this.showError('Failed to load location data.');
-        });
+
+          this.sendUpdate(this.locationData);
+          return;
+      } else {
+        fetch(`/api/data/maps/${this.region}/hex/${this.hex}`)
+          .then(response => response.json())
+          .then(data => {
+            this.locationData = data.data;
+            this.localName = this.locationData.name;
+            this.localText = this.locationData.text;
+            this.loading = false;
+          })
+          .catch(error => {
+            console.error('Error loading location:', error);
+            this.loading = false;
+            this.showError('Failed to load location data.');
+          });
+      }
     },
     
     closeModal() {

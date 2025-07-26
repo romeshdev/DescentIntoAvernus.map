@@ -24,8 +24,7 @@ export default {
       };
     },
     parsedNumId() {
-      // Using a regular expression to retain only numbers
-      return this.numId.replace(/\D/g, "");
+      return typeof this.numId === 'string' ? this.numId.replace(/\D/g, '') : ''
     },
     statusClass() {
       if (!this.status) return 'status-unknown';

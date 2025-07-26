@@ -51,7 +51,7 @@ router.put('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
     }
     
     // Validate allowed fields (prevent unauthorized modifications)
-    const allowedFields = ['name', 'text', 'status', 'item', 'terrain'];
+    const allowedFields = ['id', 'x', 'y', 'name', 'text', 'status', 'item', 'terrain', 'connectedTo'];
     const updateKeys = Object.keys(updates);
     const invalidFields = updateKeys.filter(key => !allowedFields.includes(key));
     
@@ -66,42 +66,41 @@ router.put('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
 
     const locationIndex = data.findIndex(item => item['id'] === id);
 
+    // Log the update for audit purposes
+    console.log(`User ${req.user.username} (ID: ${req.user.id}) updating hex ${id} in map ${mapId}:`, updates);
+      
     if (locationIndex !== -1) {
-      // Log the update for audit purposes
-      console.log(`User ${req.user.username} (ID: ${req.user.id}) updating hex ${id} in map ${mapId}:`, updates);
-      
-      // Update the location
       data[locationIndex] = { ...data[locationIndex], ...updates };
-      
-      // Write back to main data file
-      writeDataFile(dataPath, data);
-      
-      // Also update player data if it exists
-      const playerDataPath = path.join(__dirname, 'player', 'data', `${mapId}-data.js`);
-      try {
-        if (fs.existsSync(path.dirname(playerDataPath))) {
-          writeDataFile(playerDataPath, data);
-        }
-      } catch (playerError) {
-        console.warn('Could not update player data file:', playerError.message);
-        // Don't fail the request if player data update fails
-      }
-      
-      res.json({ 
-        success: true, 
-        data: data[locationIndex],
-        message: 'Location updated successfully',
-        updatedBy: req.user.username,
-        updatedAt: new Date().toISOString()
-      });
     } else {
-      res.status(404).json({ error: 'Location not found' });
+      data.push(updates);
     }
+    // Write back to main data file
+    writeDataFile(dataPath, data);
+    
+    // Also update player data if it exists
+    const playerDataPath = path.join(__dirname, 'player', 'data', `${mapId}-data.js`);
+    try {
+      if (fs.existsSync(path.dirname(playerDataPath))) {
+        writeDataFile(playerDataPath, data);
+      }
+    } catch (playerError) {
+      console.warn('Could not update player data file:', playerError.message);
+      // Don't fail the request if player data update fails
+    }
+    
+    res.json({ 
+      success: true, 
+      data: data[locationIndex],
+      message: 'Location updated successfully',
+      updatedBy: req.user.username,
+      updatedAt: new Date().toISOString()
+    });
   } catch (error) {
     console.error('Error updating data:', error);
     res.status(500).json({ error: 'Failed to update data' });
   }
 });
+
 
 // Protected route - bulk update multiple hexes (for advanced operations)
 router.put('/maps/:mapId/bulk', authenticateToken, (req, res) => {

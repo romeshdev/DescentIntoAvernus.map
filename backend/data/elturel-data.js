@@ -336,5 +336,59 @@ module.exports = [
     "status": "U",
     "name": "The High Hall",
     "text": "Described in <em>Descent Into Avernus</em> (p. 58) and <a href=\"https://thealexandrian.net/?p=44925\">Part 5D</a>."
+  },
+  {
+    "x": 0,
+    "y": 0,
+    "id": "23",
+    "connectedTo": [],
+    "status": "K",
+    "name": "Secret Tunnelllll",
+    "text": ""
+  },
+  {
+    "x": 787,
+    "y": 484,
+    "id": "24",
+    "connectedTo": [],
+    "status": "U",
+    "name": "New Location",
+    "text": ""
+  },
+  {
+    "x": 879,
+    "y": 416,
+    "id": "25",
+    "connectedTo": [],
+    "status": "E",
+    "name": "Some New Location",
+    "text": "sadasdsadsada"
+  },
+  {
+    "x": 954,
+    "y": 578,
+    "id": "26",
+    "connectedTo": [],
+    "status": "U",
+    "name": "New Location",
+    "text": ""
+  },
+  {
+    "x": 1059,
+    "y": 703,
+    "id": "27",
+    "connectedTo": [],
+    "status": "U",
+    "name": "New Location",
+    "text": ""
+  },
+  {
+    "x": 205,
+    "y": 371,
+    "id": "28",
+    "connectedTo": [],
+    "status": "U",
+    "name": "New Location",
+    "text": ""
   }
 ];
