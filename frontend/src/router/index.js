@@ -20,14 +20,12 @@ const routes = [
     {
         path: '/maps',
         name: 'MapsView',
-        component: MapsView,
-        meta: { requiresGuest: true }
+        component: MapsView
     },
     {
         path: '/maps/:id',
         name: 'MapView',
-        component: MapView,
-        meta: { requiresGuest: true }
+        component: MapView
     },
     {
         path: '/dashboard',

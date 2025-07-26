@@ -8,10 +8,16 @@
         </div>
         
         <div v-else-if="locationData">
+          <!-- Edit Mode Indicator -->
+          <div v-if="isEditModeActive" class="edit-mode-banner">
+            <span class="edit-icon">✏️</span>
+            Edit Mode Active - Click to edit content
+          </div>
+          
           <!-- Editable Title -->
-          <div v-if="!editingTitle" class="u-text u-text-1" @click="startEditTitle" style="font-size: 2em; font-weight: bold; margin-bottom: 10px; cursor: pointer;"> 
+          <div v-if="!editingTitle" class="u-text u-text-1" @click="startEditTitle" :class="{ 'editable-field': isEditModeActive }" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
             {{ localName }} 
-            <small v-if="editable" class="clickable-hint">(click to edit)</small>
+            <small v-if="isEditModeActive" class="clickable-hint">(click to edit)</small>
           </div>
           <div v-else class="edit-mode">
             <input 
@@ -38,9 +44,9 @@
             </div>
           
           <!-- Editable Text -->
-          <div v-if="!editingText" class="u-align-justify u-text u-text-3" @click="startEditText" style="cursor: pointer;">
+          <div v-if="!editingText" class="u-align-justify u-text u-text-3" @click="startEditText" :class="{ 'editable-field': isEditModeActive }" style="cursor: pointer;">
             <div v-html="localText"></div>
-            <small v-if="editable" class="clickable-hint">(click to edit)</small>
+            <small v-if="isEditModeActive" class="clickable-hint">(click to edit)</small>
           </div>
           <div v-else class="edit-mode">
             <textarea 
@@ -58,14 +64,37 @@
           
           <div id="modal-message-container"></div>
           
-          <div v-if="editable" class="status-buttons" style="margin-top: 20px;">
-            <strong>Status:</strong>
-            <InfernalButton :onClick="() => updateStatus('U')">Unknown</InfernalButton>
-            <InfernalButton :onClick="() => updateStatus('K')">Known</InfernalButton>
-            <InfernalButton :onClick="() => updateStatus('E')">Explored</InfernalButton>
-            <!-- <button class="infernal-button" @click="updateStatus('U')" :class="{ 'active': locationData.status === 'U' }">Unknown</button>
-            <button class="infernal-button" @click="updateStatus('K')" :class="{ 'active': locationData.status === 'K' }">Known</button>
-            <button class="infernal-button" @click="updateStatus('E')" :class="{ 'active': locationData.status === 'E' }">Explored</button> -->
+          <!-- Status buttons only show in edit mode -->
+          <div v-if="isEditModeActive" class="status-buttons" style="margin-top: 20px;">
+            <strong>Player Status:</strong>
+            <div class="status-button-group">
+              <InfernalButton 
+                :onClick="() => updateStatus('U')"
+                :class="{ 'status-active': locationData.status === 'U' }"
+              >
+                Unknown
+              </InfernalButton>
+              <InfernalButton 
+                :onClick="() => updateStatus('K')"
+                :class="{ 'status-active': locationData.status === 'K' }"
+              >
+                Known
+              </InfernalButton>
+              <InfernalButton 
+                :onClick="() => updateStatus('E')"
+                :class="{ 'status-active': locationData.status === 'E' }"
+              >
+                Explored
+              </InfernalButton>
+            </div>
+          </div>
+          
+          <!-- Show current status even when not in edit mode -->
+          <div v-else-if="locationData.status" class="status-display">
+            <strong>Player Status:</strong> 
+            <span class="status-badge" :class="`status-${locationData.status.toLowerCase()}`">
+              {{ locationData.status === 'U' ? 'Unknown' : locationData.status === 'K' ? 'Known' : 'Explored' }}
+            </span>
           </div>
         </div>
         
@@ -75,7 +104,9 @@
       </div>
     </div>
 </template>
+
 <script>
+import { inject, computed } from 'vue'
 import InfernalButton from './InfernalButton.vue';
 
 export default {
@@ -84,7 +115,21 @@ export default {
   props: {
     hex: String,
     region: String,
-    editable: Boolean
+    editable: Boolean // Keep for backward compatibility, but now use injected edit mode
+  },
+  setup() {
+    // Inject edit mode and authentication state from parent
+    const editMode = inject('editMode', { value: false })
+    const isAuthenticated = inject('isAuthenticated', { value: false })
+    
+    // Edit mode is active when both edit mode is on AND user is authenticated
+    const isEditModeActive = computed(() => {
+      return editMode.value && isAuthenticated.value
+    })
+    
+    return {
+      isEditModeActive
+    }
   },
   data() {
     return {
@@ -165,7 +210,7 @@ export default {
     },
     
     startEditTitle() {
-      if(!this.editable) return;
+      if(!this.isEditModeActive) return;
       this.editingTitle = true;
       this.editTitleValue = this.localName;
       this.$nextTick(() => {
@@ -187,7 +232,7 @@ export default {
     },
     
     startEditText() {
-      if(!this.editable) return;
+      if(!this.isEditModeActive) return;
       this.editingText = true;
       this.editTextValue = this.localText;
       this.$nextTick(() => {
@@ -209,7 +254,11 @@ export default {
     sendUpdate(updateData) {
       fetch(`/api/data/maps/${this.region}/hex/${this.hex}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          // Add authorization header if available
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
         body: JSON.stringify(updateData)
       })
       .then(response => response.json())
@@ -258,6 +307,7 @@ export default {
   }
 }
 </script>
+
 <style scoped>
 .modal-overlay {
   position: fixed;
@@ -298,6 +348,36 @@ export default {
 
 .modal-close:hover {
   color: #fff;
+}
+
+.edit-mode-banner {
+  background: linear-gradient(45deg, #ff6b6b, #ea6262);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.edit-icon {
+  font-size: 1.2rem;
+}
+
+.editable-field {
+  position: relative;
+  border: 2px dashed transparent;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.editable-field:hover {
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.05);
 }
 
 .edit-mode {
@@ -344,10 +424,60 @@ export default {
 
 .edit-buttons {
   margin: 10px 0;
+  display: flex;
+  gap: 10px;
 }
 
-.edit-buttons button {
-  margin-right: 10px;
+.status-buttons {
+  background: #2a2a2a;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+}
+
+.status-button-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.status-active {
+  background: #ff6b6b !important;
+  border-color: #ff6b6b !important;
+  color: white !important;
+}
+
+.status-display {
+  background: #2a2a2a;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #444;
+  margin-top: 1rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-u {
+  background: #6c757d;
+  color: white;
+}
+
+.status-k {
+  background: #ffc107;
+  color: #000;
+}
+
+.status-e {
+  background: #28a745;
+  color: white;
 }
 
 .success {

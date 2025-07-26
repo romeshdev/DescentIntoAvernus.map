@@ -2,50 +2,71 @@
   <nav class="navbar">
     <div class="nav-container">
       <router-link to="/" class="nav-brand">
-        My Full-Stack App
+        Orphan's of Avernus
       </router-link>
-  <div class="nav-menu" :class="{ active: isMenuOpen }">
-    <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton>
-    <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
-    
-    <template v-if="isAuthenticated">
-      <InfernalButton to="/dashboard" :onClick="closeMenu">Dashboard</InfernalButton>
-      <div class="nav-user">
-        <span class="user-info">{{ user?.username }}</span>
-        <InfernalButton :onClick="handleLogout">Logout</InfernalButton>
+      
+      <div class="nav-menu" :class="{ active: isMenuOpen }">
+        <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton>
+        <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
+        
+        <!-- Edit Mode Toggle -->
+        <div class="edit-mode-section">
+          <button 
+            @click="toggleEditMode" 
+            class="edit-mode-toggle"
+            :class="{ 'active': editMode, 'authenticated': isAuthenticated }"
+          >
+            <span class="toggle-icon">✏️</span>
+            <span class="toggle-text">
+              {{ editMode ? 'Exit Edit' : 'Edit Mode' }}
+            </span>
+            <span v-if="editMode && isAuthenticated" class="edit-indicator">ON</span>
+          </button>
+        </div>
       </div>
-    </template>
-    <template v-else>
-      <InfernalButton to="/login" :onClick="closeMenu">DM Login</InfernalButton>
-    </template>
-  </div>
-  
-  <div class="nav-toggle" @click="toggleMenu">
-    <span class="bar"></span>
-    <span class="bar"></span>
-    <span class="bar"></span>
-  </div>
-</div>
+      
+      <div class="nav-toggle" @click="toggleMenu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <LoginModal 
+      v-if="showLoginModal" 
+      @close-modal="closeLoginModal"
+      @login-success="onLoginSuccess"
+    />
   </nav>
 </template>
+
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, provide } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store/auth'
-import InfernalButton from '../components/InfernalButton.vue' 
+import InfernalButton from '../components/InfernalButton.vue'
+import LoginModal from '../components/LoginModal.vue'
 
 export default {
   name: 'Navbar',
   components: {
-    InfernalButton
+    InfernalButton,
+    LoginModal
   },
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
     const isMenuOpen = ref(false)
+    const showLoginModal = ref(false)
+    const editMode = ref(false)
     
     const isAuthenticated = computed(() => authStore.isAuthenticated)
     const user = computed(() => authStore.user)
+    
+    // Provide edit mode to child components
+    provide('editMode', editMode)
+    provide('isAuthenticated', isAuthenticated)
     
     const toggleMenu = () => {
       isMenuOpen.value = !isMenuOpen.value
@@ -55,8 +76,35 @@ export default {
       isMenuOpen.value = false
     }
     
+    const toggleEditMode = () => {
+      if (!editMode.value) {
+        // Turning edit mode ON
+        if (isAuthenticated.value) {
+          // Already authenticated, just enable edit mode
+          editMode.value = true
+        } else {
+          // Not authenticated, show login modal
+          showLoginModal.value = true
+        }
+      } else {
+        // Turning edit mode OFF
+        editMode.value = false
+      }
+    }
+    
+    const closeLoginModal = () => {
+      showLoginModal.value = false
+    }
+    
+    const onLoginSuccess = () => {
+      // Enable edit mode after successful login
+      editMode.value = true
+      showLoginModal.value = false
+    }
+    
     const handleLogout = () => {
       authStore.logout()
+      editMode.value = false // Disable edit mode on logout
       router.push('/')
       closeMenu()
     }
@@ -65,13 +113,19 @@ export default {
       isMenuOpen,
       isAuthenticated,
       user,
+      editMode,
+      showLoginModal,
       toggleMenu,
       closeMenu,
+      toggleEditMode,
+      closeLoginModal,
+      onLoginSuccess,
       handleLogout
     }
   }
 }
 </script>
+
 <style scoped>
 .navbar {
   background-color: #1a1a1a;
@@ -117,6 +171,71 @@ export default {
 .nav-link:hover,
 .nav-link.router-link-active {
   background-color: #495057;
+}
+
+.edit-mode-section {
+  display: flex;
+  align-items: center;
+}
+
+.edit-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #2a2a2a;
+  border: 2px solid #555;
+  border-radius: 6px;
+  color: #e0e0e0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.edit-mode-toggle:hover {
+  border-color: #ff6b6b;
+  background: #333;
+  transform: translateY(-1px);
+}
+
+.edit-mode-toggle.active {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+  color: white;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+}
+
+.edit-mode-toggle.active:hover {
+  background: #ea6262;
+  border-color: #ea6262;
+}
+
+.edit-mode-toggle.authenticated:not(.active) {
+  border-color: #28a745;
+  background: #1e3a24;
+}
+
+.edit-mode-toggle.authenticated:not(.active):hover {
+  border-color: #28a745;
+  background: #2d4a32;
+}
+
+.toggle-icon {
+  font-size: 1.1rem;
+}
+
+.toggle-text {
+  font-weight: 500;
+}
+
+.edit-indicator {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
 }
 
 .nav-user {
@@ -171,5 +290,31 @@ export default {
     flex-direction: column;
     gap: 0.5rem;
   }
+
+  .edit-mode-section {
+    order: -1; /* Show edit mode toggle first on mobile */
+  }
+
+  .edit-mode-toggle {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* Animation for edit mode activation */
+@keyframes editModeActivate {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.edit-mode-toggle.active {
+  animation: editModeActivate 0.3s ease;
 }
 </style>

@@ -1,47 +1,49 @@
 <template>
-  <div id="hexcrawl" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="mapId == 'avernus'">
-    <div v-for="(element, rowIndex) in printable" :key="rowIndex">
-      <Row :element="element" @open-modal="openLocationModal" />
-      <div :class="invisTerr" style="position: absolute">
-        <img
-          class="hexImg noselect"
-          v-for="terr in element"
-          :key="terr.id"
-          :id="terr.id"
-          :src="'/avernus-tiles/' + terr.terrain[0] + '.png'"
-        />
+  <div>
+    <div id="hexcrawl" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="mapId == 'avernus'">
+      <div v-for="(element, rowIndex) in printable" :key="rowIndex">
+        <Row :element="element" @open-modal="openLocationModal" />
+        <div :class="invisTerr" style="position: absolute">
+          <img
+            class="hexImg noselect"
+            v-for="terr in element"
+            :key="terr.id"
+            :id="terr.id"
+            :src="'/avernus-tiles/' + terr.terrain[0] + '.png'"
+          />
+        </div>
       </div>
-    </div>
 
-    <!-- Location Modal -->
-    <LocationModal
-      v-if="showLocationModal"
-      :region="mapId"
-      :hex="selectedHex"
-      @close-modal="closeLocationModal"
-      @location-updated="handleLocationUpdate"
-      :editable="true"
-    />
+      <!-- Location Modal -->
+      <LocationModal
+        v-if="showLocationModal"
+        :region="mapId"
+        :hex="selectedHex"
+        @close-modal="closeLocationModal"
+        @location-updated="handleLocationUpdate"
+        :editable="true"
+      />
+    </div>
+    <div id="nodes" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="mapId != 'avernus'">
+        <!-- Render location markers -->
+        <LocationMarker v-for="location in locations" 
+                          :key="`node${location.id}`"
+                          :x="location.x" 
+                          :y="location.y" 
+                          :status="location.status"
+                          :numId="location.id" 
+                          :locName="location.name"
+                          @open-modal="$emit('open-modal', $event)">
+        </LocationMarker>
+
+        <!-- Render connecting lines -->
+        <div v-for="location in locations" :key="location.id">
+            <div v-for="connectedId in location.connectedTo" :key="connectedId"
+                  :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId), location.id, connectedId)"
+                  class="line"></div>
+        </div>
+    </div>
   </div>
-  <div id="nodes" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="mapId != 'avernus'">
-    <!-- Render location markers -->
-    <LocationMarker v-for="location in locations" 
-                      :key="`node${location.id}`"
-                      :x="location.x" 
-                      :y="location.y" 
-                      :status="location.status"
-                      :numId="location.id" 
-                      :locName="location.name"
-                      @open-modal="$emit('open-modal', $event)">
-    </LocationMarker>
-
-    <!-- Render connecting lines -->
-    <div v-for="location in locations" :key="location.id">
-        <div v-for="connectedId in location.connectedTo" :key="connectedId"
-              :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId), location.id, connectedId)"
-              class="line"></div>
-    </div>
-</div>
 </template>
 
 <script>
