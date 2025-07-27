@@ -6,7 +6,7 @@ module.exports = [
     "terrain": [
       "mountains"
     ],
-    "status": "U",
+    "status": "K",
     "item": ""
   },
   {
@@ -211,7 +211,7 @@ module.exports = [
       "cracks",
       "pit"
     ],
-    "status": "U",
+    "status": "K",
     "item": "heartstone"
   },
   {
@@ -432,7 +432,7 @@ module.exports = [
     "terrain": [
       "hills"
     ],
-    "status": "U",
+    "status": "K",
     "item": ""
   },
   {
@@ -542,7 +542,7 @@ module.exports = [
     "terrain": [
       "waste"
     ],
-    "status": "U",
+    "status": "E",
     "item": "Phlegethosian sand"
   },
   {

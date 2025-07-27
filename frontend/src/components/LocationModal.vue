@@ -16,7 +16,7 @@
           
           <!-- Editable Title -->
           <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
-            {{ localName }} 
+            {{ localName }}
           </div>
           <div v-else class="edit-mode">
             <label class="edit-label">Location Name:</label>
@@ -25,6 +25,29 @@
               class="edit-input" 
               placeholder="Enter location name"
             />
+          </div>
+
+          <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
+            <span class="status-badge" :class="`status-${locationData.status.toLowerCase()}`">
+              {{ locationData.status === 'U' ? 'Unknown' : locationData.status === 'K' ? 'Known' : 'Explored' }}
+            </span>
+          </div>
+          <div v-else class="edit-mode">
+            <label class="edit-label">Player Status:</label>
+            <div class="status-button-group">
+              <InfernalButton 
+                :onClick="() => updateLocalStatus('U')"
+                :class="{ 'status-active': editStatusValue === 'U' }">Unknown
+              </InfernalButton>
+              <InfernalButton 
+                :onClick="() => updateLocalStatus('K')"
+                :class="{ 'status-active': editStatusValue === 'K' }">Known
+              </InfernalButton>
+              <InfernalButton 
+                :onClick="() => updateLocalStatus('E')"
+                :class="{ 'status-active': editStatusValue === 'E' }">Explored
+              </InfernalButton>
+            </div>
           </div>
           
           <div class="u-text-2" style="margin-bottom: 15px;">
@@ -50,44 +73,11 @@
           </div>
           
           <div id="modal-message-container"></div>
-          
-          <!-- Status buttons only show in edit mode -->
-          <div v-if="isEditModeActive" class="status-buttons" style="margin-top: 20px;">
-            <strong>Player Status:</strong>
-            <div class="status-button-group">
-              <InfernalButton 
-                :onClick="() => updateLocalStatus('U')"
-                :class="{ 'status-active': editStatusValue === 'U' }"
-              >
-                Unknown
-              </InfernalButton>
-              <InfernalButton 
-                :onClick="() => updateLocalStatus('K')"
-                :class="{ 'status-active': editStatusValue === 'K' }"
-              >
-                Known
-              </InfernalButton>
-              <InfernalButton 
-                :onClick="() => updateLocalStatus('E')"
-                :class="{ 'status-active': editStatusValue === 'E' }"
-              >
-                Explored
-              </InfernalButton>
-            </div>
-          </div>
-          
-          <!-- Show current status even when not in edit mode -->
-          <div v-else-if="locationData.status" class="status-display">
-            <strong>Player Status: </strong> 
-            <span class="status-badge" :class="`status-${locationData.status.toLowerCase()}`">
-              {{ locationData.status === 'U' ? 'Unknown' : locationData.status === 'K' ? 'Known' : 'Explored' }}
-            </span>
-          </div>
 
           <!-- Single Save/Cancel buttons at bottom for edit mode -->
           <div v-if="isEditModeActive" class="main-edit-buttons">
-            <InfernalButton :onClick="saveAllChanges" class="save-button">Save All Changes</InfernalButton>
-            <InfernalButton :onClick="cancelAllChanges" class="cancel-button">Cancel Changes</InfernalButton>
+            <InfernalButton :onClick="saveAllChanges">Save All Changes</InfernalButton>
+            <InfernalButton :onClick="cancelAllChanges">Cancel Changes</InfernalButton>
           </div>
         </div>
         
@@ -378,8 +368,8 @@ export default {
   background: #1a1a1a;
   color: #e0e0e0;
   border-radius: 8px;
-  padding: 20px;
-  width: 600px; /* Fixed width */
+  padding: 30px;
+  width: 650px; /* Fixed width */
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
@@ -502,9 +492,7 @@ export default {
 }
 
 .status-active {
-  background: #ff6b6b !important;
-  border-color: #ff6b6b !important;
-  color: white !important;
+  background-image: url("../buttons/button3.png");
 }
 
 .status-display {

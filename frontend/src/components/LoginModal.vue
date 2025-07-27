@@ -30,10 +30,9 @@
           <InfernalButton  type="submit" :disabled="loading" :onClick="handleSubmit" >
             {{ loading ? 'Processing...' : (isRegistering ? 'Register' : 'Login') }}
           </InfernalButton>
-          
-          <button type="button" @click="closeModal" class="btn-cancel" :disabled="loading">
+          <InfernalButton  :disabled="loading" :onClick="closeModal" >
             Cancel
-          </button>
+          </InfernalButton>
         </div>
       </form>
       

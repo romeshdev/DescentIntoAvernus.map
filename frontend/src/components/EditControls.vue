@@ -3,10 +3,10 @@
   <div class="edit-controls" style="z-index: 999999">
     <transition name="fade">
       <div v-if="editMode" class="context-buttons">
-        <button v-if="!placingMarker" class="context-button" @click="startPlacingMarker">
+        <button v-if="!placingMarker && mapId != 'avernus'" class="context-button" @click="startPlacingMarker">
           ➕ Place Marker
         </button>
-        <button v-else class="context-button active" @click="placingMarker = false">
+        <button v-else-if="mapId != 'avernus'" class="context-button active" @click="placingMarker = false">
           📌 Placing Marker..
         </button>
       </div>
@@ -37,6 +37,7 @@ const editMode = inject('editMode')
 const placingMarker = inject('placingMarker')
 const isAuthenticated = inject('isAuthenticated', { value: false })
 const startPlacingMarker = inject('startPlacingMarker')
+const mapId = inject('mapId')
 
 const toggleEdit = () => {
     if (!editMode.value) {

@@ -113,7 +113,7 @@ export default {
         id: 'baldurs-gate',
         name: "Baldur's Gate",
         description: 'The city where it all begins. Explore the upper and lower city before descending into hell.',
-        thumbnail: '/baldurs-gate-map.png',
+        thumbnail: '/baldurs-gate-map.jpg',
         hexCount: 45,
         terrainTypes: ['urban', 'docks', 'residential'],
         dreamMachineComponents: 3,

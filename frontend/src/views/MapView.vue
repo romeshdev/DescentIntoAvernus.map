@@ -4,13 +4,7 @@
       <div v-for="(element, rowIndex) in printable" :key="rowIndex">
         <Row :element="element" @open-modal="openLocationModal" />
         <!-- <div :class="invisTerr" style="position: absolute">
-          <img
-            class="hexImg noselect"
-            v-for="terr in element"
-            :key="terr.id"
-            :id="terr.id"
-            :src="'/avernus-tiles/' + terr.terrain[0] + '.png'"
-          />
+          <span class="hexImg noselect" v-for="terr in element" style="z-index: 999;top: -80px;">{{ terr.name }}</span>
         </div> -->
       </div>
 
@@ -92,6 +86,7 @@ const handleMapClickFromOverlay = ({ x, y }) => {
 
 // Standard component state and logic
 const mapId = ref('')
+provide('mapId', mapId)
 const printable = ref([])
 const locations = ref([])
 
@@ -345,6 +340,11 @@ watch(() => printable.value, (newPrintable) => {
 }
 
 .invisTerrain {
+  position: absolute;
+  opacity: 0;
+}
+
+.hexTitle {
   position: absolute;
   opacity: 0;
 }
