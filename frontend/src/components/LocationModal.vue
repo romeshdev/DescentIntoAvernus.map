@@ -11,27 +11,20 @@
           <!-- Edit Mode Indicator -->
           <div v-if="isEditModeActive" class="edit-mode-banner">
             <span class="edit-icon">✏️</span>
-            Edit Mode Active - Click content to edit
+            Edit Mode Active - Make your changes and click Save All Changes
           </div>
           
           <!-- Editable Title -->
-          <div v-if="!editingTitle" class="u-text u-text-1" @click="startEditTitle" :class="{ 'editable-field': isEditModeActive }" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
+          <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
             {{ localName }} 
-            <small v-if="isEditModeActive" class="clickable-hint">(click to edit)</small>
           </div>
           <div v-else class="edit-mode">
+            <label class="edit-label">Location Name:</label>
             <input 
               v-model="editTitleValue" 
               class="edit-input" 
-              @keyup.enter="saveTitle"
-              @keyup.escape="cancelEditTitle"
-              ref="titleInput"
               placeholder="Enter location name"
             />
-            <div class="edit-buttons">
-              <InfernalButton :onClick="saveTitle">Save</InfernalButton>
-              <InfernalButton :onClick="cancelEditTitle">Cancel</InfernalButton>
-            </div>
           </div>
           
           <div class="u-text-2" style="margin-bottom: 15px;">
@@ -44,22 +37,16 @@
             </div>
           
           <!-- Editable Text -->
-          <div v-if="!editingText" class="u-align-justify u-text u-text-3" @click="startEditText" :class="{ 'editable-field': isEditModeActive }" style="cursor: pointer;">
+          <div v-if="!isEditModeActive" class="u-align-justify u-text u-text-3">
             <div v-html="localText"></div>
-            <small v-if="isEditModeActive" class="clickable-hint">(click to edit)</small>
           </div>
           <div v-else class="edit-mode">
+            <label class="edit-label">Location Description:</label>
             <textarea 
               v-model="editTextValue" 
               class="edit-textarea" 
-              @keyup.escape="cancelEditText"
-              ref="textInput"
               placeholder="Enter location description (HTML allowed)"
             ></textarea>
-            <div class="edit-buttons">
-              <InfernalButton :onClick="saveText">Save</InfernalButton>
-              <InfernalButton :onClick="cancelEditText">Cancel</InfernalButton>
-            </div>
           </div>
           
           <div id="modal-message-container"></div>
@@ -69,20 +56,20 @@
             <strong>Player Status:</strong>
             <div class="status-button-group">
               <InfernalButton 
-                :onClick="() => updateStatus('U')"
-                :class="{ 'status-active': locationData.status === 'U' }"
+                :onClick="() => updateLocalStatus('U')"
+                :class="{ 'status-active': editStatusValue === 'U' }"
               >
                 Unknown
               </InfernalButton>
               <InfernalButton 
-                :onClick="() => updateStatus('K')"
-                :class="{ 'status-active': locationData.status === 'K' }"
+                :onClick="() => updateLocalStatus('K')"
+                :class="{ 'status-active': editStatusValue === 'K' }"
               >
                 Known
               </InfernalButton>
               <InfernalButton 
-                :onClick="() => updateStatus('E')"
-                :class="{ 'status-active': locationData.status === 'E' }"
+                :onClick="() => updateLocalStatus('E')"
+                :class="{ 'status-active': editStatusValue === 'E' }"
               >
                 Explored
               </InfernalButton>
@@ -96,6 +83,12 @@
               {{ locationData.status === 'U' ? 'Unknown' : locationData.status === 'K' ? 'Known' : 'Explored' }}
             </span>
           </div>
+
+          <!-- Single Save/Cancel buttons at bottom for edit mode -->
+          <div v-if="isEditModeActive" class="main-edit-buttons">
+            <InfernalButton :onClick="saveAllChanges" class="save-button">Save All Changes</InfernalButton>
+            <InfernalButton :onClick="cancelAllChanges" class="cancel-button">Cancel Changes</InfernalButton>
+          </div>
         </div>
         
         <div v-else class="error">
@@ -106,7 +99,7 @@
 </template>
 
 <script>
-import { inject, computed } from 'vue'
+import { inject, computed, watch } from 'vue'
 import InfernalButton from './InfernalButton.vue';
 
 export default {
@@ -116,7 +109,7 @@ export default {
     hex: String,
     region: String,
     editable: Boolean, // Keep for backward compatibility, but now use injected edit mode
-    pendingLocation: Object
+    locationModel: Object // New prop to receive the location model from parent
   },
   setup() {
     // Inject edit mode and authentication state from parent
@@ -129,68 +122,135 @@ export default {
     })
     
     return {
-      isEditModeActive
+      isEditModeActive,
+      isAuthenticated
     }
   },
   data() {
     return {
       locationData: null,
       loading: false,
-      editingTitle: false,
-      editingText: false,
       editTitleValue: '',
       editTextValue: '',
+      editStatusValue: '',
       localName: '',
-      localText: ''
+      localText: '',
+      // Store original values for cancel functionality
+      originalName: '',
+      originalText: '',
+      originalStatus: ''
     };
   },
   watch: {
-    hex: {
-      handler(newHex) {
-        // if (newHex) {
-          this.loadLocationData();
-        // }
+    locationModel: {
+      handler(newModel) {
+        if (newModel) {
+          this.loadLocationFromModel();
+        }
       },
-      immediate: true
+      immediate: true,
+      deep: true
+    },
+    // Initialize edit values when edit mode is activated
+    'isEditModeActive': {
+      handler(newEditMode) {
+        if (newEditMode && this.locationData) {
+          this.initializeEditValues();
+        }
+      }
     }
   },
   methods: {
-    loadLocationData() {
+    loadLocationFromModel() {
       this.loading = true;
       this.locationData = null;
 
-      if (this.pendingLocation != null) {
-          this.locationData = {
-            "x": this.pendingLocation.x,
-            "y": this.pendingLocation.y,
-            "id": this.pendingLocation.id,
-            "connectedTo": [],
-            "status": "U",
-            "name": this.pendingLocation.name,
-            "text": ""
-          };
-          
-          this.localName = this.locationData.name;
-          this.localText = this.locationData.text;
-          this.loading = false;
-
-          this.sendUpdate(this.locationData);
-          return;
-      } else {
-        fetch(`/api/data/maps/${this.region}/hex/${this.hex}`)
-          .then(response => response.json())
-          .then(data => {
-            this.locationData = data.data;
-            this.localName = this.locationData.name;
-            this.localText = this.locationData.text;
-            this.loading = false;
-          })
-          .catch(error => {
-            console.error('Error loading location:', error);
-            this.loading = false;
-            this.showError('Failed to load location data.');
-          });
+      if (!this.locationModel) {
+        this.loading = false;
+        return;
       }
+
+      // Check if this is a new location (name is 'New Location')
+      const isNewLocation = this.locationModel.name === 'New Location';
+      
+      if (isNewLocation) {
+        // Handle like the old pendingLocation
+        this.locationData = {
+          "x": this.locationModel.x,
+          "y": this.locationModel.y,
+          "id": this.locationModel.id,
+          "connectedTo": [],
+          "status": "U",
+          "name": this.locationModel.name,
+          "text": ""
+        };
+        
+        this.localName = this.locationData.name;
+        this.localText = this.locationData.text;
+        this.loading = false;
+        this.initializeEditValues();
+
+        // Send update for new location
+        this.sendUpdate(this.locationData);
+      } else {
+        // Use the provided model as-is for existing locations
+        this.locationData = { ...this.locationModel };
+        this.localName = this.locationData.name || '';
+        this.localText = this.locationData.text || '';
+        this.loading = false;
+        this.initializeEditValues();
+      }
+    },
+
+    initializeEditValues() {
+      if (this.locationData) {
+        // Set edit values to current data
+        this.editTitleValue = this.locationData.name || '';
+        this.editTextValue = this.locationData.text || '';
+        this.editStatusValue = this.locationData.status || 'U';
+        
+        // Store original values for cancel functionality
+        this.originalName = this.locationData.name || '';
+        this.originalText = this.locationData.text || '';
+        this.originalStatus = this.locationData.status || 'U';
+      }
+    },
+
+    updateLocalStatus(status) {
+      this.editStatusValue = status;
+    },
+
+    saveAllChanges() {
+      // Prepare update data with all changed fields
+      const updateData = {};
+      
+      if (this.editTitleValue.trim() !== this.originalName) {
+        updateData.name = this.editTitleValue.trim();
+      }
+      
+      if (this.editTextValue !== this.originalText) {
+        updateData.text = this.editTextValue;
+      }
+      
+      if (this.editStatusValue !== this.originalStatus) {
+        updateData.status = this.editStatusValue;
+      }
+
+      // Only send update if there are changes
+      if (Object.keys(updateData).length > 0) {
+        this.sendUpdate(updateData);
+      } else {
+        this.showSuccess('No changes to save');
+      }
+    },
+
+    cancelAllChanges() {
+      // Reset edit values to original values
+      this.editTitleValue = this.originalName;
+      this.editTextValue = this.originalText;
+      this.editStatusValue = this.originalStatus;
+      
+      this.showSuccess('Changes cancelled');
     },
     
     closeModal() {
@@ -225,52 +285,6 @@ export default {
       }
     },
     
-    updateStatus(status) {
-      this.sendUpdate({ status: status });
-    },
-    
-    startEditTitle() {
-      if(!this.isEditModeActive) return;
-      this.editingTitle = true;
-      this.editTitleValue = this.localName;
-      this.$nextTick(() => {
-        this.$refs.titleInput.focus();
-      });
-    },
-    
-    cancelEditTitle() {
-      this.editingTitle = false;
-      this.editTitleValue = '';
-    },
-    
-    saveTitle() {
-      if (this.editTitleValue.trim() !== '') {
-        this.sendUpdate({ name: this.editTitleValue.trim() });
-        this.localName = this.editTitleValue.trim();
-        this.editingTitle = false;
-      }
-    },
-    
-    startEditText() {
-      if(!this.isEditModeActive) return;
-      this.editingText = true;
-      this.editTextValue = this.localText;
-      this.$nextTick(() => {
-        this.$refs.textInput.focus();
-      });
-    },
-    
-    cancelEditText() {
-      this.editingText = false;
-      this.editTextValue = '';
-    },
-    
-    saveText() {
-      this.sendUpdate({ text: this.editTextValue });
-      this.localText = this.editTextValue;
-      this.editingText = false;
-    },
-    
     sendUpdate(updateData) {
       fetch(`/api/data/maps/${this.region}/hex/${this.hex}`, {
         method: 'PUT',
@@ -287,16 +301,34 @@ export default {
           // Update local data
           Object.assign(this.locationData, updateData);
           
+          // Update display values
+          if (updateData.name) {
+            this.localName = updateData.name;
+          }
+          if (updateData.text !== undefined) {
+            this.localText = updateData.text;
+          }
+          
+          // Update original values to match saved values
+          this.originalName = this.locationData.name || '';
+          this.originalText = this.locationData.text || '';
+          this.originalStatus = this.locationData.status || 'U';
+          
           // Emit event to parent to update the map
           this.$emit('location-updated', { hex: this.hex, data: updateData });
           
           // Show success message
-          const field = Object.keys(updateData)[0];
+          const changedFields = Object.keys(updateData);
           let message = '';
-          if (field === 'status') {
-            message = `Status updated to ${updateData.status === 'U' ? 'Unknown' : updateData.status === 'K' ? 'Known' : 'Explored'}`;
+          if (changedFields.length === 1) {
+            const field = changedFields[0];
+            if (field === 'status') {
+              message = `Status updated to ${updateData.status === 'U' ? 'Unknown' : updateData.status === 'K' ? 'Known' : 'Explored'}`;
+            } else {
+              message = `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`;
+            }
           } else {
-            message = `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`;
+            message = `${changedFields.length} fields updated successfully`;
           }
           this.showSuccess(message);
         } else {
@@ -347,7 +379,7 @@ export default {
   color: #e0e0e0;
   border-radius: 8px;
   padding: 20px;
-  max-width: 800px;
+  width: 600px; /* Fixed width */
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
@@ -406,25 +438,19 @@ export default {
   font-size: 1.2rem;
 }
 
-.editable-field {
-  position: relative;
-  border: 2px dashed transparent;
-  padding: 4px;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.editable-field:hover {
-  border-color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.05);
-}
-
 .edit-mode {
   border: 2px dashed #666;
-  padding: 5px;
-  margin: 5px 0;
+  padding: 15px;
+  margin: 15px 0;
   background: #2a2a2a;
   border-radius: 4px;
+}
+
+.edit-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #ccc;
 }
 
 .edit-input {
@@ -459,12 +485,6 @@ export default {
   outline: none;
   border-color: #777;
   background: #404040;
-}
-
-.edit-buttons {
-  margin: 10px 0;
-  display: flex;
-  gap: 10px;
 }
 
 .status-buttons {
@@ -519,6 +539,42 @@ export default {
   color: white;
 }
 
+.main-edit-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #444;
+}
+
+.save-button {
+  background: #28a745 !important;
+  border-color: #28a745 !important;
+  color: white !important;
+  font-weight: bold;
+  padding: 12px 24px !important;
+  font-size: 16px !important;
+}
+
+.save-button:hover {
+  background: #218838 !important;
+  border-color: #218838 !important;
+}
+
+.cancel-button {
+  background: #6c757d !important;
+  border-color: #6c757d !important;
+  color: white !important;
+  padding: 12px 24px !important;
+  font-size: 16px !important;
+}
+
+.cancel-button:hover {
+  background: #5a6268 !important;
+  border-color: #5a6268 !important;
+}
+
 .success {
   color: #28a745;
   background-color: #1e3a24;
@@ -541,18 +597,5 @@ export default {
   text-align: center;
   padding: 40px;
   color: #ccc;
-}
-
-.clickable-hint {
-  opacity: 0.6;
-  font-size: 0.8em;
-  font-style: italic;
-  cursor: pointer;
-  color: #bbb;
-}
-
-.clickable-hint:hover {
-  opacity: 1;
-  color: #ddd;
 }
 </style>

@@ -1,38 +1,41 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { authenticateToken } = require('../../middleware/auth');
+const { authenticateToken, optionalAuth } = require('../../middleware/auth');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 
-// Public route - anyone can read map data
-router.get('/maps/:id', (req, res) => {
+// Then modify your routes to use this middleware
+router.get('/maps/:id', optionalAuth, (req, res) => {
   try {
     const { id } = req.params;
+    const isAuthenticated = !!req.user; 
+
     const dataPath = path.join(__dirname, '..', '..', 'data', `${id}-data.js`);
     const data = readDataFile(dataPath);
-    res.json(data);
+
+    res.json(data.map(hex => obfuscateHex(hex, isAuthenticated)));
   } catch (error) {
     console.error('Error reading data:', error);
     res.status(500).json({ error: 'Failed to read data file' });
   }
 });
 
-// Public route - anyone can read specific hex data
-router.get('/maps/:mapId/hex/:id', (req, res) => {
+router.get('/maps/:mapId/hex/:id', optionalAuth, (req, res) => {
   try {
     const { mapId, id } = req.params;
-    
+    const isAuthenticated = !!req.user; 
+
     const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
     const data = readDataFile(dataPath);
-    const mapIndex = data.findIndex(item => item.id === id);
-    
-    if (mapIndex !== -1) {
-      res.json({ success: true, data: data[mapIndex] });
-    } else {
-      res.status(404).json({ error: 'Location not found' });
+    const location = data.find(item => item.id === id);
+
+    if (!location) {
+      return res.status(404).json({ error: 'Location not found' });
     }
+
+    res.json({ success: true, data: obfuscateHex(location, isAuthenticated) });
   } catch (error) {
     console.error('Error reading data:', error);
     res.status(500).json({ error: 'Failed to read data' });
@@ -225,6 +228,23 @@ function writeDataFile(filePath, data) {
     console.error('Error writing data file:', error);
     throw error;
   }
+}
+
+function obfuscateHex(hex, isAuthenticated) {
+  if (isAuthenticated) return hex;
+
+  const obfuscated = { ...hex };
+  switch (obfuscated.status) {
+    case 'U':
+      obfuscated.name = '?';
+      obfuscated.text = '[Hidden]';
+      break;
+    case 'K':
+      obfuscated.text = '[Hidden]';
+      break;
+    // case 'E': no change
+  }
+  return obfuscated;
 }
 
 module.exports = router;

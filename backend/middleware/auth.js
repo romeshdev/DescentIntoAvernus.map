@@ -16,8 +16,29 @@ const authenticateToken = (req, res, next) => {
     }
     
     req.user = user;
+    console.log(req.user)
     next();
   });
 };
 
-module.exports = { authenticateToken };
+const optionalAuth = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+    } catch (error) {
+      // Token is invalid, but we don't reject the request
+      console.log('Invalid token provided:', error.message);
+      req.user = null;
+    }
+  } else {
+    req.user = null;
+  }
+  
+  console.log(req.user)
+  next();
+};
+
+module.exports = { authenticateToken, optionalAuth };

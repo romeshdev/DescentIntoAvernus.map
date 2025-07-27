@@ -43,7 +43,7 @@
       v-if="showLocationModal"
       :region="mapId"
       :hex="selectedHex"
-      :pendingLocation="pendingMarker"
+      :locationModel="selectedLocationModel"
       @close-modal="closeLocationModal"
       @location-updated="handleLocationUpdate"
       :editable="true"
@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, inject, provide, watch } from 'vue'
+import { nextTick, ref, inject, provide, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import Row from '../components/Row.vue'
 import LocationModal from '../components/LocationModal.vue'
@@ -60,10 +60,11 @@ import LocationMarker from '../components/LocationMarker.vue'
 import EditControls from '../components/EditControls.vue'
 import MarkerPlacementOverlay from '../components/MarkerPlacementOverlay.vue'
 
-// Inject edit mode
+// Inject edit mode and authentication state
 const editMode = inject('editMode')
+const isAuthenticated = inject('isAuthenticated')
 const placingMarker = ref(false)
-const pendingMarker = ref({ x: 0, y: 0 })
+const pendingMarker = ref(null)
 
 provide('placingMarker', placingMarker)
 provide('startPlacingMarker', () => placingMarker.value = true)
@@ -74,14 +75,17 @@ const handleMapClickFromOverlay = ({ x, y }) => {
   const ids = locations.value.map(item => item.id);
   const id = Math.max(...ids.map(id => parseInt(String(id).match(/^\d+/)?.[0] ?? 0))) + 1; 
   const name = 'New Location'
-  pendingMarker.value = {
+  const newLocation = {
     "x": x, 
     "y": y, 
     "id": `${id}`, 
-    "name": name
+    "name": name,
+    "text": "",
+    "status": "U",
+    "connectedTo": []
   }
-  locations.value.push(pendingMarker.value)
-
+  
+  locations.value.push(newLocation)
   placingMarker.value = false
   openLocationModal(`${id}`)
 }
@@ -94,38 +98,86 @@ const locations = ref([])
 const showLocationModal = ref(false)
 const selectedHex = ref(null)
 
+// Computed property to get the selected location model
+const selectedLocationModel = computed(() => {
+  if (!selectedHex.value) return null
+  
+  // First check if it's in the locations array (for node maps)
+  let location = locations.value.find(loc => loc.id === selectedHex.value)
+  
+  // If not found and we have avernus printable data, search there
+  if (!location && mapId.value === 'avernus') {
+    for (let row of printable.value) {
+      location = row.find(loc => loc.id === selectedHex.value)
+      if (location) break
+    }
+  }
+  
+  return location || null
+})
+
 const route = useRoute()
+
+// Updated script section with fixed reactivity
 
 const fetchData = async () => {
   try {
-    const response = await fetch(`/api/data/maps/${mapId.value}`)
+    const headers = {
+      'Content-Type': 'application/json'
+    }
+    
+    // Add authorization header if user is authenticated
+    if (isAuthenticated?.value) {
+      const token = localStorage.getItem('token')
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+    }
+    
+    const response = await fetch(`/api/data/maps/${mapId.value}`, { headers })
     const data = await response.json()
-    locations.value = data
+    
+    // Force reactivity by replacing the entire array
+    locations.value = [...data] // Create new array reference
+    
     if (mapId.value === 'avernus') {
+      // Clear printable first to ensure reactivity
+      printable.value = []
+      await nextTick() // Wait for DOM update
       filterData()
     }
   } catch (error) {
     console.error('Error loading locations:', error)
+    // Reset on error to ensure clean state
+    locations.value = []
+    if (mapId.value === 'avernus') {
+      printable.value = []
+    }
   }
 }
 
 const filterData = () => {
   let prevH = {}
-  const rows = Number(locations.value.at(-1).id.charAt(1))
-  printable.value = Array.from({ length: rows }, () => [])
+  const rows = Number(locations.value.at(-1)?.id.charAt(1) || 0)
+  
+  // Create completely new array structure
+  const newPrintable = Array.from({ length: rows }, () => [])
 
   locations.value.forEach((item) => {
     const rowIdx = Number(item.id.charAt(1)) - 1
     const colIdx = parseInt(item.id.charAt(0), 36) - 10
 
     if (item.id !== prevH.id) {
-      printable.value[rowIdx].push(item)
+      newPrintable[rowIdx].push({ ...item }) // Create new object reference
     } else {
-      printable.value[rowIdx][colIdx].name += "\n" + item.name
+      newPrintable[rowIdx][colIdx].name += "\n" + item.name
     }
 
     prevH = item
   })
+  
+  // Replace entire printable array
+  printable.value = newPrintable
 }
 
 const openLocationModal = (hex) => {
@@ -141,11 +193,21 @@ const closeLocationModal = () => {
 
 const handleLocationUpdate = (event) => {
   const { hex, data } = event
-  for (let row of printable.value) {
-    for (let location of row) {
-      if (location.id === hex) {
-        Object.assign(location, data)
-        break
+  
+  // Update in locations array (for node maps)
+  const locationIndex = locations.value.findIndex(loc => loc.id === hex)
+  if (locationIndex !== -1) {
+    Object.assign(locations.value[locationIndex], data)
+  }
+  
+  // Update in printable array (for avernus hex maps)
+  if (mapId.value === 'avernus') {
+    for (let row of printable.value) {
+      for (let location of row) {
+        if (location.id === hex) {
+          Object.assign(location, data)
+          break
+        }
       }
     }
   }
@@ -174,11 +236,43 @@ const calculateLineStyle = (location1, location2, numId, numId2) => {
   }
 }
 
-// Watch route for changes
-watch(() => route.params.id, (newId) => {
+// Enhanced watch statements with better debugging
+watch(() => route.params.id, async (newId, oldId) => {
+  console.log('Route changed from', oldId, 'to', newId)
   mapId.value = newId
-  fetchData()
+  
+  // Reset state first
+  locations.value = []
+  printable.value = []
+  
+  // Wait for next tick to ensure DOM is updated
+  await nextTick()
+  
+  // Then fetch new data
+  await fetchData()
+  console.log('Data fetched, locations count:', locations.value.length)
 }, { immediate: true })
+
+// Watch authentication state and re-fetch data when user authenticates
+watch(() => isAuthenticated?.value, async (newAuth, oldAuth) => {
+  console.log('Auth changed from', oldAuth, 'to', newAuth)
+  // Only re-fetch if authentication state changed from false to true
+  if (newAuth && !oldAuth && mapId.value) {
+    console.log('Re-fetching data due to auth change')
+    await fetchData()
+    console.log('Auth-triggered fetch complete, locations count:', locations.value.length)
+  }
+})
+
+// Add this for debugging - watch locations changes
+watch(() => locations.value, (newLocations) => {
+  console.log('Locations updated:', newLocations.length, 'items')
+}, { deep: true })
+
+// Add this for debugging - watch printable changes  
+watch(() => printable.value, (newPrintable) => {
+  console.log('Printable updated:', newPrintable.length, 'rows')
+}, { deep: true })
 
 </script>
 
@@ -270,7 +364,7 @@ watch(() => route.params.id, (newId) => {
 .hexImg {
   position: relative;
   display: inline-block;
-  /* left/right margin approx. 25% of .hexagon width + spacing */
+  /* left/right margin approx. 25% of .idagon width + spacing */
   text-align: center;
   height: 145px;
   width: 169.5px;
