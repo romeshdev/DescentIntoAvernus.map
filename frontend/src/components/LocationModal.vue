@@ -184,8 +184,8 @@ export default {
           "id": this.locationModel.id,
           "connectedTo": [],
           "status": "U",
-          "name": "Enter Name..",
-          "text": "Add a description.."
+          "name": "",
+          "text": ""
         };
         
         this.localName = this.locationData.name;
