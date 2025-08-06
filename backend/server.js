@@ -20,7 +20,6 @@ const authLimiter = rateLimit({
   max: 5, // limit each IP to 5 login attempts per windowMs
   message: 'Too many login attempts, please try again later'
 });
-
 // Middleware
 app.use(helmet({
   contentSecurityPolicy: {
@@ -32,6 +31,7 @@ app.use(helmet({
     },
   },
 }));
+app.set('trust proxy', true);
 app.use(cors());
 app.use(morgan('combined'));
 app.use(limiter);
