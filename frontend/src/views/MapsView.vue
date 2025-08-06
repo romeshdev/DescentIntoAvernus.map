@@ -94,7 +94,7 @@ export default {
         thumbnail: '/avernus-map.jpg',
         hexCount: 156,
         terrainTypes: ['ash', 'bog', 'brambles', 'cracks', 'fire', 'hills', 'mountains', 'volcano', 'waste'],
-        dreamMachineComponents: 12,
+        // dreamMachineComponents: 12,
         tags: ['Primary', 'Hexcrawl', 'Combat'],
         featured: true
       },
@@ -103,9 +103,9 @@ export default {
         name: 'Elturel Ruins',
         description: 'The fallen city, now trapped in Avernus. Navigate the ruins and rescue survivors.',
         thumbnail: '/elturel-map.jpg',
-        hexCount: 32,
+        // hexCount: 32,
         terrainTypes: ['ruins', 'fire', 'ash'],
-        dreamMachineComponents: 5,
+        // dreamMachineComponents: 5,
         tags: ['Ruins', 'Rescue Mission'],
         featured: false
       },
@@ -114,10 +114,10 @@ export default {
         name: "Baldur's Gate",
         description: 'The city where it all begins. Explore the upper and lower city before descending into hell.',
         thumbnail: '/baldurs-gate-map.jpg',
-        hexCount: 45,
+        // hexCount: 45,
         terrainTypes: ['urban', 'docks', 'residential'],
-        dreamMachineComponents: 3,
-        tags: ['City', 'Starting Area'],
+        // dreamMachineComponents: 3,
+        tags: ['City'],
         featured: false
       },
       // {

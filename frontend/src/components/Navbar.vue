@@ -9,6 +9,7 @@
 
       <div class="nav-menu" :class="{ active: isMenuOpen }">
         <!-- <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton> -->
+        <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton>
         <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
         
         <!-- Edit Mode Toggle -->
@@ -31,12 +32,6 @@
       </div>
     </div>
     
-    <!-- Login Modal -->
-    <!-- <LoginModal 
-      v-if="showLoginModal" 
-      @close-modal="closeLoginModal"
-      @login-success="onLoginSuccess"
-    /> -->
   </nav>
 </template>
 
@@ -68,50 +63,13 @@ export default {
       isMenuOpen.value = false
     }
     
-    // const toggleEditMode = () => {
-    //   if (!editMode.value) {
-    //     // Turning edit mode ON
-    //     if (isAuthenticated.value) {
-    //       // Already authenticated, just enable edit mode
-    //       editMode.value = true
-    //     } else {
-    //       // Not authenticated, show login modal
-    //       showLoginModal.value = true
-    //     }
-    //   } else {
-    //     // Turning edit mode OFF
-    //     editMode.value = false
-    //   }
-    // }
-    
-    // const closeLoginModal = () => {
-    //   showLoginModal.value = false
-    // }
-    
-    // const onLoginSuccess = () => {
-    //   // Enable edit mode after successful login
-    //   editMode.value = true
-    //   showLoginModal.value = false
-    // }
-    
-    // const handleLogout = () => {
-    //   authStore.logout()
-    //   editMode.value = false // Disable edit mode on logout
-    //   router.push('/')
-    //   closeMenu()
-    // }
-    
     return {
       isMenuOpen,
       isAuthenticated,
       editMode,
       showLoginModal,
       toggleMenu,
-      closeMenu,
-      // toggleEditMode,
-      // closeLoginModal,
-      // onLoginSuccess,
-      // handleLogout
+      closeMenu
     }
   }
 }

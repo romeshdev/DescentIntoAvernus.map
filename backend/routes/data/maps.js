@@ -70,7 +70,7 @@ router.put('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
     const locationIndex = data.findIndex(item => item['id'] === id);
 
     // Log the update for audit purposes
-    console.log(`User ${req.user.username} (ID: ${req.user.id}) updating hex ${id} in map ${mapId}:`, updates);
+    console.log(`User ${req.user.username} (ID: ${req.user.id}) updating hex ${id}, index ${locationIndex}, in map ${mapId}:`, updates);
       
     if (locationIndex !== -1) {
       data[locationIndex] = { ...data[locationIndex], ...updates };
@@ -80,21 +80,42 @@ router.put('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
     // Write back to main data file
     writeDataFile(dataPath, data);
     
-    // Also update player data if it exists
-    const playerDataPath = path.join(__dirname, 'player', 'data', `${mapId}-data.js`);
-    try {
-      if (fs.existsSync(path.dirname(playerDataPath))) {
-        writeDataFile(playerDataPath, data);
-      }
-    } catch (playerError) {
-      console.warn('Could not update player data file:', playerError.message);
-      // Don't fail the request if player data update fails
-    }
-    
     res.json({ 
       success: true, 
       data: data[locationIndex],
       message: 'Location updated successfully',
+      updatedBy: req.user.username,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error updating data:', error);
+    res.status(500).json({ error: 'Failed to update data' });
+  }
+});
+
+router.delete('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
+  try {
+    const { mapId, id } = req.params;
+    
+    const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
+    const data = readDataFile(dataPath);
+
+    const locationIndex = data.findIndex(item => item['id'] === id);
+
+    // Log the update for audit purposes
+    console.log(`User ${req.user.username} (ID: ${req.user.id}) deleting hex ${id}, index ${locationIndex}, in map ${mapId}:`);
+      
+    if (locationIndex !== -1) {
+      data.splice(locationIndex, 1)
+    } 
+
+    // Write back to main data file
+    writeDataFile(dataPath, data);
+    
+    res.json({ 
+      success: true, 
+      data: data[locationIndex],
+      message: 'Location deleted successfully',
       updatedBy: req.user.username,
       updatedAt: new Date().toISOString()
     });

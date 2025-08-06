@@ -62,7 +62,7 @@ module.exports = [
       "4"
     ],
     "status": "U",
-    "name": "The Dock House",
+    "name": "The Dock House 2",
     "text": "<p>The estate of Marisima Rathanda, a former Hellrider and the harbormaster who ran the Dragoneye Docks. This location is described in Hellturel.</p>"
   },
   {
@@ -309,7 +309,7 @@ module.exports = [
       "21",
       "9b"
     ],
-    "status": "U",
+    "status": "K",
     "name": "Symbril's House",
     "text": "<p>A small, cozy inn near Maiden’s Leap in the High District. It overlooks (and opens into) the Garden. A Zarielite cult had rented rooms here to ride Elturel into Hell, and now they’ve taken over the joint. They might waylay travelers in the Gardens and/or be plotting to sabotage Ravengard’s efforts in the High Hall in some way</p>"
   },
@@ -338,21 +338,21 @@ module.exports = [
     "text": "Described in <em>Descent Into Avernus</em> (p. 58) and <a href=\"https://thealexandrian.net/?p=44925\">Part 5D</a>."
   },
   {
-    "x": 931,
-    "y": 662,
+    "x": 321,
+    "y": 503,
     "id": "23",
     "connectedTo": [],
-    "status": "U",
-    "name": "New Location",
-    "text": ""
+    "status": "K",
+    "name": "A new place",
+    "text": "We found this place"
   },
   {
-    "x": 968,
-    "y": 665,
+    "x": 938,
+    "y": 502,
     "id": "24",
     "connectedTo": [],
     "status": "U",
-    "name": "New Location",
-    "text": ""
+    "name": "This is a place",
+    "text": "It definitely is"
   }
 ];

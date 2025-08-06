@@ -1,24 +1,11 @@
 <template>
   <div class="home">
-    <header>
-      <h1>My Full-Stack App</h1>
-    </header>
-      <HelloWorld msg="Welcome to Vue.js + Express.js with Authentication!" />
-
-      <!-- <section class="auth-section">
-        <div v-if="!isAuthenticated" class="auth-buttons">
-          <router-link to="/login" class="btn btn-primary">Login</router-link>
-          <p class="demo-info">
-            <strong>Demo Credentials:</strong><br>
-            Username: admin | Password: admin123<br>
-            Username: user | Password: admin123
-          </p>
-        </div>
-        <div v-else class="welcome-message">
-          <h3>Welcome back, {{ user?.username }}!</h3>
-          <router-link to="/dashboard" class="btn btn-primary">Go to Dashboard</router-link>
-        </div>
-      </section> -->
+    <div class="hello">
+      <h2>{{ msg }}</h2>
+      <p>
+        Here there be orphans.
+      </p>
+    </div>
   </div>
 </template>
 <script>

@@ -78,6 +78,7 @@
           <div v-if="isEditModeActive" class="main-edit-buttons">
             <InfernalButton :onClick="saveAllChanges">Save All Changes</InfernalButton>
             <InfernalButton :onClick="cancelAllChanges">Cancel Changes</InfernalButton>
+            <InfernalButton :onClick="sendDelete">Delete Location</InfernalButton>
           </div>
         </div>
         
@@ -171,8 +172,8 @@ export default {
           "id": this.locationModel.id,
           "connectedTo": [],
           "status": "U",
-          "name": this.locationModel.name,
-          "text": ""
+          "name": "Enter Name..",
+          "text": "Add a description.."
         };
         
         this.localName = this.locationData.name;
@@ -323,6 +324,35 @@ export default {
           this.showSuccess(message);
         } else {
           this.showError('Error updating location: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Error updating location:', error);
+        this.showError('Error updating location: ' + error.message);
+      });
+    },
+
+    sendDelete() {
+      fetch(`/api/data/maps/${this.region}/hex/${this.hex}`, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          // Add authorization header if available
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Emit event to parent to update the map
+          this.$emit('location-updated', { hex: this.hex, data: null });
+          
+          // Show success message
+          this.closeModal();
+
+          this.showSuccess(message);
+        } else {
+          this.showError('Error deleting location: ' + (data.error || 'Unknown error'));
         }
       })
       .catch(error => {

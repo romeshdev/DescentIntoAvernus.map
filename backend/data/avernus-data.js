@@ -170,7 +170,7 @@ module.exports = [
     "terrain": [
       "hills"
     ],
-    "status": "U",
+    "status": "K",
     "item": ""
   },
   {

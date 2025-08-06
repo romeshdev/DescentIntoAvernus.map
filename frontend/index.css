@@ -1,9 +1,9 @@
 body, html, main { 
-    /* font-family: Arial, sans-serif; 
-    max-width: 400px; 
-    margin: 100px auto; 
-    padding: 20px; */
-    background-color: #1a1a1a;
+    background-color: #69171c;
+    background-image: url(/avernus.jpg);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: top;
     color: #ffffff;
 }
 .login-form {

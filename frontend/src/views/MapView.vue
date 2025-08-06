@@ -192,9 +192,13 @@ const handleLocationUpdate = (event) => {
   // Update in locations array (for node maps)
   const locationIndex = locations.value.findIndex(loc => loc.id === hex)
   if (locationIndex !== -1) {
+    if (data === null){
+      locations.value.splice(locationIndex, 1);
+      return;
+    } 
     Object.assign(locations.value[locationIndex], data)
   }
-  
+
   // Update in printable array (for avernus hex maps)
   if (mapId.value === 'avernus') {
     for (let row of printable.value) {
