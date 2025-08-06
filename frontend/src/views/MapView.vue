@@ -30,9 +30,9 @@
                   class="line"></div>
         </div>
         
+        <MarkerPlacementOverlay v-if="placingMarker" @place="handleMapClickFromOverlay" />
     </div>
     <EditControls />
-    <MarkerPlacementOverlay v-if="placingMarker" @place="handleMapClickFromOverlay" />
     <LocationModal
       v-if="showLocationModal"
       :region="mapId"
@@ -67,7 +67,7 @@ const handleMapClickFromOverlay = ({ x, y }) => {
   if (!editMode?.value) return
 
   const ids = locations.value.map(item => item.id);
-  const id = Math.max(...ids.map(id => parseInt(String(id).match(/^\d+/)?.[0] ?? 0))) + 1; 
+  const id = ids.length === 0 ? "1" : Math.max(...ids.map(id => parseInt(String(id).match(/^\d+/)?.[0] ?? 0))) + 1; 
   const name = 'New Location'
   const newLocation = {
     "x": x, 

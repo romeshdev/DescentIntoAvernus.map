@@ -338,6 +338,24 @@ module.exports = [
     "text": "Described in <em>Descent Into Avernus</em> (p. 58) and <a href=\"https://thealexandrian.net/?p=44925\">Part 5D</a>."
   },
   {
+    "x": 475,
+    "y": 221,
+    "id": "24",
+    "connectedTo": [],
+    "status": "U",
+    "name": "Enter Name..",
+    "text": "Add a description.."
+  },
+  {
+    "x": 833,
+    "y": 392,
+    "id": "25",
+    "connectedTo": [],
+    "status": "U",
+    "name": "Enter Name..",
+    "text": "Add a description.."
+  },
+  {
     "x": 591,
     "y": 637,
     "id": "26",

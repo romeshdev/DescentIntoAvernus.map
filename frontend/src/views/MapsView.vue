@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default {
@@ -84,66 +84,25 @@ export default {
     const router = useRouter()
     const maps = ref([])
     const loading = ref(true)
-
-    // Sample map data - in a real app, this would come from an API or data store
-    const sampleMaps = [
-      {
-        id: 'avernus',
-        name: 'Avernus - First Layer of Hell',
-        description: 'The primary battleground of the Blood War, featuring ash plains, bone brambles, and infernal war machines.',
-        thumbnail: '/avernus-map.jpg',
-        hexCount: 156,
-        terrainTypes: ['ash', 'bog', 'brambles', 'cracks', 'fire', 'hills', 'mountains', 'volcano', 'waste'],
-        // dreamMachineComponents: 12,
-        tags: ['Primary', 'Hexcrawl', 'Combat'],
-        featured: true
-      },
-      {
-        id: 'elturel',
-        name: 'Elturel Ruins',
-        description: 'The fallen city, now trapped in Avernus. Navigate the ruins and rescue survivors.',
-        thumbnail: '/elturel-map.jpg',
-        // hexCount: 32,
-        terrainTypes: ['ruins', 'fire', 'ash'],
-        // dreamMachineComponents: 5,
-        tags: ['Ruins', 'Rescue Mission'],
-        featured: false
-      },
-      {
-        id: 'baldurs-gate',
-        name: "Baldur's Gate",
-        description: 'The city where it all begins. Explore the upper and lower city before descending into hell.',
-        thumbnail: '/baldurs-gate-map.jpg',
-        // hexCount: 45,
-        terrainTypes: ['urban', 'docks', 'residential'],
-        // dreamMachineComponents: 3,
-        tags: ['City'],
-        featured: false
-      },
-      // {
-      //   id: 'styx-river',
-      //   name: 'River Styx',
-      //   description: 'The cursed river that flows through all layers of hell. Navigate its treacherous waters.',
-      //   thumbnail: '/images/styx-thumb.jpg',
-      //   hexCount: 89,
-      //   terrainTypes: ['water', 'bog', 'fire'],
-      //   dreamMachineComponents: 8,
-      //   tags: ['River', 'Travel', 'Dangerous'],
-      //   featured: false
-      // }
-    ]
+    const isAuthenticated = inject('isAuthenticated')
 
     const loadMaps = async () => {
       try {
         loading.value = true
-        // Simulate API call delay
-        // await new Promise(resolve => setTimeout(resolve, 1000))
+
+        const headers = {
+          'Content-Type': 'application/json'
+        }
         
-        // In a real app, you would fetch from an API:
-        // const response = await fetch('/api/maps')
-        // maps.value = await response.json()
+        // Add authorization header if user is authenticated
+        if (isAuthenticated?.value) {
+          const token = localStorage.getItem('token');
+          if (token) headers['Authorization'] = `Bearer ${token}`;
+        }
         
-        maps.value = sampleMaps
+        const response = await fetch(`/api/data/maps`, { headers });
+        maps.value = await response.json();
+        
       } catch (error) {
         console.error('Failed to load maps:', error)
         maps.value = []

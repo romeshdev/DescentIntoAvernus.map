@@ -6,6 +6,27 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 
+
+router.get('/maps', optionalAuth, (req, res) => {
+  try {
+    const isAuthenticated = !!req.user; 
+
+    const dataPath = path.join(__dirname, '..', '..', 'data', `map-data.js`);
+    const maps = readDataFile(dataPath);
+    maps.forEach(map => {
+      const mapDataPath = path.join(__dirname, '..', '..', 'data', `${map.id}-data.js`);
+      const mapData = readDataFile(mapDataPath);
+      map['hexCount'] = mapData.length;
+      map['thumbnail'] = `${map.id}-map.jpg`;
+    });
+
+    res.json(maps);
+  } catch (error) {
+    console.error('Error reading data:', error);
+    res.status(500).json({ error: 'Failed to read data file' });
+  }
+});
+
 // Then modify your routes to use this middleware
 router.get('/maps/:id', optionalAuth, (req, res) => {
   try {

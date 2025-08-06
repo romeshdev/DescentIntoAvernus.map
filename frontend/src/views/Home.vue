@@ -1,7 +1,6 @@
 <template>
   <div class="home">
-    <div class="hello">
-      <h2>{{ msg }}</h2>
+    <div style="height:100vh;">
       <p>
         Here there be orphans.
       </p>

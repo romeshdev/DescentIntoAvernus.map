@@ -35,18 +35,18 @@
           <div v-else class="edit-mode">
             <label class="edit-label">Player Status:</label>
             <div class="status-button-group">
-              <InfernalButton 
-                :onClick="() => updateLocalStatus('U')"
-                :class="{ 'status-active': editStatusValue === 'U' }">Unknown
-              </InfernalButton>
-              <InfernalButton 
-                :onClick="() => updateLocalStatus('K')"
-                :class="{ 'status-active': editStatusValue === 'K' }">Known
-              </InfernalButton>
-              <InfernalButton 
-                :onClick="() => updateLocalStatus('E')"
-                :class="{ 'status-active': editStatusValue === 'E' }">Explored
-              </InfernalButton>
+
+              <div class="toggle-container">
+                <button :class="{ active: editStatusValue === 'U' }" @click="() => updateLocalStatus('U')">
+                  Unknown
+                </button>
+                <button :class="{ active: editStatusValue === 'K' }" @click="() => updateLocalStatus('K')">
+                  Known
+                </button>
+                <button :class="{ active: editStatusValue === 'E' }" @click="() => updateLocalStatus('E')">
+                  Explored
+                </button>
+              </div>
             </div>
           </div>
           
@@ -75,10 +75,21 @@
           <div id="modal-message-container"></div>
 
           <!-- Single Save/Cancel buttons at bottom for edit mode -->
-          <div v-if="isEditModeActive" class="main-edit-buttons">
-            <InfernalButton :onClick="saveAllChanges">Save All Changes</InfernalButton>
-            <InfernalButton :onClick="cancelAllChanges">Cancel Changes</InfernalButton>
-            <InfernalButton :onClick="sendDelete">Delete Location</InfernalButton>
+          <div v-if="isEditModeActive">
+            <div v-if="!isDeleting" class="main-edit-buttons">
+              <button class="save-button" @click="saveAllChanges" :class="{ disabled: !isDirty() }" :disabled="!isDirty()">Save All Changes</button>
+              <button class="cancel-button" @click="cancelAllChanges">{{ isDirty() ? 'Cancel changes' : 'Close' }}</button>
+              <button v-if="region != 'avernus'" @click="toggleDelete">Delete Location</button>
+            </div>
+            <div v-else class="edit-buttons">
+              <div class="error">
+                Are you sure?
+              </div>
+              <div class="delete-confirm-buttons">
+                <button @click="sendDelete">Delete</button>
+                <button class="cancel-button" @click="toggleDelete">Cancel</button>
+              </div>
+            </div>
           </div>
         </div>
         
@@ -90,7 +101,7 @@
 </template>
 
 <script>
-import { inject, computed, watch } from 'vue'
+import { inject, computed } from 'vue'
 import InfernalButton from './InfernalButton.vue';
 
 export default {
@@ -121,6 +132,7 @@ export default {
     return {
       locationData: null,
       loading: false,
+      isDeleting: false,
       editTitleValue: '',
       editTextValue: '',
       editStatusValue: '',
@@ -211,6 +223,10 @@ export default {
       this.editStatusValue = status;
     },
 
+    isDirty(){
+      return this.editTitleValue.trim() !== this.originalName || this.editTextValue !== this.originalText || this.editStatusValue !== this.originalStatus;
+    },
+
     saveAllChanges() {
       // Prepare update data with all changed fields
       const updateData = {};
@@ -236,6 +252,9 @@ export default {
     },
 
     cancelAllChanges() {
+      if(!this.isDirty()){
+        this.closeModal();
+      }
       // Reset edit values to original values
       this.editTitleValue = this.originalName;
       this.editTextValue = this.originalText;
@@ -246,34 +265,6 @@ export default {
     
     closeModal() {
       this.$emit('close-modal');
-    },
-    
-    renderTerrain(item) {
-      if (!item.terrain || !item.terrain[0]) return "???";
-      
-      switch (item.terrain[0]) {
-        case "ash":
-          return "ashlands";
-        case "bog":
-          return "caustic bogs";
-        case "brambles":
-          return "bone brambles";
-        case "cracks":
-          return "wasteland, cracked";
-        case "fire":
-          return "plains of fire";
-        case "hills":
-          return "hills, avernian";
-        case "mountains":
-          return "mountains, avernian";
-        case "volcano":
-          return "volcanic plains";
-        case "waste":
-          return "wastelands";
-        default:
-          console.log("Error, unknown terrain");
-          return "???";
-      }
     },
     
     sendUpdate(updateData) {
@@ -332,6 +323,10 @@ export default {
       });
     },
 
+    toggleDelete(){
+      this.isDeleting = !this.isDeleting;
+    },
+
     sendDelete() {
       fetch(`/api/data/maps/${this.region}/hex/${this.hex}`, {
         method: 'DELETE',
@@ -349,8 +344,6 @@ export default {
           
           // Show success message
           this.closeModal();
-
-          this.showSuccess(message);
         } else {
           this.showError('Error deleting location: ' + (data.error || 'Unknown error'));
         }
@@ -366,7 +359,7 @@ export default {
       container.innerHTML = `<div class="success">${message}</div>`;
       setTimeout(() => {
         container.innerHTML = '';
-      }, 3000);
+      }, 2000);
     },
     
     showError(message) {
@@ -375,7 +368,34 @@ export default {
       setTimeout(() => {
         container.innerHTML = '';
       }, 5000);
-    }
+    },
+    renderTerrain(item) {
+      if (!item.terrain || !item.terrain[0]) return "???";
+      
+      switch (item.terrain[0]) {
+        case "ash":
+          return "ashlands";
+        case "bog":
+          return "caustic bogs";
+        case "brambles":
+          return "bone brambles";
+        case "cracks":
+          return "wasteland, cracked";
+        case "fire":
+          return "plains of fire";
+        case "hills":
+          return "hills, avernian";
+        case "mountains":
+          return "mountains, avernian";
+        case "volcano":
+          return "volcanic plains";
+        case "waste":
+          return "wastelands";
+        default:
+          console.log("Error, unknown terrain");
+          return "???";
+      }
+    },
   }
 }
 </script>
@@ -566,9 +586,23 @@ export default {
   border-top: 1px solid #444;
 }
 
+.edit-buttons {
+  border-top: 1px solid #444;
+}
+
+.delete-confirm-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.disabled {
+  opacity: .4;
+}
+
 .save-button {
-  background: #28a745 !important;
-  border-color: #28a745 !important;
+  background: #ff6b35 !important;
+  border-color: #ff6b35 !important;
   color: white !important;
   font-weight: bold;
   padding: 12px 24px !important;
@@ -576,8 +610,14 @@ export default {
 }
 
 .save-button:hover {
-  background: #218838 !important;
-  border-color: #218838 !important;
+  background: #ff7949 !important;
+  border-color: #ff7949 !important;
+}
+
+.save-button.disabled:hover {
+  cursor: auto;
+  background: #ff6b35 !important;
+  border-color: #ff6b35 !important;
 }
 
 .cancel-button {
@@ -591,6 +631,13 @@ export default {
 .cancel-button:hover {
   background: #5a6268 !important;
   border-color: #5a6268 !important;
+}
+
+
+.cancel-button.disabled:hover {
+  cursor: auto;
+  background: #6c757d !important;
+  border-color: #6c757d !important;
 }
 
 .success {
@@ -615,5 +662,25 @@ export default {
   text-align: center;
   padding: 40px;
   color: #ccc;
+}
+
+.toggle-container {
+  display: flex;
+  gap: 5px; /* Adjust spacing between buttons */
+}
+
+.toggle-container button {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: #474646;
+}
+
+.toggle-container button.active {
+  background-color: #ff6b35; /* Active state background color */
+  color: white; /* Active state text color */
+  border-color: #ff6b35;
 }
 </style>

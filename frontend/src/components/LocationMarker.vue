@@ -60,21 +60,16 @@ export default {
   text-align: center;
   color: white;
   z-index: 100;
+  font-weight: bold;
 }
 
 .mapNode.status-explored {
-  background-color: #579304; /* Green for explored */
+  border-color: #579304; /* Green for explored */
+  color: #579304; /* Yellow for known */
 }
 
 .mapNode.status-known {
-  background-color: #936f04; /* Yellow for known */
-}
-
-.status-known {
-    background-color: #ffc107; /* Yellow for known */
-}
-
-.status-explored {
-    background-color: #28a745; /* Green for explored */
+  border-color: #936f04; /* Yellow for known */
+  color: #936f04; /* Yellow for known */
 }
 </style>
