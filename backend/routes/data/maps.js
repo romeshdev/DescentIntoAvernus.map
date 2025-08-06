@@ -27,7 +27,7 @@ router.get('/maps', optionalAuth, (req, res) => {
   }
 });
 
-// Then modify your routes to use this middleware 
+// Then modify your routes to use this middleware
 router.get('/maps/:id', optionalAuth, (req, res) => {
   try {
     const { id } = req.params;
