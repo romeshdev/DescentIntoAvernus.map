@@ -1,6 +1,7 @@
 <template>
   <div class="home">
     <div style="height:100vh;">
+      <HeroImages />
       <h2>Previously: [Session 21] Trauma Everywhere All At Once</h2>
       <div style="max-width: 800px; text-align: left; margin: 0 auto; padding: 2rem; min-height: 100vh; color:#e0e0e0">
         <p>
@@ -26,13 +27,15 @@
 </template>
 <script>
 import HelloWorld from '../components/HelloWorld.vue'
+import HeroImages from '../components/HeroImages.vue'
 import { useAuthStore } from '../store/auth'
 import { computed } from 'vue'
 
 export default {
   name: 'Home',
   components: {
-    HelloWorld
+    HelloWorld,
+    HeroImages
   },
   setup() {
     const authStore = useAuthStore()
