@@ -33,7 +33,7 @@ export default {
         },
         {
           name: 'Ari',
-          src: '/players/Ari.jpg'
+          src: '/players/ari.png'
         },
         {
           name: 'Pier',
