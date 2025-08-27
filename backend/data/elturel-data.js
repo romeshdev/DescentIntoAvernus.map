@@ -354,5 +354,23 @@ module.exports = [
     "status": "U",
     "name": "Enter Name..",
     "text": "Add a description.."
+  },
+  {
+    "x": 749,
+    "y": 567,
+    "id": "28",
+    "connectedTo": [],
+    "status": "U",
+    "name": "new location",
+    "text": "it's a location"
+  },
+  {
+    "x": 485,
+    "y": 227,
+    "id": "29",
+    "connectedTo": [],
+    "status": "E",
+    "name": "Still works?",
+    "text": "Does it?"
   }
 ];

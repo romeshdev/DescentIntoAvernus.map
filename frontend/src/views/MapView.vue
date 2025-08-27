@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="hexcrawl" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="mapId == 'avernus'">
+    <div id="hexcrawl" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="map != null && map.type == 'hexcrawl'">
       <div v-for="(element, rowIndex) in printable" :key="rowIndex">
         <Row :element="element" @open-modal="openLocationModal" />
         <!-- <div :class="invisTerr" style="position: absolute">
@@ -11,7 +11,7 @@
       <!-- Location Modal -->
 
     </div>
-    <div id="nodes" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="mapId != 'avernus'">
+    <div id="nodes" class="honeycomb" :style="{ backgroundImage: mapId ? `url('../${mapId}-map.jpg')` : '' }" v-if="map != null && map.type == 'nodemap'">
         <!-- Render location markers -->
         <LocationMarker v-for="location in locations" 
                           :key="`node${location.id}`"
@@ -31,6 +31,7 @@
         </div>
         
         <MarkerPlacementOverlay v-if="placingMarker" @place="handleMapClickFromOverlay" />
+        <NodeLinkerOverlay v-if="linkingPoints" @startPoint="setNodeLinkerStart" @endPoint="setNodeLinkerEnd" @dragTarget="setNodeLinkerTarget" />
     </div>
     <EditControls />
     <LocationModal
@@ -53,6 +54,7 @@ import LocationModal from '../components/LocationModal.vue'
 import LocationMarker from '../components/LocationMarker.vue'
 import EditControls from '../components/EditControls.vue'
 import MarkerPlacementOverlay from '../components/MarkerPlacementOverlay.vue'
+import NodeLinkerOverlay from '../components/NodeLinkerOverlay.vue'
 
 // Inject edit mode and authentication state
 const editMode = inject('editMode')
@@ -62,6 +64,12 @@ const pendingMarker = ref(null)
 
 provide('placingMarker', placingMarker)
 provide('startPlacingMarker', () => placingMarker.value = true)
+
+const linkingPoints = ref(false)
+const pendingPointLink = ref(null)
+
+provide('linkingPoints', linkingPoints)
+provide('startLinkingPoints', () => linkingPoints.value = true)
 
 const handleMapClickFromOverlay = ({ x, y }) => {
   if (!editMode?.value) return
@@ -84,11 +92,16 @@ const handleMapClickFromOverlay = ({ x, y }) => {
   openLocationModal(`${id}`)
 }
 
+const setNodeLinksetNodeLinkerStarterEnd = ({ x, y }) => {}
+const setNodeLinkerTarget = ({ x, y }) => {}
+const setNodeLinkerEnd = ({ x, y }) => {}
+
 // Standard component state and logic
 const mapId = ref('')
 provide('mapId', mapId)
 const printable = ref([])
 const locations = ref([])
+const map = ref([])
 
 const showLocationModal = ref(false)
 const selectedHex = ref(null)
@@ -114,7 +127,6 @@ const selectedLocationModel = computed(() => {
 const route = useRoute()
 
 // Updated script section with fixed reactivity
-
 const fetchData = async () => {
   try {
     const headers = {
@@ -128,6 +140,10 @@ const fetchData = async () => {
         headers['Authorization'] = `Bearer ${token}`
       }
     }
+    
+    const mapsResponse = await fetch(`/api/data/maps`, { headers });
+    const mapsData = await mapsResponse.json();
+    map.value = mapsData.find(x => x.id == mapId.value);
     
     const response = await fetch(`/api/data/maps/${mapId.value}`, { headers })
     const data = await response.json()

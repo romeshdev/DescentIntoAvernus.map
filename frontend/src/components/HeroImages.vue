@@ -71,10 +71,10 @@ export default {
 
 .border-overlay-image {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: -2px;
+  left: -2px;
+  width: 104%;
+  height: 104%;
   border-radius: 50%;
   pointer-events: none;
   z-index: 1;
@@ -127,7 +127,7 @@ export default {
 .image-label {
   text-align: center;
   margin-top: 10px;
-  color: #333;
+  color: #ffffff;
   font-weight: 600;
   font-size: 14px;
 }

@@ -1,0 +1,34 @@
+services:
+  avernus-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount the backend folder for live reloading
+      - ./backend:/app
+      # Mount the frontend 'dist' directory directly into the backend for serving
+      - ./frontend/dist:/app/public
+      # Mount the frontend 'images' directory directly into the backend for serving
+      - ./frontend/images:/app/images
+      - /app/node_modules # Prevents local node_modules from overwriting container's
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=your-super-secret-jwt-key
+      - ADMIN_USERNAME=dm
+      - ADMIN_PASSWORD=pwd
+    # Command will be to start the backend dev server, which will now also serve the frontend files
+    command: npm run dev
+  
+  # New service to automatically build and watch frontend files
+  avernus-frontend-watcher:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      # Mount the frontend source and destination folders
+      - ./frontend:/app
+      - /app/node_modules # Prevents local node_modules from overwriting container's
+    # Use the 'watch' command to automatically rebuild on file changes
+    command: npm run watch

@@ -2,8 +2,8 @@
   <div class="home">
     <div style="height:100vh;">
       <HeroImages />
-      <h2>Previously: [Session 21] Trauma Everywhere All At Once</h2>
-      <div style="max-width: 800px; text-align: left; margin: 0 auto; padding: 2rem; min-height: 100vh; color:#e0e0e0">
+      <h2 style="padding: 20px">Previously: [Session 21] Trauma Everywhere All At Once</h2>
+      <div style="max-width: 800px; text-align: left; margin: 0 auto; min-height: 100vh; color:#e0e0e0">
         <p>
           Crawling through a tunnel after rat-Ada, the gang find themselves alone in a spooky theatre. A spooky jester appears and starts taunting Pierre-Charlotte, asking him to take on the role of Romeo in a play featuring Reya as Juliet. PC isn't having any of it: Reya is clearly a puppet. PC tries to strike at the jester, who disappears. A fight ensues against puppet Juliet and puppet Romeo, with the puppets alternately terrifying and seducing Ari. Speaking of which, here's a brief recap of the party's romantic tastes, as established by precedent:
           <ul>
