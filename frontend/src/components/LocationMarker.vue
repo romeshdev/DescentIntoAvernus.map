@@ -1,50 +1,61 @@
 <template>
-    <a @click.prevent="openModal" style="cursor: pointer;">
-      <div class="mapNode" :style="styleObject" :class="statusClass" :title="locName">
-          <div>{{ parsedNumId }}</div>
-      </div>
-    </a>
+  <a @click.prevent="openModal" @mouseover="handleMouseEnter" @mouseout="handleMouseLeave" style="cursor: pointer;">
+    <div class="mapNode" :style="styleObject" :class="statusClass" :title="locName">
+        <div>{{ parsedNumId }}</div>
+    </div>
+  </a>
 </template>
-<script>
-export default {
-  name: "LocationMarker",
-  props: {
-    x: Number,
-    y: Number,
-    numId: String,
-    locName: String,
-    status: String
-  },
-  computed: {
-    styleObject() {
-      return {
-        position: "absolute",
-        top: this.y + "px",
-        left: this.x + "px",
-      };
-    },
-    parsedNumId() {
-      return typeof this.numId === 'string' ? this.numId.replace(/\D/g, '') : ''
-    },
-    statusClass() {
-      if (!this.status) return 'status-unknown';
-      switch (this.status.toLowerCase()){
-        case "u":
-          return 'status-unknown';
-        case "e":
-          return 'status-explored';
-        case "k":
-          return 'status-known';
-      }
-    }
-  },  
-  methods: {
-    openModal() {
-      this.$emit('open-modal', this.numId);
-    }
+
+<script setup>
+import { computed, inject } from 'vue'
+
+const props = defineProps({
+  x: Number,
+  y: Number,
+  numId: String,
+  locName: String,
+  status: String
+})
+
+const emit = defineEmits(['open-modal', 'mouse-enter', 'mouse-leave'])
+
+const styleObject = computed(() => {
+  return {
+    position: "absolute",
+    top: props.y + "px",
+    left: props.x + "px",
+  };
+})
+
+const parsedNumId = computed(() => {
+  return typeof props.numId === 'string' ? props.numId.replace(/\D/g, '') : ''
+})
+
+const statusClass = computed(() => {
+  if (!props.status) return 'status-unknown';
+  switch (props.status.toLowerCase()){
+    case "u":
+      return 'status-unknown';
+    case "e":
+      return 'status-explored';
+    case "k":
+      return 'status-known';
   }
+})
+
+const openModal = () => {
+  emit('open-modal', props.numId);
+}
+
+const handleMouseEnter = () => {
+  emit('mouse-enter', props.numId);
+}
+
+const handleMouseLeave = () => {
+  emit('mouse-leave', null);
 }
 </script>
+
 <style scoped>
 .mapNode {
   width: 55px;
@@ -61,6 +72,7 @@ export default {
   color: white;
   z-index: 100;
   font-weight: bold;
+  user-select:none;
 }
 
 .mapNode.status-explored {

@@ -11,12 +11,12 @@
       <form @submit.prevent="handleSubmit">
         <div v-if="isRegistering" class="form-group">
           <label for="modal-email">Email:</label>
-          <input type="email" id="modal-email" v-model="form.email" required :disabled="loading" class="form-input" />
+          <input tabindex="1" type="email" id="modal-email" v-model="form.email" required :disabled="loading" class="form-input" />
         </div>
         
         <div class="form-group">
           <label for="modal-username">Username:</label>
-          <input type="text" id="modal-username" v-model="form.username" required :disabled="loading" class="form-input" />
+          <input tabindex="2" type="text" id="modal-username" v-model="form.username" required :disabled="loading" class="form-input" />
         </div>
         
         <div class="form-group">

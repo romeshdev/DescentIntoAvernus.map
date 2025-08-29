@@ -20,7 +20,9 @@
                           :status="location.status"
                           :numId="location.id" 
                           :locName="location.name"
-                          @open-modal="openLocationModal">
+                          @open-modal="openLocationModal"
+                          @mouse-enter="nodeMouseOver"
+                          @mouse-leave="nodeMouseLeave">
         </LocationMarker>
 
         <!-- Render connecting lines -->
@@ -65,14 +67,8 @@ const pendingMarker = ref(null)
 provide('placingMarker', placingMarker)
 provide('startPlacingMarker', () => placingMarker.value = true)
 
-const linkingPoints = ref(false)
-const pendingPointLink = ref(null)
-
-provide('linkingPoints', linkingPoints)
-provide('startLinkingPoints', () => linkingPoints.value = true)
-
 const handleMapClickFromOverlay = ({ x, y }) => {
-  if (!editMode?.value) return
+  if (!editMode?.value || !placingMarker?.value) return
 
   const ids = locations.value.map(item => item.id);
   const id = ids.length === 0 ? "1" : Math.max(...ids.map(id => parseInt(String(id).match(/^\d+/)?.[0] ?? 0))) + 1; 
@@ -92,9 +88,53 @@ const handleMapClickFromOverlay = ({ x, y }) => {
   openLocationModal(`${id}`)
 }
 
-const setNodeLinksetNodeLinkerStarterEnd = ({ x, y }) => {}
-const setNodeLinkerTarget = ({ x, y }) => {}
-const setNodeLinkerEnd = ({ x, y }) => {}
+const linkingPoints = ref(false)
+const pendingPointLinkStart = ref(null)
+const pendingPointLinkEnd = ref(null)
+
+provide('linkingPoints', linkingPoints)
+provide('startLinkingPoints', () => linkingPoints.value = true)
+
+const setNodeLinkerStart = ({ x, y }) => {
+  var point = findClosestPoint({ x, y })
+  
+  pendingPointLinkStart.value = point;
+  console.log(point)
+}
+const setNodeLinkerTarget = ({ x, y }) => {
+  
+}
+const setNodeLinkerEnd = ({ x, y }) => {
+  var point = findClosestPoint({ x, y })
+  pendingPointLinkEnd.value = point
+  if (pendingPointLinkEnd.value && pendingPointLinkStart.value){
+    // do the thing
+    console.log(pendingPointLinkStart.value, pendingPointLinkEnd.value)
+    pendingPointLinkStart.value.connectedTo.push(pendingPointLinkEnd.value.id)
+  }
+  pendingPointLinkEnd.value = null
+  pendingPointLinkStart.value = null
+}
+
+const nodeMouseOver = (nodeId) => {
+  if (!pendingPointLinkStart?.value) {
+    pendingPointLinkStart.value = locations.value.find(x => x.id == nodeId)
+  } else if(!pendingPointLinkEnd?.value) {
+    pendingPointLinkEnd.value = locations.value.find(x => x.id == nodeId)
+  }
+  
+  console.log(pendingPointLinkStart.value, pendingPointLinkEnd.value)
+}
+
+const nodeMouseLeave = (e) => {  
+  if (pendingPointLinkEnd?.value) {
+    pendingPointLinkEnd.value = null
+  } else if(pendingPointLinkStart?.value) {
+    pendingPointLinkStart.value = null
+  }
+  
+  console.log(pendingPointLinkStart.value, pendingPointLinkEnd.value)
+}
 
 // Standard component state and logic
 const mapId = ref('')
@@ -249,6 +289,24 @@ const calculateLineStyle = (location1, location2, numId, numId2) => {
     backgroundColor: 'white',
     zIndex: 20,
   }
+}
+
+
+const findClosestPoint = (targetPoint) => { 
+  let closestPoint = locations.value[0];
+  let minDistance = Math.sqrt((targetPoint.x - closestPoint.x) ** 2 + (targetPoint.y - closestPoint.y) ** 2);
+  
+  for (let i = 1; i < locations.value.length; i++) {
+    const point = locations.value[i];
+    const distance = Math.sqrt((targetPoint.x - point.x) ** 2 + (targetPoint.y - point.y) ** 2);
+    
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestPoint = point;
+    }
+  }
+  
+  return closestPoint;
 }
 
 // Enhanced watch statements with better debugging

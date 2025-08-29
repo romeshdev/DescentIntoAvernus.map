@@ -1,5 +1,5 @@
 <template>
-  <div v-if="enabled" class="placement-overlay" @mousemove="handleMouseMove" @mouseleave="hide" @mousedown="startHold">
+  <div v-if="enabled" class="placement-overlay" @mousemove="handleMouseMove" @mouseleave="hide" @mousedown="startHold($event)" @mouseup="endHold($event)">
     <!-- Tooltip -->
     <div v-if="showTooltip" class="coord-tooltip" :style="{ top: `${mouseY + 12}px`, left: `${mouseX + 12}px` }">
       x: {{ gridX }}, y: {{ gridY }}
@@ -16,7 +16,7 @@
 <script setup>
 import { ref, computed, inject } from 'vue'
 
-const enabled = inject('editMode') // assumes this is a ref
+const enabled = inject('editMode')
 const emit = defineEmits(['startPoint', 'endPoint', 'dragTarget'])
 
 const mouseX = ref(0)
@@ -27,8 +27,8 @@ const gridX = computed(() => Math.round(mouseX.value))
 const gridY = computed(() => Math.round(mouseY.value))
 
 
-const startPoint = ref({})
-const target = ref({})
+const startPoint = ref(null)
+const target = ref(null)
 
 function handleMouseMove(e) {
   const rect = e.currentTarget.getBoundingClientRect()
@@ -43,17 +43,28 @@ function hide() {
   showTooltip.value = false
 }
 
-function startHold() {
+function startHold(e) {
   startPoint.value = { x: gridX.value, y: gridY.value }
   emit('startPoint', startPoint.value)
 }
 
-function endHold() {
-  emit('endPoint', { x: gridX.value, y: gridY.value })
+function endHold(e) {
+  emit('endPoint', target.value)
+  startPoint.value = null
+  target.value = null
 }
 
+const handleClick = () => {
+  if (!isMouseDownActive.value) {
+    // Only execute click logic if mousedown didn't prevent it
+    console.log('Click event triggered');
+  } else {
+    console.log('Click event prevented by mousedown');
+  }
+};
+
 const calculateLineStyle = (location1, location2) => {
-  if (!location2) return {}
+  if (!location1 || !location2) return {}
   const x1 = location1.x
   const y1 = location1.y
   const x2 = location2.x
@@ -82,7 +93,7 @@ const calculateLineStyle = (location1, location2) => {
   position: absolute;
   inset: 0;
   cursor: crosshair;
-  z-index: 10;
+  z-index: 150;
 }
 
 .coord-tooltip {
