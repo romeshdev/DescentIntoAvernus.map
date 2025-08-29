@@ -20,20 +20,18 @@
                           :status="location.status"
                           :numId="location.id" 
                           :locName="location.name"
-                          @open-modal="openLocationModal"
-                          @mouse-enter="nodeMouseOver"
-                          @mouse-leave="nodeMouseLeave">
+                          @open-modal="openLocationModal">
         </LocationMarker>
 
         <!-- Render connecting lines -->
         <div v-for="location in locations" :key="location.id">
             <div v-for="connectedId in location.connectedTo" :key="connectedId"
-                  :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId), location.id, connectedId)"
+                  :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId))"
                   class="line"></div>
         </div>
         
         <MarkerPlacementOverlay v-if="placingMarker" @place="handleMapClickFromOverlay" />
-        <NodeLinkerOverlay v-if="linkingPoints" @startPoint="setNodeLinkerStart" @endPoint="setNodeLinkerEnd" @dragTarget="setNodeLinkerTarget" />
+        <NodeLinkerOverlay v-if="linkingPoints" :nodes="locations" />
     </div>
     <EditControls />
     <LocationModal
@@ -89,52 +87,10 @@ const handleMapClickFromOverlay = ({ x, y }) => {
 }
 
 const linkingPoints = ref(false)
-const pendingPointLinkStart = ref(null)
-const pendingPointLinkEnd = ref(null)
+// const pendingPointLinkStart = ref(null)
+// const pendingPointLinkEnd = ref(null)
 
 provide('linkingPoints', linkingPoints)
-provide('startLinkingPoints', () => linkingPoints.value = true)
-
-const setNodeLinkerStart = ({ x, y }) => {
-  var point = findClosestPoint({ x, y })
-  
-  pendingPointLinkStart.value = point;
-  console.log(point)
-}
-const setNodeLinkerTarget = ({ x, y }) => {
-  
-}
-const setNodeLinkerEnd = ({ x, y }) => {
-  var point = findClosestPoint({ x, y })
-  pendingPointLinkEnd.value = point
-  if (pendingPointLinkEnd.value && pendingPointLinkStart.value){
-    // do the thing
-    console.log(pendingPointLinkStart.value, pendingPointLinkEnd.value)
-    pendingPointLinkStart.value.connectedTo.push(pendingPointLinkEnd.value.id)
-  }
-  pendingPointLinkEnd.value = null
-  pendingPointLinkStart.value = null
-}
-
-const nodeMouseOver = (nodeId) => {
-  if (!pendingPointLinkStart?.value) {
-    pendingPointLinkStart.value = locations.value.find(x => x.id == nodeId)
-  } else if(!pendingPointLinkEnd?.value) {
-    pendingPointLinkEnd.value = locations.value.find(x => x.id == nodeId)
-  }
-  
-  console.log(pendingPointLinkStart.value, pendingPointLinkEnd.value)
-}
-
-const nodeMouseLeave = (e) => {  
-  if (pendingPointLinkEnd?.value) {
-    pendingPointLinkEnd.value = null
-  } else if(pendingPointLinkStart?.value) {
-    pendingPointLinkStart.value = null
-  }
-  
-  console.log(pendingPointLinkStart.value, pendingPointLinkEnd.value)
-}
 
 // Standard component state and logic
 const mapId = ref('')
@@ -268,8 +224,8 @@ const handleLocationUpdate = (event) => {
   }
 }
 
-const calculateLineStyle = (location1, location2, numId, numId2) => {
-  if (!location2 || numId > numId2) return {}
+const calculateLineStyle = (location1, location2) => {
+  if (!location2) return {}
   const x1 = location1.x
   const y1 = location1.y
   const x2 = location2.x
@@ -289,24 +245,6 @@ const calculateLineStyle = (location1, location2, numId, numId2) => {
     backgroundColor: 'white',
     zIndex: 20,
   }
-}
-
-
-const findClosestPoint = (targetPoint) => { 
-  let closestPoint = locations.value[0];
-  let minDistance = Math.sqrt((targetPoint.x - closestPoint.x) ** 2 + (targetPoint.y - closestPoint.y) ** 2);
-  
-  for (let i = 1; i < locations.value.length; i++) {
-    const point = locations.value[i];
-    const distance = Math.sqrt((targetPoint.x - point.x) ** 2 + (targetPoint.y - point.y) ** 2);
-    
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestPoint = point;
-    }
-  }
-  
-  return closestPoint;
 }
 
 // Enhanced watch statements with better debugging

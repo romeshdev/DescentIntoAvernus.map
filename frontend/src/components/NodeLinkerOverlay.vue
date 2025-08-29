@@ -18,6 +18,9 @@ import { ref, computed, inject } from 'vue'
 
 const enabled = inject('editMode')
 const emit = defineEmits(['startPoint', 'endPoint', 'dragTarget'])
+const props = defineProps({
+  nodes: Array,
+})
 
 const mouseX = ref(0)
 const mouseY = ref(0)
@@ -25,7 +28,6 @@ const showTooltip = ref(false)
 
 const gridX = computed(() => Math.round(mouseX.value))
 const gridY = computed(() => Math.round(mouseY.value))
-
 
 const startPoint = ref(null)
 const target = ref(null)
@@ -44,27 +46,49 @@ function hide() {
 }
 
 function startHold(e) {
-  startPoint.value = { x: gridX.value, y: gridY.value }
-  emit('startPoint', startPoint.value)
+  let possiblePoint = findClosestPoint(gridX.value, gridY.value)
+  if (Math.abs(possiblePoint.distance) < 30) {
+    startPoint.value = possiblePoint.point
+  }
 }
 
 function endHold(e) {
-  emit('endPoint', target.value)
+  let endPoint = findClosestPoint(target.value.x, target.value.y)
+  if (Math.abs(endPoint.distance) < 30 && startPoint.value) {
+    const fromId = startPoint.value.id
+    const toId = endPoint.point.id
+    if(!startPoint.value.connectedTo.find(x => x === toId) && !endPoint.point.connectedTo.find(x => x === fromId)) {
+      console.log(`Connecting ${fromId} to ${toId}`)
+      startPoint.value.connectedTo.push(toId)
+    }
+  } 
   startPoint.value = null
   target.value = null
 }
 
-const handleClick = () => {
-  if (!isMouseDownActive.value) {
-    // Only execute click logic if mousedown didn't prevent it
-    console.log('Click event triggered');
-  } else {
-    console.log('Click event prevented by mousedown');
+const findClosestPoint = (x, y) => { 
+  let targetPoint = { x, y }
+  let closestPoint = props.nodes[0];
+  let shortestDistance = Math.sqrt((targetPoint.x - closestPoint.x) ** 2 + (targetPoint.y - closestPoint.y) ** 2);
+  
+  for (let i = 1; i < props.nodes.length; i++) {
+    const point = props.nodes[i];
+    const distance = Math.sqrt((targetPoint.x - point.x) ** 2 + (targetPoint.y - point.y) ** 2);
+    
+    if (distance < shortestDistance) {
+      shortestDistance = distance;
+      closestPoint = point;
+    }
   }
-};
+  
+  return {
+    point: closestPoint,
+    distance: shortestDistance
+  };
+}
 
 const calculateLineStyle = (location1, location2) => {
-  if (!location1 || !location2) return {}
+  if (!location1 || !location2 ) return {} // || location1.status !== "E" || location2.status !== "E"
   const x1 = location1.x
   const y1 = location1.y
   const x2 = location2.x

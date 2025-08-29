@@ -54,7 +54,7 @@
               <p v-if="locationData.item">
                   <strong>Items in place:</strong> {{ locationData.item }}
               </p>
-              <p>
+              <p v-if="locationData.terrain">
                   <strong>Terrain:</strong> {{ renderTerrain(locationData) }}
               </p>
             </div>

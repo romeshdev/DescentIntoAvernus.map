@@ -10,10 +10,10 @@
           📌 Placing Marker..
         </button>
 
-        <button v-if="!linkingPoints && startLinkingPoints != null" class="context-button" @click="startLinkingPoints">
+        <button v-if="!linkingPoints" class="context-button" @click="linkingPoints = true">
           🔗 Link Points
         </button>
-        <button v-else-if="startLinkingPoints != null" class="context-button active" @click="linkingPoints = false">
+        <button v-else-if="linkingPoints" class="context-button active" @click="linkingPoints = false">
           🖇️ Linking Points..
         </button>
       </div>

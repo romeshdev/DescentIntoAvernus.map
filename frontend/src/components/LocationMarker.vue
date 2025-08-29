@@ -1,5 +1,5 @@
 <template>
-  <a @click.prevent="openModal" @mouseover="handleMouseEnter" @mouseout="handleMouseLeave" style="cursor: pointer;">
+  <a @click.prevent="openModal" style="cursor: pointer;">
     <div class="mapNode" :style="styleObject" :class="statusClass" :title="locName">
         <div>{{ parsedNumId }}</div>
     </div>
@@ -45,14 +45,6 @@ const statusClass = computed(() => {
 
 const openModal = () => {
   emit('open-modal', props.numId);
-}
-
-const handleMouseEnter = () => {
-  emit('mouse-enter', props.numId);
-}
-
-const handleMouseLeave = () => {
-  emit('mouse-leave', null);
 }
 </script>
 
