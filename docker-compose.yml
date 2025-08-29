@@ -10,6 +10,7 @@ services:
       - ADMIN_PASSWORD=pwd
     volumes:
       - ./backend/data:/app/data
+      - ./frontend/dist:/app/public
       # - ./player/data:/app/player/data
     restart: unless-stopped
     healthcheck:
