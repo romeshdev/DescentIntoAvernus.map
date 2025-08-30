@@ -16,36 +16,33 @@
           
           <!-- Editable Title -->
           <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
-            {{ localName }}
+            [Session: {{ locationData.nodeLabel }}] {{ locationData.name }}
           </div>
           <div v-else class="edit-mode">
-            <label class="edit-label">Location Name:</label>
-            <input 
-              v-model="editTitleValue" 
-              class="edit-input" 
-              placeholder="Enter location name"
-            />
+            <div v-if="!isDeleting" class="title-inputs">
+              <div v-if="map.type == 'nodemap'">
+                <label class="edit-label">Session Number:</label>
+                <input v-model="editableLocationData.nodeLabel"  class="edit-input" placeholder="Enter session number" />
+              </div>
+              <div>
+                <label class="edit-label">Title:</label>
+                <input v-model="editableLocationData.name"  class="edit-input" placeholder="Enter location name" />
+              </div>
+            </div>
           </div>
 
-          <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
+          <div v-if="!isEditModeActive && map.type == 'hexcrawl'" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
             <span class="status-badge" :class="`status-${locationData.status.toLowerCase()}`">
               {{ locationData.status === 'U' ? 'Unknown' : locationData.status === 'K' ? 'Known' : 'Explored' }}
             </span>
           </div>
-          <div v-else class="edit-mode">
+          <div v-else-if="map.type == 'hexcrawl'" class="edit-mode">
             <label class="edit-label">Player Status:</label>
             <div class="status-button-group">
-
               <div class="toggle-container">
-                <button :class="{ active: editStatusValue === 'U' }" @click="() => updateLocalStatus('U')">
-                  Unknown
-                </button>
-                <button :class="{ active: editStatusValue === 'K' }" @click="() => updateLocalStatus('K')">
-                  Known
-                </button>
-                <button :class="{ active: editStatusValue === 'E' }" @click="() => updateLocalStatus('E')">
-                  Explored
-                </button>
+                <button :class="{ active: editableLocationData.status === 'U' }" @click="() => updateLocalStatus('U')">Unknown</button>
+                <button :class="{ active: editableLocationData.status === 'K' }" @click="() => updateLocalStatus('K')">Known</button>
+                <button :class="{ active: editableLocationData.status === 'E' }" @click="() => updateLocalStatus('E')">Explored</button>
               </div>
             </div>
           </div>
@@ -61,15 +58,11 @@
           
           <!-- Editable Text -->
           <div v-if="!isEditModeActive" class="u-align-justify u-text u-text-3">
-            <div v-html="localText"></div>
+            <div v-html="locationData.text"></div>
           </div>
           <div v-else class="edit-mode">
             <label class="edit-label">Location Description:</label>
-            <textarea 
-              v-model="editTextValue" 
-              class="edit-textarea" 
-              placeholder="Enter location description (HTML allowed)"
-            ></textarea>
+            <textarea v-model="editableLocationData.text" class="edit-textarea" placeholder="Enter location description (HTML allowed)"></textarea>
           </div>
           
           <div id="modal-message-container"></div>
@@ -100,305 +93,202 @@
     </div>
 </template>
 
-<script>
-import { inject, computed } from 'vue'
-import InfernalButton from './InfernalButton.vue';
+<script setup>
+import { ref, watch, inject, computed } from 'vue'
+import { updateLocation, deleteLocation } from '../services/api-service';
 
-export default {
-  name: "LocationModal",
-  components: { InfernalButton },
-  props: {
-    hex: String,
-    region: String,
-    editable: Boolean, // Keep for backward compatibility, but now use injected edit mode
-    locationModel: Object // New prop to receive the location model from parent
+const props = defineProps({
+  locationId: String,
+  region: String,
+  editable: Boolean, 
+  locationModel: Object
+})
+
+const emit = defineEmits(['close-modal', 'location-updated'])
+
+const editMode = inject('editMode', { value: false })
+const isAuthenticated = inject('isAuthenticated', { value: false })
+const map = inject('map')
+
+const isEditModeActive = computed(() => editMode.value && isAuthenticated.value)
+
+const locationData = ref(null)
+const originalLocationData = ref(null)
+const editableLocationData = ref(null)
+const loading = ref(false)
+const isDeleting = ref(false)
+
+watch(
+  () => props.locationModel,
+  (newModel) => {
+    if (newModel) loadLocationFromModel()
   },
-  setup() {
-    // Inject edit mode and authentication state from parent
-    const editMode = inject('editMode', { value: false })
-    const isAuthenticated = inject('isAuthenticated', { value: false })
-    
-    // Edit mode is active when both edit mode is on AND user is authenticated
-    const isEditModeActive = computed(() => {
-      return editMode.value && isAuthenticated.value
-    })
-    
-    return {
-      isEditModeActive,
-      isAuthenticated
+  { immediate: true, deep: true }
+)
+
+watch(isEditModeActive, (newVal) => {
+  if (newVal && locationData.value) initializeEditValues()
+})
+
+// ✅ Methods (now as functions)
+async function loadLocationFromModel() {
+  loading.value = true
+  locationData.value = null
+
+  if (!props.locationModel) {
+    loading.value = false
+    return
+  }
+
+  const isNewLocation = props.locationModel.name === 'New Location'
+
+  if (!isNewLocation) {
+    locationData.value = { ...props.locationModel }
+    loading.value = false
+    initializeEditValues()
+    return
+  } else {
+    locationData.value = {
+      x: props.locationModel.x,
+      y: props.locationModel.y,
+      id: props.locationModel.id,
+      connectedTo: [],
+      status: 'U',
+      nodeLabel: '',
+      name: '',
+      text: ''
     }
-  },
-  data() {
-    return {
-      locationData: null,
-      loading: false,
-      isDeleting: false,
-      editTitleValue: '',
-      editTextValue: '',
-      editStatusValue: '',
-      localName: '',
-      localText: '',
-      // Store original values for cancel functionality
-      originalName: '',
-      originalText: '',
-      originalStatus: ''
-    };
-  },
-  watch: {
-    locationModel: {
-      handler(newModel) {
-        if (newModel) {
-          this.loadLocationFromModel();
-        }
-      },
-      immediate: true,
-      deep: true
-    },
-    // Initialize edit values when edit mode is activated
-    'isEditModeActive': {
-      handler(newEditMode) {
-        if (newEditMode && this.locationData) {
-          this.initializeEditValues();
-        }
-      }
-    }
-  },
-  methods: {
-    loadLocationFromModel() {
-      this.loading = true;
-      this.locationData = null;
+  }
 
-      if (!this.locationModel) {
-        this.loading = false;
-        return;
-      }
+  loading.value = false
+  initializeEditValues()
+  await updateLocation(props.region, props.locationId, locationData.value).then(handleLocationUpdated)
+}
 
-      // Check if this is a new location (name is 'New Location')
-      const isNewLocation = this.locationModel.name === 'New Location';
-      
-      if (isNewLocation) {
-        // Handle like the old pendingLocation
-        this.locationData = {
-          "x": this.locationModel.x,
-          "y": this.locationModel.y,
-          "id": this.locationModel.id,
-          "connectedTo": [],
-          "status": "U",
-          "name": "",
-          "text": ""
-        };
-        
-        this.localName = this.locationData.name;
-        this.localText = this.locationData.text;
-        this.loading = false;
-        this.initializeEditValues();
+function initializeEditValues() {
+  if (!locationData.value) return
+  editableLocationData.value = { ...locationData.value }
+  originalLocationData.value = { ...locationData.value }
+}
 
-        // Send update for new location
-        this.sendUpdate(this.locationData);
-      } else {
-        // Use the provided model as-is for existing locations
-        this.locationData = { ...this.locationModel };
-        this.localName = this.locationData.name || '';
-        this.localText = this.locationData.text || '';
-        this.loading = false;
-        this.initializeEditValues();
-      }
-    },
+function updateLocalStatus(status) {
+  editableLocationData.value.status = status
+}
 
-    initializeEditValues() {
-      if (this.locationData) {
-        // Set edit values to current data
-        this.editTitleValue = this.locationData.name || '';
-        this.editTextValue = this.locationData.text || '';
-        this.editStatusValue = this.locationData.status || 'U';
-        
-        // Store original values for cancel functionality
-        this.originalName = this.locationData.name || '';
-        this.originalText = this.locationData.text || '';
-        this.originalStatus = this.locationData.status || 'U';
-      }
-    },
+function isDirty() {
+  return Object.keys(editableLocationData.value).some(x => editableLocationData.value[x] !== originalLocationData.value[x])
+}
 
-    updateLocalStatus(status) {
-      this.editStatusValue = status;
-    },
+async function saveAllChanges() {
+  const updateData = {}
 
-    isDirty(){
-      return this.editTitleValue.trim() !== this.originalName || this.editTextValue !== this.originalText || this.editStatusValue !== this.originalStatus;
-    },
+  for (let prop of Object.keys(editableLocationData.value)){
+    if (editableLocationData.value[prop] != originalLocationData.value[prop])
+      updateData[prop] = editableLocationData.value[prop]
+  }
 
-    saveAllChanges() {
-      // Prepare update data with all changed fields
-      const updateData = {};
-      
-      if (this.editTitleValue.trim() !== this.originalName) {
-        updateData.name = this.editTitleValue.trim();
-      }
-      
-      if (this.editTextValue !== this.originalText) {
-        updateData.text = this.editTextValue;
-      }
-      
-      if (this.editStatusValue !== this.originalStatus) {
-        updateData.status = this.editStatusValue;
-      }
+  if (Object.keys(updateData).length > 0) {
+    await updateLocation(props.region, props.locationId, updateData).then(handleLocationUpdated)
+  } else {
+    showSuccess('No changes to save')
+  }
+}
 
-      // Only send update if there are changes
-      if (Object.keys(updateData).length > 0) {
-        this.sendUpdate(updateData);
-      } else {
-        this.showSuccess('No changes to save');
-      }
-    },
+function cancelAllChanges() {
+  if (!isDirty()) closeModal()
+  editableLocationData.value = { ...originalLocationData.value }
+  showSuccess('Changes cancelled')
+}
 
-    cancelAllChanges() {
-      if(!this.isDirty()){
-        this.closeModal();
-      }
-      // Reset edit values to original values
-      this.editTitleValue = this.originalName;
-      this.editTextValue = this.originalText;
-      this.editStatusValue = this.originalStatus;
-      
-      this.showSuccess('Changes cancelled');
-    },
-    
-    closeModal() {
-      this.$emit('close-modal');
-    },
-    
-    sendUpdate(updateData) {
-      fetch(`/api/data/maps/${this.region}/hex/${this.hex}`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          // Add authorization header if available
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        },
-        body: JSON.stringify(updateData)
-      })
-      .then(response => response.json())
+function closeModal() {
+  emit('close-modal')
+}
+
+function handleLocationUpdated(response)
+{
+  if (!response.success) {
+    showError('Error updating location: ' + (data.error || 'Unknown error'))
+    return;
+  }
+
+  locationData.value = { ...response.data }
+  initializeEditValues()
+  emit('location-updated', { hex: props.locationId, data: response.data })
+
+  // const changedFields = Object.keys(response.data)
+  // let message = ''
+  // if (changedFields.length === 1) {
+  //   const field = changedFields[0]
+  //   if (field === 'status') {
+  //     message = `Status updated to ${data.status === 'U' ? 'Unknown' : data.status === 'K' ? 'Known' : 'Explored'}`
+  //   } else {
+  //     message = `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`
+  //   }
+  // } else {
+  //   message = `${changedFields.length} fields updated successfully`
+  // }
+  showSuccess("Fields updated successfully")
+}
+
+function toggleDelete() {
+  isDeleting.value = !isDeleting.value
+}
+
+async function sendDelete() {
+  await deleteLocation(props.region, props.locationId)
+      .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          // Update local data
-          Object.assign(this.locationData, updateData);
-          
-          // Update display values
-          if (updateData.name) {
-            this.localName = updateData.name;
-          }
-          if (updateData.text !== undefined) {
-            this.localText = updateData.text;
-          }
-          
-          // Update original values to match saved values
-          this.originalName = this.locationData.name || '';
-          this.originalText = this.locationData.text || '';
-          this.originalStatus = this.locationData.status || 'U';
-          
-          // Emit event to parent to update the map
-          this.$emit('location-updated', { hex: this.hex, data: updateData });
-          
-          // Show success message
-          const changedFields = Object.keys(updateData);
-          let message = '';
-          if (changedFields.length === 1) {
-            const field = changedFields[0];
-            if (field === 'status') {
-              message = `Status updated to ${updateData.status === 'U' ? 'Unknown' : updateData.status === 'K' ? 'Known' : 'Explored'}`;
-            } else {
-              message = `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`;
-            }
-          } else {
-            message = `${changedFields.length} fields updated successfully`;
-          }
-          this.showSuccess(message);
-        } else {
-          this.showError('Error updating location: ' + (data.error || 'Unknown error'));
+        if (!data.success) {
+          showError('Error deleting location: ' + (data.error || 'Unknown error'))
+          return
         }
+        emit('location-updated', { hex: props.locationId, data: null })
+        closeModal()
       })
-      .catch(error => {
-        console.error('Error updating location:', error);
-        this.showError('Error updating location: ' + error.message);
-      });
-    },
+      .catch((err) => showError('Error deleting location: ' + err.message))
+}
 
-    toggleDelete(){
-      this.isDeleting = !this.isDeleting;
-    },
+function showSuccess(message) {
+  const container = document.getElementById('modal-message-container')
+  container.innerHTML = `<div class="success">${message}</div>`
+  setTimeout(() => (container.innerHTML = ''), 2000)
+}
 
-    sendDelete() {
-      fetch(`/api/data/maps/${this.region}/hex/${this.hex}`, {
-        method: 'DELETE',
-        headers: { 
-          'Content-Type': 'application/json',
-          // Add authorization header if available
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Emit event to parent to update the map
-          this.$emit('location-updated', { hex: this.hex, data: null });
-          
-          // Show success message
-          this.closeModal();
-        } else {
-          this.showError('Error deleting location: ' + (data.error || 'Unknown error'));
-        }
-      })
-      .catch(error => {
-        console.error('Error updating location:', error);
-        this.showError('Error updating location: ' + error.message);
-      });
-    },
-    
-    showSuccess(message) {
-      const container = document.getElementById('modal-message-container');
-      container.innerHTML = `<div class="success">${message}</div>`;
-      setTimeout(() => {
-        container.innerHTML = '';
-      }, 2000);
-    },
-    
-    showError(message) {
-      const container = document.getElementById('modal-message-container');
-      container.innerHTML = `<div class="error">${message}</div>`;
-      setTimeout(() => {
-        container.innerHTML = '';
-      }, 5000);
-    },
-    renderTerrain(item) {
-      if (!item.terrain || !item.terrain[0]) return "???";
-      
-      switch (item.terrain[0]) {
-        case "ash":
-          return "ashlands";
-        case "bog":
-          return "caustic bogs";
-        case "brambles":
-          return "bone brambles";
-        case "cracks":
-          return "wasteland, cracked";
-        case "fire":
-          return "plains of fire";
-        case "hills":
-          return "hills, avernian";
-        case "mountains":
-          return "mountains, avernian";
-        case "volcano":
-          return "volcanic plains";
-        case "waste":
-          return "wastelands";
-        default:
-          console.log("Error, unknown terrain");
-          return "???";
-      }
-    },
+function showError(message) {
+  const container = document.getElementById('modal-message-container')
+  container.innerHTML = `<div class="error">${message}</div>`
+  setTimeout(() => (container.innerHTML = ''), 5000)
+}
+
+function renderTerrain(item) {
+  if (!item.terrain || !item.terrain[0]) return '???'
+
+  switch (item.terrain[0]) {
+    case 'ash':
+      return 'ashlands'
+    case 'bog':
+      return 'caustic bogs'
+    case 'brambles':
+      return 'bone brambles'
+    case 'cracks':
+      return 'wasteland, cracked'
+    case 'fire':
+      return 'plains of fire'
+    case 'hills':
+      return 'hills, avernian'
+    case 'mountains':
+      return 'mountains, avernian'
+    case 'volcano':
+      return 'volcanic plains'
+    case 'waste':
+      return 'wastelands'
+    default:
+      console.log('Error, unknown terrain')
+      return '???'
   }
 }
 </script>
+
 
 <style scoped>
 .modal-overlay {
@@ -575,6 +465,11 @@ export default {
 .status-e {
   background: #28a745;
   color: white;
+}
+
+.title-inputs {
+  display: flex;
+  gap: 15px;
 }
 
 .main-edit-buttons {

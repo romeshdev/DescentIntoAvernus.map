@@ -75,7 +75,7 @@ router.put('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
     }
     
     // Validate allowed fields (prevent unauthorized modifications)
-    const allowedFields = ['id', 'x', 'y', 'name', 'text', 'status', 'item', 'terrain', 'connectedTo'];
+    const allowedFields = ['id', 'x', 'y', 'name', 'text', 'status', 'nodeLabel', 'item', 'terrain', 'connectedTo'];
     const updateKeys = Object.keys(updates);
     const invalidFields = updateKeys.filter(key => !allowedFields.includes(key));
     

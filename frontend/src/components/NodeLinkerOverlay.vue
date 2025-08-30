@@ -5,7 +5,14 @@
       x: {{ gridX }}, y: {{ gridY }}
     </div>
 
-    <div :style="calculateLineStyle(startPoint, target)" class="line"></div>
+    <div :style="calculateLineStyle(startPoint, target)"></div>
+    <div v-for="node in nodes" :key="node.id">
+      <div v-for="connectedId in node.connectedTo" 
+            :key="connectedId" 
+            :style="calculateLineButton(node, nodes.find(loc => loc.id === connectedId))"
+            @click="deleteLink(node.id, connectedId)"
+      >x</div>
+    </div>
 
     <!-- Crosshairs -->
     <div v-if="showTooltip" class="crosshair-vertical" :style="{ left: `${mouseX}px` }" />
@@ -15,10 +22,12 @@
 
 <script setup>
 import { ref, computed, inject } from 'vue'
+import { updateLocation } from '../services/api-service';
 
 const enabled = inject('editMode')
 const emit = defineEmits(['startPoint', 'endPoint', 'dragTarget'])
 const props = defineProps({
+  mapId: String,
   nodes: Array,
 })
 
@@ -52,18 +61,27 @@ function startHold(e) {
   }
 }
 
-function endHold(e) {
-  let endPoint = findClosestPoint(target.value.x, target.value.y)
-  if (Math.abs(endPoint.distance) < 30 && startPoint.value) {
-    const fromId = startPoint.value.id
-    const toId = endPoint.point.id
-    if(!startPoint.value.connectedTo.find(x => x === toId) && !endPoint.point.connectedTo.find(x => x === fromId)) {
-      console.log(`Connecting ${fromId} to ${toId}`)
-      startPoint.value.connectedTo.push(toId)
-    }
-  } 
-  startPoint.value = null
-  target.value = null
+async function endHold(e) {
+  try {
+    let endPoint = findClosestPoint(target.value.x, target.value.y)
+    if (Math.abs(endPoint.distance) < 30 && startPoint.value) {
+      const fromId = startPoint.value.id
+      const toId = endPoint.point.id
+      if(fromId !== toId && !startPoint.value.connectedTo.find(x => x === toId) && !endPoint.point.connectedTo.find(x => x === fromId)) {
+        startPoint.value.connectedTo.push(toId)
+        await updateLocation(props.mapId, startPoint.value.id, { connectedTo: startPoint.value.connectedTo })
+      }
+    } 
+  } finally {
+    startPoint.value = null
+    target.value = null
+  }
+}
+
+async function deleteLink(nodeId, connectionId) {
+  let node = props.nodes.find(n => n.id == nodeId)
+  node.connectedTo = node.connectedTo.filter(x => x !== connectionId)
+  await updateLocation(props.mapId, nodeId, { connectedTo: node.connectedTo })
 }
 
 const findClosestPoint = (x, y) => { 
@@ -107,6 +125,33 @@ const calculateLineStyle = (location1, location2) => {
     border: '1px solid black',
     backgroundColor: 'white',
     zIndex: 20,
+  }
+}
+
+const calculateLineButton = (location1, location2) => {
+  if (!location1 || !location2 ) return {} // || location1.status !== "E" || location2.status !== "E"
+  const mx = (location1.x + location2.x) / 2
+  const my = (location1.y + location2.y) / 2
+  const middle = { x: mx, y: my }
+  return {
+    position: 'absolute',
+    width: '20px',
+    height: '20px',
+    top: middle.y + 'px',
+    left: middle.x + 'px',
+    backgroundColor: '#e54646',
+    borderRadius: '50%',
+    // border: '2px solid white',
+    transform: 'translate(-50%, -50%)',
+    fontSize: '16px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    color: 'white',
+    zIndex: '100',
+    fontWeight: 'bold',
+    userSelect: 'none'
   }
 }
 

@@ -11,12 +11,12 @@
       <form @submit.prevent="handleSubmit">
         <div v-if="isRegistering" class="form-group">
           <label for="modal-email">Email:</label>
-          <input tabindex="1" type="email" id="modal-email" v-model="form.email" required :disabled="loading" class="form-input" />
+          <input type="email" id="modal-email" v-model="form.email" required :disabled="loading" class="form-input" />
         </div>
         
         <div class="form-group">
           <label for="modal-username">Username:</label>
-          <input tabindex="2" type="text" id="modal-username" v-model="form.username" required :disabled="loading" class="form-input" />
+          <input ref="usernameInput" type="text" id="modal-username" v-model="form.username" required :disabled="loading" class="form-input" />
         </div>
         
         <div class="form-group">
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useAuthStore } from '../store/auth'
 import InfernalButton from './InfernalButton.vue'
 
@@ -61,7 +61,14 @@ export default {
   emits: ['close-modal', 'login-success'],
   setup(props, { emit }) {
     const authStore = useAuthStore()
-    
+    const usernameInput = ref(null)
+
+    onMounted(() => {
+      nextTick(() => {
+        usernameInput.value?.focus()
+      })
+    })
+
     const isRegistering = ref(false)
     const form = ref({
       username: '',
@@ -109,6 +116,7 @@ export default {
     }
     
     return {
+      usernameInput,
       isRegistering,
       form,
       loading,

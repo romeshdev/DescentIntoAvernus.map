@@ -1,7 +1,7 @@
 <template>
   <a @click.prevent="openModal" style="cursor: pointer;">
     <div class="mapNode" :style="styleObject" :class="statusClass" :title="locName">
-        <div>{{ parsedNumId }}</div>
+        <div>{{ label }}</div>
     </div>
   </a>
 </template>
@@ -14,6 +14,7 @@ const props = defineProps({
   y: Number,
   numId: String,
   locName: String,
+  label: String,
   status: String
 })
 
@@ -56,7 +57,7 @@ const openModal = () => {
   border-radius: 50%;
   border: 2px solid white;
   transform: translate(-50%, -50%);
-  font-size: 28px;
+  font-size: 25px;
   display: flex;
   justify-content: center;
   align-items: center;

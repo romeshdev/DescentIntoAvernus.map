@@ -20,6 +20,7 @@
                           :status="location.status"
                           :numId="location.id" 
                           :locName="location.name"
+                          :label="location.nodeLabel"
                           @open-modal="openLocationModal">
         </LocationMarker>
 
@@ -31,13 +32,13 @@
         </div>
         
         <MarkerPlacementOverlay v-if="placingMarker" @place="handleMapClickFromOverlay" />
-        <NodeLinkerOverlay v-if="linkingPoints" :nodes="locations" />
+        <NodeLinkerOverlay v-if="linkingPoints" :mapId="mapId" :nodes="locations" />
     </div>
     <EditControls />
     <LocationModal
       v-if="showLocationModal"
       :region="mapId"
-      :hex="selectedHex"
+      :locationId="selectedLocation"
       :locationModel="selectedLocationModel"
       @close-modal="closeLocationModal"
       @location-updated="handleLocationUpdate"
@@ -87,32 +88,28 @@ const handleMapClickFromOverlay = ({ x, y }) => {
 }
 
 const linkingPoints = ref(false)
-// const pendingPointLinkStart = ref(null)
-// const pendingPointLinkEnd = ref(null)
-
 provide('linkingPoints', linkingPoints)
 
-// Standard component state and logic
 const mapId = ref('')
 provide('mapId', mapId)
+const map = ref([])
+provide('map', map)
 const printable = ref([])
 const locations = ref([])
-const map = ref([])
-
 const showLocationModal = ref(false)
-const selectedHex = ref(null)
+const selectedLocation = ref(null)
 
 // Computed property to get the selected location model
 const selectedLocationModel = computed(() => {
-  if (!selectedHex.value) return null
+  if (!selectedLocation.value) return null
   
   // First check if it's in the locations array (for node maps)
-  let location = locations.value.find(loc => loc.id === selectedHex.value)
+  let location = locations.value.find(loc => loc.id === selectedLocation.value)
   
   // If not found and we have avernus printable data, search there
   if (!location && mapId.value === 'avernus') {
     for (let row of printable.value) {
-      location = row.find(loc => loc.id === selectedHex.value)
+      location = row.find(loc => loc.id === selectedLocation.value)
       if (location) break
     }
   }
@@ -125,9 +122,7 @@ const route = useRoute()
 // Updated script section with fixed reactivity
 const fetchData = async () => {
   try {
-    const headers = {
-      'Content-Type': 'application/json'
-    }
+    const headers = { 'Content-Type': 'application/json' }
     
     // Add authorization header if user is authenticated
     if (isAuthenticated?.value) {
@@ -188,12 +183,12 @@ const filterData = () => {
 }
 
 const openLocationModal = (hex) => {
-  selectedHex.value = hex
+  selectedLocation.value = hex
   showLocationModal.value = true
 }
 
 const closeLocationModal = () => {
-  selectedHex.value = null
+  selectedLocation.value = null
   showLocationModal.value = false
   pendingMarker.value = null
 }
