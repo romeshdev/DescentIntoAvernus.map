@@ -17,7 +17,6 @@
   </div>
 </template>
 <script>
-import HelloWorld from '../components/HelloWorld.vue'
 import HeroImages from '../components/HeroImages.vue'
 import { useAuthStore } from '../store/auth'
 import { computed } from 'vue'
@@ -25,7 +24,6 @@ import { computed } from 'vue'
 export default {
   name: 'Home',
   components: {
-    HelloWorld,
     HeroImages
   },
   setup() {

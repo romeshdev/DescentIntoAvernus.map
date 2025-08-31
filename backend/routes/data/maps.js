@@ -6,11 +6,7 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 
-
-router.get('/maps', optionalAuth, (req, res) => {
-  try {
-    const isAuthenticated = !!req.user; 
-
+function getMapsFromFile() {
     const dataPath = path.join(__dirname, '..', '..', 'data', `map-data.js`);
     const maps = readDataFile(dataPath);
     maps.forEach(map => {
@@ -19,7 +15,13 @@ router.get('/maps', optionalAuth, (req, res) => {
       map['hexCount'] = mapData.length;
       map['thumbnail'] = `${map.id}-map.jpg`;
     });
+    return maps
+}
 
+router.get('/maps', optionalAuth, (req, res) => {
+  try {
+    const isAuthenticated = !!req.user; 
+    const maps = getMapsFromFile()
     res.json(maps);
   } catch (error) {
     console.error('Error reading data:', error);
@@ -27,34 +29,50 @@ router.get('/maps', optionalAuth, (req, res) => {
   }
 });
 
-// Then modify your routes to use this middleware  
 router.get('/maps/:id', optionalAuth, (req, res) => {
   try {
     const { id } = req.params;
     const isAuthenticated = !!req.user; 
 
-    const dataPath = path.join(__dirname, '..', '..', 'data', `${id}-data.js`);
-    const data = readDataFile(dataPath);
+    const maps = getMapsFromFile()
+    const map = maps.find(x => x.id == id);
 
-    res.json(data.map(hex => obfuscateHex(hex, isAuthenticated)));
+    if (!map) return res.status(404).json({ error: 'Map not found' });
+
+    res.json(map);
   } catch (error) {
     console.error('Error reading data:', error);
     res.status(500).json({ error: 'Failed to read data file' });
   }
 });
 
-router.get('/maps/:mapId/hex/:id', optionalAuth, (req, res) => {
+function getLocationsFromFile(mapId) {
+    const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
+    const locations = readDataFile(dataPath);
+    return locations
+}
+
+router.get('/maps/:id/locations', optionalAuth, (req, res) => {
+  try {
+    const { id } = req.params;
+    const isAuthenticated = !!req.user; 
+    const locations = getLocationsFromFile(id)
+    res.json(locations.map(hex => obfuscateHex(hex, isAuthenticated)));
+  } catch (error) {
+    console.error('Error reading data:', error);
+    res.status(500).json({ error: 'Failed to read data file' });
+  }
+});
+
+router.get('/maps/:mapId/locations/:id', optionalAuth, (req, res) => {
   try {
     const { mapId, id } = req.params;
     const isAuthenticated = !!req.user; 
 
-    const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
-    const data = readDataFile(dataPath);
-    const location = data.find(item => item.id === id);
+    const locations = getLocationsFromFile(mapId)
+    const location = locations.find(item => item.id === id);
 
-    if (!location) {
-      return res.status(404).json({ error: 'Location not found' });
-    }
+    if (!location) return res.status(404).json({ error: 'Location not found' });
 
     res.json({ success: true, data: obfuscateHex(location, isAuthenticated) });
   } catch (error) {
@@ -64,17 +82,15 @@ router.get('/maps/:mapId/hex/:id', optionalAuth, (req, res) => {
 });
 
 // Protected route - only authenticated users can update hex data
-router.put('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
+router.put('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
   try {
     const { mapId, id } = req.params;
     const updates = req.body;
     
-    // Add validation for update data
     if (!updates || Object.keys(updates).length === 0) {
       return res.status(400).json({ error: 'No update data provided' });
     }
     
-    // Validate allowed fields (prevent unauthorized modifications)
     const allowedFields = ['id', 'x', 'y', 'name', 'text', 'status', 'nodeLabel', 'item', 'terrain', 'connectedTo'];
     const updateKeys = Object.keys(updates);
     const invalidFields = updateKeys.filter(key => !allowedFields.includes(key));
@@ -84,26 +100,23 @@ router.put('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
         error: `Invalid fields: ${invalidFields.join(', ')}. Allowed fields: ${allowedFields.join(', ')}` 
       });
     }
-    
-    const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
-    const data = readDataFile(dataPath);
 
-    const locationIndex = data.findIndex(item => item['id'] === id);
+    const locations = getLocationsFromFile(mapId)
+    const locationIndex = locations.findIndex(item => item['id'] === id);
 
     // Log the update for audit purposes
     console.log(`User ${req.user.username} (ID: ${req.user.id}) updating hex ${id}, index ${locationIndex}, in map ${mapId}:`, updates);
       
     if (locationIndex !== -1) {
-      data[locationIndex] = { ...data[locationIndex], ...updates };
+      locations[locationIndex] = { ...locations[locationIndex], ...updates };
     } else {
-      data.push(updates);
+      locations.push(updates);
     }
-    // Write back to main data file
-    writeDataFile(dataPath, data);
+    writeDataFile(path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`), locations);
     
     res.json({ 
       success: true, 
-      data: data[locationIndex],
+      data: locations[locationIndex],
       message: 'Location updated successfully',
       updatedBy: req.user.username,
       updatedAt: new Date().toISOString()
@@ -114,28 +127,25 @@ router.put('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
   }
 });
 
-router.delete('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
+router.delete('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
   try {
     const { mapId, id } = req.params;
     
-    const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
-    const data = readDataFile(dataPath);
-
-    const locationIndex = data.findIndex(item => item['id'] === id);
+    const locations = getLocationsFromFile(mapId)
+    const locationIndex = locations.findIndex(item => item['id'] === id);
 
     // Log the update for audit purposes
     console.log(`User ${req.user.username} (ID: ${req.user.id}) deleting hex ${id}, index ${locationIndex}, in map ${mapId}:`);
       
     if (locationIndex !== -1) {
-      data.splice(locationIndex, 1)
+      locations.splice(locationIndex, 1)
     } 
 
-    // Write back to main data file
-    writeDataFile(dataPath, data);
+    writeDataFile(path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`), locations);
     
     res.json({ 
       success: true, 
-      data: data[locationIndex],
+      data: locations[locationIndex],
       message: 'Location deleted successfully',
       updatedBy: req.user.username,
       updatedAt: new Date().toISOString()
@@ -144,92 +154,6 @@ router.delete('/maps/:mapId/hex/:id', authenticateToken, (req, res) => {
     console.error('Error updating data:', error);
     res.status(500).json({ error: 'Failed to update data' });
   }
-});
-
-
-// Protected route - bulk update multiple hexes (for advanced operations)
-router.put('/maps/:mapId/bulk', authenticateToken, (req, res) => {
-  try {
-    const { mapId } = req.params;
-    const { updates } = req.body; // Array of { id, data } objects
-    
-    if (!Array.isArray(updates) || updates.length === 0) {
-      return res.status(400).json({ error: 'Updates must be a non-empty array' });
-    }
-    
-    const dataPath = path.join(__dirname, '..', '..', 'data', `${mapId}-data.js`);
-    const data = readDataFile(dataPath);
-    
-    const results = [];
-    const allowedFields = ['name', 'text', 'status', 'item', 'terrain'];
-    
-    for (const update of updates) {
-      if (!update.id || !update.data) {
-        results.push({ id: update.id || 'unknown', success: false, error: 'Missing id or data' });
-        continue;
-      }
-      
-      // Validate fields
-      const updateKeys = Object.keys(update.data);
-      const invalidFields = updateKeys.filter(key => !allowedFields.includes(key));
-      
-      if (invalidFields.length > 0) {
-        results.push({ 
-          id: update.id, 
-          success: false, 
-          error: `Invalid fields: ${invalidFields.join(', ')}` 
-        });
-        continue;
-      }
-      
-      const locationIndex = data.findIndex(item => item.id === update.id);
-      
-      if (locationIndex !== -1) {
-        data[locationIndex] = { ...data[locationIndex], ...update.data };
-        results.push({ id: update.id, success: true, data: data[locationIndex] });
-      } else {
-        results.push({ id: update.id, success: false, error: 'Location not found' });
-      }
-    }
-    
-    // Write updated data
-    writeDataFile(dataPath, data);
-    
-    // Update player data
-    const playerDataPath = path.join(__dirname, 'player', 'data', `${mapId}-data.js`);
-    try {
-      if (fs.existsSync(path.dirname(playerDataPath))) {
-        writeDataFile(playerDataPath, data);
-      }
-    } catch (playerError) {
-      console.warn('Could not update player data file:', playerError.message);
-    }
-    
-    console.log(`User ${req.user.username} (ID: ${req.user.id}) performed bulk update on map ${mapId}:`, 
-                `${results.filter(r => r.success).length}/${results.length} successful`);
-    
-    res.json({
-      success: true,
-      message: `Bulk update completed: ${results.filter(r => r.success).length}/${results.length} successful`,
-      results,
-      updatedBy: req.user.username,
-      updatedAt: new Date().toISOString()
-    });
-    
-  } catch (error) {
-    console.error('Error in bulk update:', error);
-    res.status(500).json({ error: 'Failed to perform bulk update' });
-  }
-});
-
-// Protected route - get edit history/audit log (if you want to implement this later)
-router.get('/maps/:mapId/history', authenticateToken, (req, res) => {
-  // This could be implemented later to show edit history
-  res.json({ 
-    message: 'Edit history feature not yet implemented',
-    mapId: req.params.mapId,
-    requestedBy: req.user.username
-  });
 });
 
 function readDataFile(filePath) {

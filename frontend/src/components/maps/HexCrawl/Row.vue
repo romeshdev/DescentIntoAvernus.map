@@ -4,7 +4,7 @@
     </div>
 </template>
 <script>
-import Hexagon from '../components/Hexagon.vue'
+import Hexagon from './Hexagon.vue'
 
 export default {
   name: "Row",

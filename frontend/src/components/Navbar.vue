@@ -38,8 +38,8 @@
 <script>
 import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import InfernalButton from '../components/InfernalButton.vue'
-import LoginModal from '../components/LoginModal.vue'
+import InfernalButton from './InfernalButton.vue'
+import LoginModal from './edit-controls/LoginModal.vue'
 
 export default {
   name: 'Navbar',

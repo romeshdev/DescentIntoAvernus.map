@@ -37,17 +37,18 @@
           <!-- Map Stats -->
           <div class="map-stats">
             <div class="stat">
-              <span class="stat-label">Hexes:</span>
+              <span class="stat-label" v-if="map.type == 'hexcrawl'">Hexes:</span>
+              <span class="stat-label" v-if="map.type == 'nodemap'">Locations:</span>
               <span class="stat-value">{{ map.hexCount }}</span>
             </div>
-            <div class="stat">
+            <!-- <div class="stat">
               <span class="stat-label">Terrain Types:</span>
               <span class="stat-value">{{ map.terrainTypes.length }}</span>
-            </div>
-            <div class="stat" v-if="map.dreamMachineComponents > 0">
+            </div> -->
+            <!-- <div class="stat" v-if="map.dreamMachineComponents > 0">
               <span class="stat-label">Components:</span>
               <span class="stat-value">{{ map.dreamMachineComponents }}</span>
-            </div>
+            </div> -->
           </div>
 
           <!-- Map Tags -->
@@ -75,8 +76,9 @@
 </template>
 
 <script>
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getMaps } from '../services/api-service';
 
 export default {
   name: 'MapsView',
@@ -84,25 +86,11 @@ export default {
     const router = useRouter()
     const maps = ref([])
     const loading = ref(true)
-    const isAuthenticated = inject('isAuthenticated')
 
     const loadMaps = async () => {
       try {
         loading.value = true
-
-        const headers = {
-          'Content-Type': 'application/json'
-        }
-        
-        // Add authorization header if user is authenticated
-        if (isAuthenticated?.value) {
-          const token = localStorage.getItem('token');
-          if (token) headers['Authorization'] = `Bearer ${token}`;
-        }
-        
-        const response = await fetch(`/api/data/maps`, { headers });
-        maps.value = await response.json();
-        
+        maps.value = await getMaps()
       } catch (error) {
         console.error('Failed to load maps:', error)
         maps.value = []
@@ -112,19 +100,14 @@ export default {
     }
 
     const navigateToMap = (mapId) => {
-      // Navigate to the individual map page
       router.push(`/maps/${mapId}`)
     }
 
     const handleImageError = (event) => {
-      // Replace broken images with a placeholder
       event.target.src = '/images/map-placeholder.jpg'
     }
 
-    onMounted(() => {
-      loadMaps()
-    })
-
+    onMounted(() => loadMaps())
     return {
       maps,
       loading,

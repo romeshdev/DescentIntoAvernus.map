@@ -9,10 +9,10 @@
       </div>
 
       <form @submit.prevent="handleSubmit">
-        <div v-if="isRegistering" class="form-group">
+        <!-- <div v-if="isRegistering" class="form-group">
           <label for="modal-email">Email:</label>
           <input type="email" id="modal-email" v-model="form.email" required :disabled="loading" class="form-input" />
-        </div>
+        </div> -->
         
         <div class="form-group">
           <label for="modal-username">Username:</label>
@@ -35,23 +35,14 @@
           </InfernalButton>
         </div>
       </form>
-      
-      <!-- <div class="toggle-auth">
-        <p>
-          {{ isRegistering ? 'Already have an account?' : "Don't have an account?" }}
-          <button type="button" @click="toggleAuthMode" class="btn-link" :disabled="loading">
-            {{ isRegistering ? 'Login' : 'Register' }}
-          </button>
-        </p>
-      </div> -->
     </div>
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted, nextTick } from 'vue'
-import { useAuthStore } from '../store/auth'
-import InfernalButton from './InfernalButton.vue'
+import { useAuthStore } from '../../store/auth'
+import InfernalButton from '../InfernalButton.vue'
 
 export default {
   name: 'LoginModal',

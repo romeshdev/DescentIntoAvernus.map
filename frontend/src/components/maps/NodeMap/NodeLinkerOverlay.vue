@@ -22,7 +22,7 @@
 
 <script setup>
 import { ref, computed, inject } from 'vue'
-import { updateLocation } from '../services/api-service';
+import { updateLocation } from '../../../services/api-service';
 
 const enabled = inject('editMode')
 const emit = defineEmits(['startPoint', 'endPoint', 'dragTarget'])

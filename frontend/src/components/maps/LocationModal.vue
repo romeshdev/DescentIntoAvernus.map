@@ -16,7 +16,7 @@
           
           <!-- Editable Title -->
           <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
-            [Session: {{ locationData.nodeLabel }}] {{ locationData.name }}
+            <span v-if="map.type == 'nodemap'">[Session: {{ locationData.nodeLabel }}] </span>{{ locationData.name }}
           </div>
           <div v-else class="edit-mode">
             <div v-if="!isDeleting" class="title-inputs">
@@ -95,7 +95,7 @@
 
 <script setup>
 import { ref, watch, inject, computed } from 'vue'
-import { updateLocation, deleteLocation } from '../services/api-service';
+import { updateLocation, deleteLocation } from '../../services/api-service';
 
 const props = defineProps({
   locationId: String,

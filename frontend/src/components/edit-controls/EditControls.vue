@@ -2,11 +2,11 @@
 <template>
   <div class="edit-controls" style="z-index: 999999">
     <transition name="fade">
-      <div v-if="editMode" class="context-buttons">
-        <button v-if="!placingMarker && startPlacingMarker != null" class="context-button" @click="startPlacingMarker">
+      <div v-if="editMode && map.type == 'nodemap'" class="context-buttons">
+        <button v-if="!placingMarker" class="context-button" @click="placingMarker = true">
           ➕ Place Marker
         </button>
-        <button v-else-if="startPlacingMarker != null" class="context-button active" @click="placingMarker = false">
+        <button v-else-if="placingMarker" class="context-button active" @click="placingMarker = false">
           📌 Placing Marker..
         </button>
 
@@ -26,31 +26,20 @@
             <span class="edit-indicator">{{ editMode ? 'ON' : 'OFF' }}</span>
         </button>
     </div>
-
-    <!-- <button class="edit-toggle" @click="toggleEdit">
-      {{ editMode ? 'Exit Edit' : 'Edit' }}
-    </button> -->
     <LoginModal v-if="showLoginModal" @close-modal="closeLoginModal" @login-success="onLoginSuccess" />
   </div>
 </template>
 
 <script setup>
 import { ref, inject } from 'vue'
-import LoginModal from '../components/LoginModal.vue'
+import LoginModal from './LoginModal.vue'
 
 const showLoginModal = ref(false)
-
 const editMode = inject('editMode')
 const placingMarker = inject('placingMarker')
-const isAuthenticated = inject('isAuthenticated', { value: false })
-const startPlacingMarker = inject('startPlacingMarker')
-
 const linkingPoints = inject('linkingPoints')
-const startLinkingPoints = inject('startLinkingPoints')
-const cancelLinkingPoints = inject('cancelLinkingPoints')
-const finishLinkingPoints = inject('finishLinkingPoints')
-
-const mapId = inject('mapId')
+const map = inject('map')
+const isAuthenticated = inject('isAuthenticated', { value: false })
 
 const toggleEdit = () => {
     if (!editMode.value) {
