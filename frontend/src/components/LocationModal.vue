@@ -47,14 +47,14 @@
             </div>
           </div>
           
-          <div class="u-text-2" style="margin-bottom: 15px;">
+          <!-- <div class="u-text-2" style="margin-bottom: 15px;">
               <p v-if="locationData.item">
                   <strong>Items in place:</strong> {{ locationData.item }}
               </p>
               <p v-if="locationData.terrain">
                   <strong>Terrain:</strong> {{ renderTerrain(locationData) }}
               </p>
-            </div>
+          </div> -->
           
           <!-- Editable Text -->
           <div v-if="!isEditModeActive" class="u-align-justify u-text u-text-3">
