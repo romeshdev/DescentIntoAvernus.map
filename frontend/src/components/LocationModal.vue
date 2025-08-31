@@ -153,7 +153,6 @@ async function loadLocationFromModel() {
       y: props.locationModel.y,
       id: props.locationModel.id,
       connectedTo: [],
-      status: 'U',
       nodeLabel: '',
       name: '',
       text: ''
@@ -309,7 +308,7 @@ function renderTerrain(item) {
   color: #e0e0e0;
   border-radius: 8px;
   padding: 30px;
-  width: 650px; /* Fixed width */
+  width: 850px; /* Fixed width */
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
