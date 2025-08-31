@@ -3,7 +3,7 @@
     <div style="height:100vh;">
       <HeroImages />
       <h2 style="padding: 20px">Previously: [Session 22] Ashes to ashes... or not!</h2>
-      <div style="max-width: 800px; text-align: left; margin: 0 auto; min-height: 100vh; color:#e0e0e0">
+      <div style="max-width: 1000px; text-align: left; margin: 0 auto; min-height: 100vh; color:#e0e0e0">
         <p>The gang awakens to discover that Ash is missing, presumably having gone off to chase a cat. They head off in search of her, finding one guard who saw a cat-chasing goth leave the perimeter. Outside the walls, Ada is able to find signs of struggle and of poison - nobody knows where they lead though.</p>
         <p>At this point old mate the vrock flies down and offers information about the disappeared Ash in exchange for suffering, which gun dog inflict on Ada with his flamethrower. The cackling vrock reveals that Ash has been taken to the grand cemetery, to the chapel of Mystra (goddess of magic). </p>
         <p>Entering the cemetery, Ada gets the strange feeling that she's been here before: this was the place she lost her limbs. It was a fire it seems, caused by dragon cultists. Meanwhile PC find the grave of Mathieu "The Coward" and leaves his Eltuguard banner on it, covering up the insulting inscription.</p>
