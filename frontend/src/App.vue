@@ -36,7 +36,9 @@ export default {
 </script>
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "IM Fell English", serif;
+  font-weight: 400;
+  font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* color: #2c3e50; */

@@ -71,7 +71,10 @@ export default {
 </script>
 <style scoped>
 .infernal-button {
-  font-family: "MedievalSharp", cursive;
+  /* font-family: "MedievalSharp", cursive; */
+  font-family: "IM Fell English", serif;
+  font-weight: 400;
+  font-style: normal;
   display: inline-flex;
   justify-content: center;
   align-items: center;

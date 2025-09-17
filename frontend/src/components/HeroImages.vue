@@ -1,5 +1,6 @@
 <template>
   <div class="image-container">
+    <!-- <img :src="avernusBanner" /> -->
     <div 
       v-for="image in images" 
       :key="image.name"
@@ -15,7 +16,7 @@
         alt="border"
         class="border-overlay-image"
       />
-      <div class="image-label">{{ image.name }}</div>
+      <!-- <div class="image-label">{{ image.name }}</div> -->
     </div>
   </div>
 </template>
@@ -26,6 +27,7 @@ export default {
   data() {
     return {
       borderImage: '/players/border.png', // Replace with your border image path
+      avernusBanner: '/banners/avernus-banner.jpeg',
       images: [
         {
           name: 'Ash',
@@ -52,10 +54,15 @@ export default {
 <style scoped>
 .image-container {
   display: flex;
-  gap: 20px;
-  padding: 20px;
+  gap: 100px;
+  padding-bottom: 70px;
+  height: 230px;
+  margin-top: -2rem;
   justify-content: center;
   align-items: center;
+  background-image: url(/banners/avernus-banner.jpeg);
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .circular-image-wrapper {
@@ -73,16 +80,16 @@ export default {
   position: absolute;
   top: -2px;
   left: -2px;
-  width: 104%;
-  height: 104%;
+  width: 155%;
+  height: 155%;
   border-radius: 50%;
   pointer-events: none;
   z-index: 1;
 }
 
 .circular-image {
-  width: 100%;
-  height: 100%;
+  width: 150%;
+  height: 150%;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);

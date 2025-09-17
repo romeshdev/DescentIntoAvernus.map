@@ -1,76 +1,81 @@
 <template>
-  <div class="maps-container">
-    <!-- Header Section -->
-    <header class="maps-header">
-      <h1 class="title">Descent into Avernus Maps</h1>
-      <p class="subtitle">Select a map to explore the layers of hell</p>
-    </header>
+  <div class="home">
+    <div style="height:100vh;">
+      <HeroImages />
+      <div class="maps-container">
+        <!-- Header Section -->
+        <header class="maps-header">
+          <h1 class="title">Descent into Avernus Maps</h1>
+          <!-- <p class="subtitle">Select a map to explore the layers of hell</p> -->
+        </header>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading maps...</p>
-    </div>
+        <!-- Loading State -->
+        <div v-if="loading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading maps...</p>
+        </div>
 
-    <!-- Maps Grid -->
-    <div v-else class="maps-grid">
-      <div 
-        v-for="map in maps" 
-        :key="map.id"
-        class="map-card"
-        @click="navigateToMap(map.id)"
-        :class="{ 'featured': map.featured }"
-      >
-        <!-- Map Thumbnail -->
-        <div class="map-thumbnail">
-          <img :src="map.thumbnail" :alt="map.name" />
-          <div class="overlay">
-            <span class="view-text">View Map</span>
+        <!-- Maps Grid -->
+        <div v-else class="maps-grid">
+          <div 
+            v-for="map in maps" 
+            :key="map.id"
+            class="map-card"
+            @click="navigateToMap(map.id)"
+            :class="{ 'featured': map.featured }"
+          >
+            <!-- Map Thumbnail -->
+            <div class="map-thumbnail">
+              <img :src="map.thumbnail" :alt="map.name" />
+              <div class="overlay">
+                <span class="view-text">View Map</span>
+              </div>
+            </div>
+
+            <!-- Map Info -->
+            <div class="map-info">
+              <h3 class="map-name">{{ map.name }}</h3>
+              <p class="map-description">{{ map.description }}</p>
+              
+              <!-- Map Stats -->
+              <div class="map-stats">
+                <div class="stat">
+                  <span class="stat-label" v-if="map.type == 'hexcrawl'">Hexes:</span>
+                  <span class="stat-label" v-if="map.type == 'nodemap'">Locations:</span>
+                  <span class="stat-value">{{ map.hexCount }}</span>
+                </div>
+                <!-- <div class="stat">
+                  <span class="stat-label">Terrain Types:</span>
+                  <span class="stat-value">{{ map.terrainTypes.length }}</span>
+                </div> -->
+                <!-- <div class="stat" v-if="map.dreamMachineComponents > 0">
+                  <span class="stat-label">Components:</span>
+                  <span class="stat-value">{{ map.dreamMachineComponents }}</span>
+                </div> -->
+              </div>
+
+              <!-- Map Tags -->
+              <div class="map-tags">
+                <span 
+                  v-for="tag in map.tags" 
+                  :key="tag"
+                  class="tag"
+                  :class="`tag-${tag.toLowerCase()}`"
+                >
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Map Info -->
-        <div class="map-info">
-          <h3 class="map-name">{{ map.name }}</h3>
-          <p class="map-description">{{ map.description }}</p>
-          
-          <!-- Map Stats -->
-          <div class="map-stats">
-            <div class="stat">
-              <span class="stat-label" v-if="map.type == 'hexcrawl'">Hexes:</span>
-              <span class="stat-label" v-if="map.type == 'nodemap'">Locations:</span>
-              <span class="stat-value">{{ map.hexCount }}</span>
-            </div>
-            <!-- <div class="stat">
-              <span class="stat-label">Terrain Types:</span>
-              <span class="stat-value">{{ map.terrainTypes.length }}</span>
-            </div> -->
-            <!-- <div class="stat" v-if="map.dreamMachineComponents > 0">
-              <span class="stat-label">Components:</span>
-              <span class="stat-value">{{ map.dreamMachineComponents }}</span>
-            </div> -->
-          </div>
-
-          <!-- Map Tags -->
-          <div class="map-tags">
-            <span 
-              v-for="tag in map.tags" 
-              :key="tag"
-              class="tag"
-              :class="`tag-${tag.toLowerCase()}`"
-            >
-              {{ tag }}
-            </span>
-          </div>
+        <!-- Empty State -->
+        <div v-if="!loading && maps.length === 0" class="empty-state">
+          <div class="empty-icon">🗺️</div>
+          <h3>No Maps Available</h3>
+          <p>Check back later for new maps or contact your DM.</p>
         </div>
       </div>
-    </div>
-
-    <!-- Empty State -->
-    <div v-if="!loading && maps.length === 0" class="empty-state">
-      <div class="empty-icon">🗺️</div>
-      <h3>No Maps Available</h3>
-      <p>Check back later for new maps or contact your DM.</p>
     </div>
   </div>
 </template>
@@ -79,9 +84,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMaps } from '../services/api-service';
+import HeroImages from '../components/HeroImages.vue';
 
 export default {
   name: 'MapsView',
+  components: {
+    HeroImages
+  },
   setup() {
     const router = useRouter()
     const maps = ref([])
@@ -123,19 +132,21 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d1b0e 100%);
+  background: #1a1a1a;
+  /* border-radius: 15px; */
   min-height: 100vh;
   color: #e0e0e0;
 }
 
 .maps-header {
   text-align: center;
-  margin-bottom: 3rem;
+  /* margin-bottom: 3rem; */
 }
 
 .title {
   font-size: 3rem;
   font-weight: bold;
+  margin-top: 0px;
   color: #ff6b35;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   margin-bottom: 0.5rem;
