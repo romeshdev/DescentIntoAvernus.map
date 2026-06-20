@@ -3,7 +3,7 @@ module.exports = [
         "id": "avernus",
         "name": "Avernus - First Layer of Hell",
         "description": "The primary battleground of the Blood War, featuring ash plains, bone brambles, and infernal war machines.",
-        "type": "hexcrawl",
+        "type": "nodemap",
         "terrainTypes": ["ash", "bog", "brambles", "cracks", "fire", "hills", "mountains", "volcano", "waste"],
         "tags": ["Primary", "Hexcrawl", "Combat"],
         "featured": true,

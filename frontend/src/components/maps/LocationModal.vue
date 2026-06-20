@@ -16,11 +16,11 @@
           
           <!-- Editable Title -->
           <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
-            <span v-if="map.type == 'nodemap'">[Session: {{ locationData.nodeLabel }}] </span>{{ locationData.name }}
+            <span v-if="map.type == 'nodemap' && locationData.nodeLabel != ''">[Session: {{ locationData.nodeLabel }}] </span>{{ locationData.name }}
           </div>
           <div v-else class="edit-mode">
             <div v-if="!isDeleting" class="title-inputs">
-              <div v-if="map.type == 'nodemap'">
+              <div v-if="locationData.type == null || locationData.type == 'recap'">
                 <label class="edit-label">Session Number:</label>
                 <input v-model="editableLocationData.nodeLabel"  class="edit-input" placeholder="Enter session number" />
               </div>
@@ -72,7 +72,7 @@
             <div v-if="!isDeleting" class="main-edit-buttons">
               <button class="save-button" @click="saveAllChanges" :class="{ disabled: !isDirty() }" :disabled="!isDirty()">Save All Changes</button>
               <button class="cancel-button" @click="cancelAllChanges">{{ isDirty() ? 'Cancel changes' : 'Close' }}</button>
-              <button v-if="region != 'avernus'" @click="toggleDelete">Delete Location</button>
+              <button v-if="map.type != 'hexcrawl'" @click="toggleDelete">Delete Location</button>
             </div>
             <div v-else class="edit-buttons">
               <div class="error">
@@ -155,7 +155,8 @@ async function loadLocationFromModel() {
       connectedTo: [],
       nodeLabel: '',
       name: '',
-      text: ''
+      text: '',
+      type: props.locationModel.type
     }
   }
 
@@ -235,10 +236,9 @@ function toggleDelete() {
 
 async function sendDelete() {
   await deleteLocation(props.region, props.locationId)
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success) {
-          showError('Error deleting location: ' + (data.error || 'Unknown error'))
+      .then(response => {
+        if (!response.success) {
+          showError('Error deleting location: ' + (response.error || 'Unknown error'))
           return
         }
         emit('location-updated', { hex: props.locationId, data: null })

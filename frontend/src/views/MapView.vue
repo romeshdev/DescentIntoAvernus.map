@@ -36,8 +36,10 @@ const selectedLocation = ref(null)
 const route = useRoute()
 
 const placingMarker = ref(false)
+const placingPOI = ref(false)
 const linkingPoints = ref(false)
 provide('placingMarker', placingMarker)
+provide('placingPOI', placingPOI)
 provide('linkingPoints', linkingPoints)
 
 // Computed property to get the selected location model

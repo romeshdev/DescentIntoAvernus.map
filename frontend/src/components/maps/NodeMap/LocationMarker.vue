@@ -1,7 +1,10 @@
 <template>
   <a @click.prevent="openModal" style="cursor: pointer;">
     <div class="mapNode" :style="styleObject" :class="statusClass" :title="locName">
-        <div>{{ label }}</div>
+        <div v-if="type == null">{{ label }}</div>
+        <div v-else-if="type == 'poi'">❕</div>
+        <!-- <div v-else-if="type == 'recap'">📝</div> -->
+        <div v-else-if="type == 'unknown'">❔</div>
     </div>
   </a>
 </template>
@@ -15,7 +18,8 @@ const props = defineProps({
   numId: String,
   locName: String,
   label: String,
-  status: String
+  status: String,
+  type: String
 })
 
 const emit = defineEmits(['open-modal', 'mouse-enter', 'mouse-leave'])

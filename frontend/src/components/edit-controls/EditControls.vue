@@ -3,11 +3,18 @@
   <div class="edit-controls" style="z-index: 999999">
     <transition name="fade">
       <div v-if="editMode && map.type == 'nodemap'" class="context-buttons">
+        <button v-if="!placingPOI" class="context-button" @click="placingPOI = true">
+          ❗ Place POI Marker
+        </button>
+        <button v-else-if="placingPOI" class="context-button active" @click="placingPOI = false">
+          📌 Placing POI Marker..
+        </button>
+
         <button v-if="!placingMarker" class="context-button" @click="placingMarker = true">
-          ➕ Place Marker
+          📑 Place Recap Marker
         </button>
         <button v-else-if="placingMarker" class="context-button active" @click="placingMarker = false">
-          📌 Placing Marker..
+          📌 Placing Recap Marker..
         </button>
 
         <button v-if="!linkingPoints" class="context-button" @click="linkingPoints = true">
@@ -36,6 +43,7 @@ import LoginModal from './LoginModal.vue'
 
 const showLoginModal = ref(false)
 const editMode = inject('editMode')
+const placingPOI = inject('placingPOI')
 const placingMarker = inject('placingMarker')
 const linkingPoints = inject('linkingPoints')
 const map = inject('map')

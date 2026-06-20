@@ -8,6 +8,7 @@
                           :numId="location.id" 
                           :locName="location.name"
                           :label="location.nodeLabel"
+                          :type="location.type"
                           @open-modal="emit('open-modal', location.id)">
         </LocationMarker>
 
@@ -15,7 +16,7 @@
             <div v-for="connectedId in location.connectedTo" :key="connectedId" :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId))"></div>
         </div>
         
-        <MarkerPlacementOverlay v-if="placingMarker" @place="handleMapClickFromOverlay" />
+        <MarkerPlacementOverlay v-if="placingMarker || placingPOI" @place="handleMapClickFromOverlay" />
         <NodeLinkerOverlay v-if="linkingPoints" :mapId="map.id" :nodes="locations" />
     </div>
 </template>
@@ -35,15 +36,20 @@ provide('mapId', props.map.id)
 provide('map', props.map)
 
 const editMode = inject('editMode')
+const placingPOI = inject('placingPOI')
 const placingMarker = inject('placingMarker')
 const linkingPoints = inject('linkingPoints')
 
 const handleMapClickFromOverlay = ({ x, y }) => {
-  if (!editMode?.value || !placingMarker?.value) return
+  if (!editMode?.value || (!placingMarker?.value && !placingPOI?.value)) return
 
   const ids = props.locations.map(item => item.id);
   const id = ids.length === 0 ? "1" : Math.max(...ids.map(id => parseInt(String(id).match(/^\d+/)?.[0] ?? 0))) + 1; 
   const name = 'New Location'
+  let type = null
+  if(placingPOI?.value)
+    type = 'poi'
+
   const newLocation = {
     "x": x, 
     "y": y, 
@@ -51,10 +57,12 @@ const handleMapClickFromOverlay = ({ x, y }) => {
     "name": name,
     "nodeLabel": "",
     "text": "",
-    "connectedTo": []
+    "connectedTo": [],
+    "type": type
   }
   
   props.locations.push(newLocation)
+  placingPOI.value = false
   placingMarker.value = false
   emit('open-modal', `${id}`)
 }

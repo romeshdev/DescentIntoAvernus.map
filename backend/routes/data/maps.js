@@ -91,7 +91,7 @@ router.put('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
       return res.status(400).json({ error: 'No update data provided' });
     }
     
-    const allowedFields = ['id', 'x', 'y', 'name', 'text', 'status', 'nodeLabel', 'item', 'terrain', 'connectedTo'];
+    const allowedFields = ['id', 'x', 'y', 'name', 'text', 'status', 'nodeLabel', 'item', 'terrain', 'connectedTo', 'type'];
     const updateKeys = Object.keys(updates);
     const invalidFields = updateKeys.filter(key => !allowedFields.includes(key));
     
@@ -107,8 +107,10 @@ router.put('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
     // Log the update for audit purposes
     console.log(`User ${req.user.username} (ID: ${req.user.id}) updating hex ${id}, index ${locationIndex}, in map ${mapId}:`, updates);
       
+    let returnData = updates;
     if (locationIndex !== -1) {
       locations[locationIndex] = { ...locations[locationIndex], ...updates };
+      returnData = locations[locationIndex]
     } else {
       locations.push(updates);
     }
@@ -116,7 +118,7 @@ router.put('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
     
     res.json({ 
       success: true, 
-      data: locations[locationIndex],
+      data: returnData,
       message: 'Location updated successfully',
       updatedBy: req.user.username,
       updatedAt: new Date().toISOString()
