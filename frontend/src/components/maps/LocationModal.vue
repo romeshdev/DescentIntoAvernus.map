@@ -25,9 +25,21 @@
                 <input v-model="editableLocationData.nodeLabel"  class="edit-input" placeholder="Enter session number" />
               </div>
               <div>
-                <label class="edit-label">Title:</label>
+                <label class="edit-label">Title*:</label>
                 <input v-model="editableLocationData.name"  class="edit-input" placeholder="Enter location name" />
               </div>
+              
+              <div v-if="locationData.type != null && locationData.type != 'recap'">
+                <label class="edit-label">Type*:</label>
+                <v-btn-toggle v-model="editableLocationData.type" border divided>
+                  <v-btn v-tooltip:bottom="'Point of Interest'" icon="mdi-exclamation-thick" value="poi"></v-btn>
+                  <v-btn v-tooltip:bottom="'Danger!'" icon="mdi-skull" value="danger"></v-btn>
+                  <v-btn v-tooltip:bottom="'Treasure'" icon="mdi-treasure-chest" value="treasure"></v-btn>
+                  <v-btn v-tooltip:bottom="'Note'" icon="mdi-note-text-outline" value="note"></v-btn>
+                  <v-btn v-tooltip:bottom="'???'" icon="mdi-help" value="unknown"></v-btn>
+                </v-btn-toggle> 
+              </div>
+
             </div>
           </div>
 
@@ -70,7 +82,7 @@
           <!-- Single Save/Cancel buttons at bottom for edit mode -->
           <div v-if="isEditModeActive">
             <div v-if="!isDeleting" class="main-edit-buttons">
-              <button class="save-button" @click="saveAllChanges" :class="{ disabled: !isDirty() }" :disabled="!isDirty()">Save All Changes</button>
+              <button class="save-button" @click="saveAllChanges" :class="{ disabled: !isDirty() }" :disabled="!isDirty()">Save And Close</button>
               <button class="cancel-button" @click="cancelAllChanges">{{ isDirty() ? 'Cancel changes' : 'Close' }}</button>
               <button v-if="map.type != 'hexcrawl'" @click="toggleDelete">Delete Location</button>
             </div>
@@ -214,20 +226,8 @@ function handleLocationUpdated(response)
   locationData.value = { ...response.data }
   initializeEditValues()
   emit('location-updated', { hex: props.locationId, data: response.data })
-
-  // const changedFields = Object.keys(response.data)
-  // let message = ''
-  // if (changedFields.length === 1) {
-  //   const field = changedFields[0]
-  //   if (field === 'status') {
-  //     message = `Status updated to ${data.status === 'U' ? 'Unknown' : data.status === 'K' ? 'Known' : 'Explored'}`
-  //   } else {
-  //     message = `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`
-  //   }
-  // } else {
-  //   message = `${changedFields.length} fields updated successfully`
-  // }
   showSuccess("Fields updated successfully")
+  closeModal()
 }
 
 function toggleDelete() {
@@ -290,6 +290,8 @@ function renderTerrain(item) {
 
 
 <style scoped>
+
+
 .modal-overlay {
   position: fixed;
   top: 0;

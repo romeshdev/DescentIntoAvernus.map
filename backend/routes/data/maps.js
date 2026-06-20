@@ -91,7 +91,7 @@ router.put('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
       return res.status(400).json({ error: 'No update data provided' });
     }
     
-    const allowedFields = ['id', 'x', 'y', 'name', 'text', 'status', 'nodeLabel', 'item', 'terrain', 'connectedTo', 'type'];
+    const allowedFields = ['id', 'x', 'y', 'name', 'text', 'status', 'nodeLabel', 'item', 'terrain', 'connectedTo', 'type', 'icon'];
     const updateKeys = Object.keys(updates);
     const invalidFields = updateKeys.filter(key => !allowedFields.includes(key));
     

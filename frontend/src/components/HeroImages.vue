@@ -31,19 +31,23 @@ export default {
       images: [
         {
           name: 'Ash',
-          src: '/players/ash.jpg'
+          src: '/players/ash/hero.png'
         },
         {
           name: 'Ari',
-          src: '/players/ari.png'
+          src: '/players/ari/hero.png'
         },
         {
           name: 'Pier',
-          src: '/players/pier.png'
+          src: '/players/pier/hero.png'
         },
         {
           name: 'Ada',
-          src: '/players/ada.png'
+          src: '/players/ada/hero.png'
+        },
+        {
+          name: 'Orbok',
+          src: '/players/orbok/hero.png'
         }
       ]
     }

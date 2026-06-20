@@ -1,11 +1,18 @@
 <template>
   <a @click.prevent="openModal" style="cursor: pointer;">
-    <div class="mapNode" :style="styleObject" :class="statusClass" :title="locName">
-        <div v-if="type == null">{{ label }}</div>
-        <div v-else-if="type == 'poi'">❕</div>
-        <!-- <div v-else-if="type == 'recap'">📝</div> -->
-        <div v-else-if="type == 'unknown'">❔</div>
+    <div v-if="type == null || type == 'recap'" class="mapNode" :style="positionObject" :class="statusClass" :title="locName">
+        <div v-if="type == null || type == 'recap'">{{ label }}</div>
+        <!-- <div v-else-if="type == 'poi'"><v-icon icon="mdi-exclamation-thick"></v-icon></div> -->
+        <!-- <div v-else-if="type == 'unknown'"><v-icon icon="mdi-help"></v-icon></div>
+        <div v-else-if="type == 'danger'"><v-icon icon="mdi-skull"></v-icon></div>
+        <div v-else-if="type == 'treasure'"><v-icon icon="mdi-treasure-chest"></v-icon></div>
+        <div v-else-if="type == 'note'"><v-icon icon="mdi-note-text-outline"></v-icon></div> -->
     </div>
+    <v-icon v-for="(item, i) in locationTypes" :key="i" :style="positionObject" v-tooltip:bottom="locName">
+      <v-icon size="55" color="grey-darken-4" v-if="item.type == type">mdi-map-marker</v-icon>
+      <v-icon size="20" class="position-absolute" style="top: -5px;" color="grey-darken-4" v-if="item.type == type">mdi-circle</v-icon>
+      <v-icon size="20" class="position-absolute" style="top: -3px;" color="white" v-if="item.type == type">{{item.icon}}</v-icon>
+    </v-icon>
   </a>
 </template>
 
@@ -22,9 +29,10 @@ const props = defineProps({
   type: String
 })
 
+const locationTypes = inject('locationTypes')
 const emit = defineEmits(['open-modal', 'mouse-enter', 'mouse-leave'])
 
-const styleObject = computed(() => {
+const positionObject = computed(() => {
   return {
     position: "absolute",
     top: props.y + "px",

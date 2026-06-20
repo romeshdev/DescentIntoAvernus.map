@@ -1,24 +1,24 @@
 <template>
-    <div id="nodes" class="honeycomb" :style="{ backgroundImage: map.id ? `url('../${map.id}-map.jpg')` : '' }" v-if="map != null && map.type == 'nodemap'">
-        <LocationMarker v-for="location in locations" 
-                          :key="`node${location.id}`"
-                          :x="location.x" 
-                          :y="location.y" 
-                          :status="location.status"
-                          :numId="location.id" 
-                          :locName="location.name"
-                          :label="location.nodeLabel"
-                          :type="location.type"
-                          @open-modal="emit('open-modal', location.id)">
-        </LocationMarker>
+      <div id="nodes" class="honeycomb" :style="{ backgroundImage: map.id ? `url('../${map.id}-map.jpg')` : '' }" v-if="map != null && map.type == 'nodemap'">
+          <LocationMarker v-for="location in filteredLocations()"
+                            :key="`node${location.id}`"
+                            :x="location.x" 
+                            :y="location.y" 
+                            :status="location.status"
+                            :numId="location.id" 
+                            :locName="location.name"
+                            :label="location.nodeLabel"
+                            :type="location.type"
+                            @open-modal="emit('open-modal', location.id)">
+          </LocationMarker>
 
-        <div v-for="location in locations" :key="location.id">
-            <div v-for="connectedId in location.connectedTo" :key="connectedId" :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId))"></div>
-        </div>
-        
-        <MarkerPlacementOverlay v-if="placingMarker || placingPOI" @place="handleMapClickFromOverlay" />
-        <NodeLinkerOverlay v-if="linkingPoints" :mapId="map.id" :nodes="locations" />
-    </div>
+          <div v-for="location in locations" :key="location.id">
+              <div v-for="connectedId in location.connectedTo" :key="connectedId" :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId))"></div>
+          </div>
+          
+          <MarkerPlacementOverlay v-if="placingMarker || placingPOI" @place="handleMapClickFromOverlay" />
+          <NodeLinkerOverlay v-if="linkingPoints" :mapId="map.id" :nodes="locations" />
+      </div>
 </template>
 
 <script setup>
@@ -30,7 +30,8 @@ import NodeLinkerOverlay from './NodeLinkerOverlay.vue'
 const emit = defineEmits(['open-modal'])
 const props = defineProps({
   locations: Array,
-  map: Object
+  map: Object,
+  filter: String
 })
 provide('mapId', props.map.id)
 provide('map', props.map)
@@ -40,13 +41,23 @@ const placingPOI = inject('placingPOI')
 const placingMarker = inject('placingMarker')
 const linkingPoints = inject('linkingPoints')
 
+const locationTypes = inject('locationTypes')
+provide('locationTypes', locationTypes)
+
+const filteredLocations = () => {
+  if (props.filter == 'recaps')
+    return props.locations.filter(x => x.type == null || x.type == 'recap')
+  if (props.filter == 'poi')
+    return props.locations.filter(x => x.type != null && x.type != 'recap')
+}
+
 const handleMapClickFromOverlay = ({ x, y }) => {
   if (!editMode?.value || (!placingMarker?.value && !placingPOI?.value)) return
 
   const ids = props.locations.map(item => item.id);
   const id = ids.length === 0 ? "1" : Math.max(...ids.map(id => parseInt(String(id).match(/^\d+/)?.[0] ?? 0))) + 1; 
   const name = 'New Location'
-  let type = null
+  let type = 'recap'
   if(placingPOI?.value)
     type = 'poi'
 
@@ -93,13 +104,13 @@ const calculateLineStyle = (location1, location2) => {
 </script>
 
 <style scoped>
-*,
+/* *,
 *::before,
 *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
+} */
 
 
 .ibws-fix {

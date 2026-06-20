@@ -3,7 +3,7 @@ import axios from 'axios'
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null,
-        token: null,//localStorage.getItem('token'),
+        token: localStorage.getItem('token'),
         loading: false,
         error: null
     }),
