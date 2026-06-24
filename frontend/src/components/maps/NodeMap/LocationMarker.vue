@@ -5,10 +5,11 @@
     </div>
     <div v-else-if="type != 'recap'">
       <v-icon v-for="(item, i) in locationTypes" :key="i" :style="positionObject" v-tooltip:bottom="locName">
-        <v-icon size="65" class="position-absolute" color="#76d3e2" v-if="item.type == type">mdi-map-marker</v-icon>
-        <v-icon size="55" color="grey-darken-4" v-if="item.type == type">mdi-map-marker</v-icon>
+        <v-icon size="45" class="position-absolute" color="#76d3e2" v-if="item.type == type">mdi-map-marker</v-icon>
+        <v-icon size="35" color="grey-darken-4" v-if="item.type == type">mdi-map-marker</v-icon>
         <v-icon size="20" class="position-absolute" style="top: -5px;" color="grey-darken-4" v-if="item.type == type">mdi-circle</v-icon>
-        <v-icon size="20" class="position-absolute" style="top: -3px;" color="#76d3e2" v-if="item.type == type">{{item.icon}}</v-icon>
+        <v-icon size="20" class="position-absolute" style="top: -2px;" color="#76d3e2" v-if="icon">{{icon}}</v-icon>
+        <v-icon size="20" class="position-absolute" style="top: -2px;" color="#76d3e2" v-if="!icon && item.type == type">{{item.icon}}</v-icon>
       </v-icon>
     </div>
   </a>
@@ -24,7 +25,8 @@ const props = defineProps({
   locName: String,
   label: String,
   status: String,
-  type: String
+  type: String,
+  icon: String
 })
 
 const locationTypes = inject('locationTypes')
@@ -61,13 +63,13 @@ const openModal = () => {
 
 <style scoped>
 .mapNode {
-  width: 55px;
-  height: 55px;
+  width: 30px;
+  height: 30px;
   background-color: black;
   border-radius: 50%;
   border: 2px solid white;
   transform: translate(-50%, -50%);
-  font-size: 25px;
+  font-size: 15px;
   display: flex;
   justify-content: center;
   align-items: center;

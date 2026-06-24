@@ -9,6 +9,7 @@
                             :locName="location.name"
                             :label="location.nodeLabel"
                             :type="location.type"
+                            :icon="location.icon"
                             @open-modal="emit('open-modal', location.id)">
           </LocationMarker>
 

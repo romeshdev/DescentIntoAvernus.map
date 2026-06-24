@@ -2,16 +2,17 @@
   <div class="modal-overlay">
       <v-card width="850">
         <v-toolbar density="compact">
-          <v-icon end v-if="locationData.type == 'poi' && !isEditModeActive">mdi-exclamation-thick</v-icon>
-          <v-icon end v-if="locationData.type == 'danger' && !isEditModeActive">mdi-skull</v-icon>
-          <v-icon end v-if="locationData.type == 'treasure' && !isEditModeActive">mdi-treasure-chest</v-icon>
-          <v-icon end v-if="locationData.type == 'note' && !isEditModeActive">mdi-note-text-outline</v-icon>
-          <v-icon end v-if="locationData.type == 'unknown' && !isEditModeActive">mdi-help</v-icon>
+          <v-icon end v-if="locationData.icon && !isEditModeActive">{{ locationData.icon }}</v-icon>
+          <v-icon end v-if="!locationData.icon && locationData.type == 'poi' && !isEditModeActive">mdi-exclamation-thick</v-icon>
+          <v-icon end v-if="!locationData.icon && locationData.type == 'danger' && !isEditModeActive">mdi-skull</v-icon>
+          <v-icon end v-if="!locationData.icon && locationData.type == 'treasure' && !isEditModeActive">mdi-treasure-chest</v-icon>
+          <v-icon end v-if="!locationData.icon && locationData.type == 'note' && !isEditModeActive">mdi-note-text-outline</v-icon>
+          <v-icon end v-if="!locationData.icon && locationData.type == 'unknown' && !isEditModeActive">mdi-help</v-icon>
           <v-icon end v-if="isEditModeActive">mdi-pencil</v-icon>
           <v-toolbar-title>
             {{ ( isEditModeActive ? 'Editing ' : '' ) + locationData.name }}
           </v-toolbar-title>
-          <v-btn icon="mdi-close" size="small" variant="elevated" @click="closeModal"></v-btn>
+          <v-btn v-if="!isEditModeActive" icon="mdi-pencil" size="small" variant="elevated" @click="isEditModeActive = true"></v-btn>
         </v-toolbar>
 
         <!-- <div class="modal-content"> -->
@@ -44,6 +45,11 @@
                     <v-btn v-tooltip:bottom="'Note'" icon="mdi-note-text-outline" value="note"></v-btn>
                     <v-btn v-tooltip:bottom="'???'" icon="mdi-help" value="unknown"></v-btn>
                   </v-btn-toggle> 
+                </div>
+
+                <div v-if="locationData.type != null && locationData.type != 'recap'">
+                  <label class="edit-label">Icon Override:</label>
+                  <input v-model="editableLocationData.icon"  class="edit-input" placeholder="Custom mdi icon" />
                 </div>
               </div>
             </div>
@@ -92,7 +98,7 @@
             </div>
             <div v-if="!isEditModeActive">
               <div v-if="!isDeleting" class="main-edit-buttons">
-                <button @click="isEditModeActive = true">Edit</button>
+                <button @click="closeModal">Close</button>
               </div>
             </div>
           </div>
