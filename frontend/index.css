@@ -1,50 +1,52 @@
-body, html, main { 
-    background-color: #69171c;
-    background-image: url(/avernus.jpg);
-    background-blend-mode: multiply;
-    background-size: cover;
-    background-position: top;
-    color: #ffffff;
+body,
+html,
+main {
+  background-color: #69171c;
+  background-image: url(/avernus.jpg);
+  background-blend-mode: multiply;
+  background-size: cover;
+  background-position: top;
+  color: #ffffff;
 }
 .login-form {
-    background-color: #2a2a2a;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  background-color: #2a2a2a;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
-h1 { 
-    text-align: center; 
-    color: #ff6b6b;
-    margin-bottom: 30px;
+h1 {
+  text-align: center;
+  color: #ff6b6b;
+  margin-bottom: 30px;
 }
-input { 
-    width: 100%; 
-    padding: 10px; 
-    margin: 10px 0; 
-    border: 1px solid #555;
-    border-radius: 5px;
-    background-color: #3a3a3a;
-    color: #ffffff;
-    box-sizing: border-box;
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #555;
+  border-radius: 5px;
+  background-color: #3a3a3a;
+  color: #ffffff;
+  box-sizing: border-box;
 }
-button { 
-    width: 100%; 
-    padding: 12px; 
-    background-color: #ff6b6b; 
-    color: white; 
-    border: none; 
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+{{/* button {
+  width: 100%;
+  padding: 12px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
 }
-button:hover { 
-    background-color: #ff5252; 
+button:hover {
+  background-color: #ff5252;
+} */}}
+.error {
+  color: #ff6b6b;
+  margin-top: 10px;
+  text-align: center;
 }
-.error { 
-    color: #ff6b6b; 
-    margin-top: 10px;
-    text-align: center;
-} 
 
 html {
   /* font-family: "MedievalSharp", cursive; */
@@ -128,7 +130,6 @@ html {
   text-transform: none;
 }
 
-
 @media (max-width: 767px) {
   .u-section-1 .u-text-1 {
     font-size: 2rem;
@@ -162,7 +163,6 @@ ul {
   list-style-type: disc;
   color: #e0e0e0;
 }
-
 
 .tag {
   background: #444;

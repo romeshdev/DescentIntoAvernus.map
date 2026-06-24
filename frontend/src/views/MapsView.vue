@@ -3,12 +3,6 @@
     <div style="height:100vh;">
       <HeroImages />
       <div class="maps-container">
-        <!-- Header Section -->
-        <header class="maps-header">
-          <h1 class="title">Descent into Avernus Maps</h1>
-          <!-- <p class="subtitle">Select a map to explore the layers of hell</p> -->
-        </header>
-
         <!-- Loading State -->
         <div v-if="loading" class="loading-state">
           <div class="spinner"></div>
@@ -129,7 +123,7 @@ export default {
 
 <style scoped>
 .maps-container {
-  max-width: 1200px;
+  max-width: 1292.4px;
   margin: 0 auto;
   padding: 2rem;
   background: #1a1a1a;

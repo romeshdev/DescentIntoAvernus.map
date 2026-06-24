@@ -542,7 +542,7 @@ module.exports = [
     "terrain": [
       "waste"
     ],
-    "status": "E",
+    "status": "U",
     "item": "Phlegethosian sand"
   },
   {

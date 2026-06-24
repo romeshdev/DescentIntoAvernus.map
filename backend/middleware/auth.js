@@ -41,4 +41,9 @@ const optionalAuth = (req, res, next) => {
   next();
 };
 
-module.exports = { authenticateToken, optionalAuth };
+const noAuth = (req, res, next) => {
+  req.user = { userId: "anon", username: "anon", email: "noemail" };
+  next();
+};
+
+module.exports = { authenticateToken, optionalAuth, noAuth };

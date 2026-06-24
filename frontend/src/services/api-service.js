@@ -21,7 +21,7 @@ export async function updateLocation(mapId, locationId, updateData) {
 }
 
 export async function deleteLocation(mapId, locationId) {
-    return await sendRequest(`/api/data/maps/${mapId}/locations/${locationId}`, 'DELET', null)
+    return await sendRequest(`/api/data/maps/${mapId}/locations/${locationId}`, 'DELETE', null)
 }
 
 export async function sendRequest(path, method, body) {

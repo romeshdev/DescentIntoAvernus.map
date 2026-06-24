@@ -20,12 +20,14 @@ services:
       - ADMIN_PASSWORD=pwd
     # Command will be to start the backend dev server, which will now also serve the frontend files
     command: npm run dev
-  
+
   # New service to automatically build and watch frontend files
   avernus-frontend-watcher:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     volumes:
       # Mount the frontend source and destination folders
       - ./frontend:/app

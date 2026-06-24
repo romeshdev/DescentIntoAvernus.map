@@ -62,7 +62,7 @@ export default {
 }
 
 .page-container {
-  max-width: 1200px;
+  max-width: 1292.4px;
   margin: 0 auto;
   padding: 2rem;
   background: #1a1a1a;

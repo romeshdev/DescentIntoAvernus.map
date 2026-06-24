@@ -1,96 +1,109 @@
 <template>
-    <div class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
-        <!-- <button class="modal-close" @click="closeModal">&times;</button> -->
-        
-        <div v-if="loading" class="loading">
-          Loading location data...
-        </div>
-        
-        <div v-else-if="locationData">
-          <!-- Edit Mode Indicator -->
-          <div v-if="isEditModeActive" class="edit-mode-banner">
-            <span class="edit-icon">✏️</span>
-            Edit Mode Active - Make your changes and click Save All Changes
-          </div>
-          
-          <!-- Editable Title -->
-          <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
-            <span v-if="map.type == 'nodemap'">[Session: {{ locationData.nodeLabel }}] </span>{{ locationData.name }}
-          </div>
-          <div v-else class="edit-mode">
-            <div v-if="!isDeleting" class="title-inputs">
-              <div v-if="map.type == 'nodemap'">
-                <label class="edit-label">Session Number:</label>
-                <input v-model="editableLocationData.nodeLabel"  class="edit-input" placeholder="Enter session number" />
-              </div>
-              <div>
-                <label class="edit-label">Title:</label>
-                <input v-model="editableLocationData.name"  class="edit-input" placeholder="Enter location name" />
-              </div>
-            </div>
-          </div>
+  <div class="modal-overlay">
+      <v-card width="850">
+        <v-toolbar density="compact">
+          <v-icon end v-if="locationData.type == 'poi' && !isEditModeActive">mdi-exclamation-thick</v-icon>
+          <v-icon end v-if="locationData.type == 'danger' && !isEditModeActive">mdi-skull</v-icon>
+          <v-icon end v-if="locationData.type == 'treasure' && !isEditModeActive">mdi-treasure-chest</v-icon>
+          <v-icon end v-if="locationData.type == 'note' && !isEditModeActive">mdi-note-text-outline</v-icon>
+          <v-icon end v-if="locationData.type == 'unknown' && !isEditModeActive">mdi-help</v-icon>
+          <v-icon end v-if="isEditModeActive">mdi-pencil</v-icon>
+          <v-toolbar-title>
+            {{ ( isEditModeActive ? 'Editing ' : '' ) + locationData.name }}
+          </v-toolbar-title>
+          <v-btn icon="mdi-close" size="small" variant="elevated" @click="closeModal"></v-btn>
+        </v-toolbar>
 
-          <div v-if="!isEditModeActive && map.type == 'hexcrawl'" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
-            <span class="status-badge" :class="`status-${locationData.status.toLowerCase()}`">
-              {{ locationData.status === 'U' ? 'Unknown' : locationData.status === 'K' ? 'Known' : 'Explored' }}
-            </span>
+        <!-- <div class="modal-content"> -->
+        <v-card-text>
+          <div v-if="loading" class="loading">
+            Loading location data...
           </div>
-          <div v-else-if="map.type == 'hexcrawl'" class="edit-mode">
-            <label class="edit-label">Player Status:</label>
-            <div class="status-button-group">
-              <div class="toggle-container">
-                <button :class="{ active: editableLocationData.status === 'U' }" @click="() => updateLocalStatus('U')">Unknown</button>
-                <button :class="{ active: editableLocationData.status === 'K' }" @click="() => updateLocalStatus('K')">Known</button>
-                <button :class="{ active: editableLocationData.status === 'E' }" @click="() => updateLocalStatus('E')">Explored</button>
+          
+          <div v-else-if="locationData">
+            <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
+              <span v-if="map.type == 'nodemap' && locationData.nodeLabel != ''">[Session: {{ locationData.nodeLabel }}] </span>{{ locationData.name }}
+            </div>
+            <div v-else class="edit-mode">
+              <div v-if="!isDeleting" class="title-inputs">
+                <div v-if="locationData.type == null || locationData.type == 'recap'">
+                  <label class="edit-label">Session Number:</label>
+                  <input v-model="editableLocationData.nodeLabel"  class="edit-input" placeholder="Enter session number" />
+                </div>
+                <div>
+                  <label class="edit-label">Title*:</label>
+                  <input v-model="editableLocationData.name"  class="edit-input" placeholder="Enter location name" />
+                </div>
+                
+                <div v-if="locationData.type != null && locationData.type != 'recap'">
+                  <label class="edit-label">Type*:</label>
+                  <v-btn-toggle v-model="editableLocationData.type" border divided>
+                    <v-btn v-tooltip:bottom="'Point of Interest'" icon="mdi-exclamation-thick" value="poi"></v-btn>
+                    <v-btn v-tooltip:bottom="'Danger!'" icon="mdi-skull" value="danger"></v-btn>
+                    <v-btn v-tooltip:bottom="'Treasure'" icon="mdi-treasure-chest" value="treasure"></v-btn>
+                    <v-btn v-tooltip:bottom="'Note'" icon="mdi-note-text-outline" value="note"></v-btn>
+                    <v-btn v-tooltip:bottom="'???'" icon="mdi-help" value="unknown"></v-btn>
+                  </v-btn-toggle> 
+                </div>
               </div>
             </div>
-          </div>
-          
-          <!-- <div class="u-text-2" style="margin-bottom: 15px;">
-              <p v-if="locationData.item">
-                  <strong>Items in place:</strong> {{ locationData.item }}
-              </p>
-              <p v-if="locationData.terrain">
-                  <strong>Terrain:</strong> {{ renderTerrain(locationData) }}
-              </p>
-          </div> -->
-          
-          <!-- Editable Text -->
-          <div v-if="!isEditModeActive" class="u-align-justify u-text u-text-3">
-            <div v-html="locationData.text"></div>
-          </div>
-          <div v-else class="edit-mode">
-            <label class="edit-label">Location Description:</label>
-            <textarea v-model="editableLocationData.text" class="edit-textarea" placeholder="Enter location description (HTML allowed)"></textarea>
-          </div>
-          
-          <div id="modal-message-container"></div>
 
-          <!-- Single Save/Cancel buttons at bottom for edit mode -->
-          <div v-if="isEditModeActive">
-            <div v-if="!isDeleting" class="main-edit-buttons">
-              <button class="save-button" @click="saveAllChanges" :class="{ disabled: !isDirty() }" :disabled="!isDirty()">Save All Changes</button>
-              <button class="cancel-button" @click="cancelAllChanges">{{ isDirty() ? 'Cancel changes' : 'Close' }}</button>
-              <button v-if="region != 'avernus'" @click="toggleDelete">Delete Location</button>
+            <div v-if="!isEditModeActive && map.type == 'hexcrawl'" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
+              <span class="status-badge" :class="`status-${locationData.status.toLowerCase()}`">
+                {{ locationData.status === 'U' ? 'Unknown' : locationData.status === 'K' ? 'Known' : 'Explored' }}
+              </span>
             </div>
-            <div v-else class="edit-buttons">
-              <div class="error">
-                Are you sure?
+            <div v-else-if="map.type == 'hexcrawl'" class="edit-mode">
+              <label class="edit-label">Player Status:</label>
+              <div class="status-button-group">
+                <div class="toggle-container">
+                  <button :class="{ active: editableLocationData.status === 'U' }" @click="() => updateLocalStatus('U')">Unknown</button>
+                  <button :class="{ active: editableLocationData.status === 'K' }" @click="() => updateLocalStatus('K')">Known</button>
+                  <button :class="{ active: editableLocationData.status === 'E' }" @click="() => updateLocalStatus('E')">Explored</button>
+                </div>
               </div>
-              <div class="delete-confirm-buttons">
-                <button @click="sendDelete">Delete</button>
-                <button class="cancel-button" @click="toggleDelete">Cancel</button>
+            </div>
+            
+            <div v-if="!isEditModeActive" class="u-align-justify u-text u-text-3">
+              <div v-html="locationData.text"></div>
+            </div>
+            <div v-else class="edit-mode">
+              <label class="edit-label">Location Description:</label>
+              <textarea v-model="editableLocationData.text" class="edit-textarea" placeholder="Enter location description (HTML allowed)"></textarea>
+            </div>
+            
+            <div id="modal-message-container"></div>
+
+            <div v-if="isEditModeActive">
+              <div v-if="!isDeleting" class="main-edit-buttons">
+                <button class="save-button" @click="saveAllChanges" :class="{ disabled: !isDirty() }" :disabled="!isDirty()">Save</button>
+                <button class="" @click="cancelAllChanges">Cancel</button>
+                <button v-if="map.type != 'hexcrawl'" @click="toggleDelete">Delete Location</button>
+              </div>
+              <div v-else class="edit-buttons">
+                <div class="error">
+                  Are you sure?
+                </div>
+                <div class="delete-confirm-buttons">
+                  <button @click="sendDelete">Delete</button>
+                  <button class="cancel-button" @click="toggleDelete">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <div v-if="!isEditModeActive">
+              <div v-if="!isDeleting" class="main-edit-buttons">
+                <button @click="isEditModeActive = true">Edit</button>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div v-else class="error">
-          Failed to load location data.
-        </div>
-      </div>
-    </div>
+          
+          <div v-else class="error">
+            Failed to load location data.
+          </div>
+        </v-card-text>
+        <!-- </div> -->
+      </v-card>
+  </div>
 </template>
 
 <script setup>
@@ -106,11 +119,11 @@ const props = defineProps({
 
 const emit = defineEmits(['close-modal', 'location-updated'])
 
-const editMode = inject('editMode', { value: false })
+const editMode = inject('editMode')
 const isAuthenticated = inject('isAuthenticated', { value: false })
 const map = inject('map')
 
-const isEditModeActive = computed(() => editMode.value && isAuthenticated.value)
+const isEditModeActive = ref(false)// computed(() => editMode.value)
 
 const locationData = ref(null)
 const originalLocationData = ref(null)
@@ -155,7 +168,8 @@ async function loadLocationFromModel() {
       connectedTo: [],
       nodeLabel: '',
       name: '',
-      text: ''
+      text: '',
+      type: props.locationModel.type
     }
   }
 
@@ -194,7 +208,8 @@ async function saveAllChanges() {
 }
 
 function cancelAllChanges() {
-  if (!isDirty()) closeModal()
+  // if (!isDirty()) closeModal()
+  isEditModeActive.value = false
   editableLocationData.value = { ...originalLocationData.value }
   showSuccess('Changes cancelled')
 }
@@ -213,20 +228,9 @@ function handleLocationUpdated(response)
   locationData.value = { ...response.data }
   initializeEditValues()
   emit('location-updated', { hex: props.locationId, data: response.data })
-
-  // const changedFields = Object.keys(response.data)
-  // let message = ''
-  // if (changedFields.length === 1) {
-  //   const field = changedFields[0]
-  //   if (field === 'status') {
-  //     message = `Status updated to ${data.status === 'U' ? 'Unknown' : data.status === 'K' ? 'Known' : 'Explored'}`
-  //   } else {
-  //     message = `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`
-  //   }
-  // } else {
-  //   message = `${changedFields.length} fields updated successfully`
-  // }
   showSuccess("Fields updated successfully")
+  // closeModal()
+  isEditModeActive.value = false
 }
 
 function toggleDelete() {
@@ -235,10 +239,9 @@ function toggleDelete() {
 
 async function sendDelete() {
   await deleteLocation(props.region, props.locationId)
-      .then(res => res.json())
-      .then(data => {
-        if (!data.success) {
-          showError('Error deleting location: ' + (data.error || 'Unknown error'))
+      .then(response => {
+        if (!response.success) {
+          showError('Error deleting location: ' + (response.error || 'Unknown error'))
           return
         }
         emit('location-updated', { hex: props.locationId, data: null })
@@ -290,6 +293,15 @@ function renderTerrain(item) {
 
 
 <style scoped>
+
+.overlay { 
+  position: fixed;
+  top: 20%;
+  left: 25%;
+  width:50%;
+  z-index: 1000;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -498,9 +510,9 @@ function renderTerrain(item) {
   background: #ff6b35 !important;
   border-color: #ff6b35 !important;
   color: white !important;
-  font-weight: bold;
-  padding: 12px 24px !important;
-  font-size: 16px !important;
+  /* font-weight: bold; */
+  /* padding: 12px 24px !important; */
+  /* font-size: 16px !important; */
 }
 
 .save-button:hover {

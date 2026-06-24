@@ -1,8 +1,15 @@
 <template>
   <div>
+    <HeroImages />
+    <MapControls />
+
+    <!-- Map View -->
     <HexCrawl v-if="map != null && map.type == 'hexcrawl'" :locations="locations" :map="map" @open-modal="openLocationModal" />
-    <NodeMap v-if="map != null && map.type == 'nodemap'" :locations="locations" :map="map" @open-modal="openLocationModal" />
-    <EditControls />
+    <NodeMap v-if="map != null && map.type == 'nodemap'" :locations="locations" :map="map" @open-modal="openLocationModal" :filter="nodeFilter" />
+
+    <!-- <EditControls /> -->
+
+    <!-- Node Modal Popup -->
     <LocationModal
       v-if="showLocationModal"
       :region="mapId"
@@ -21,8 +28,10 @@ import { useRoute } from 'vue-router'
 import { getMap, getLocations } from '../services/api-service';
 import LocationModal from '../components/maps/LocationModal.vue'
 import EditControls from '../components/edit-controls/EditControls.vue'
+import MapControls from '../components/edit-controls/MapControls.vue'
 import HexCrawl from '../components/maps/HexCrawl/HexCrawl.vue'
 import NodeMap from '../components/maps/NodeMap/NodeMap.vue'
+import HeroImages from '../components/HeroImages.vue'
 
 const isAuthenticated = inject('isAuthenticated')
 
@@ -36,9 +45,29 @@ const selectedLocation = ref(null)
 const route = useRoute()
 
 const placingMarker = ref(false)
+const placingPOI = ref(false)
+const placingPOIType = ref(null)
 const linkingPoints = ref(false)
+const nodeFilter = ref('poi')
 provide('placingMarker', placingMarker)
+provide('placingPOI', placingPOI)
+provide('placingPOIType', placingPOIType)
 provide('linkingPoints', linkingPoints)
+provide('nodeFilter', nodeFilter)
+
+const locationTypes = ref([
+  { name: 'Point of Interest', type: "poi",      icon: "mdi-exclamation-thick", nodeFilter: "poi",    allowedActions: ["add"] },
+  { name: 'Danger!',           type: "danger",   icon: "mdi-skull",             nodeFilter: "poi",    allowedActions: ["add"] },
+  { name: 'Treasure',          type: "treasure", icon: "mdi-treasure-chest",    nodeFilter: "poi",    allowedActions: ["add"] },
+  { name: 'Note',              type: "note",     icon: "mdi-note-text-outline", nodeFilter: "poi",    allowedActions: ["add"] },
+  // { name: 'Sub-Map',           type: "map",      icon: "mdi-map",               nodeFilter: "poi",    allowedActions: ["add"] },
+  
+  { name: 'Unknown',           type: "unknown",  icon: "mdi-help",              nodeFilter: "poi",    allowedActions: ["add"] },
+
+  { name: 'Recap',             type: "recap",    icon: "mdi-note-text-outline", nodeFilter: "recaps", allowedActions: ["add", "link"] },
+])
+provide('locationTypes', locationTypes)
+
 
 // Computed property to get the selected location model
 const selectedLocationModel = computed(() => {

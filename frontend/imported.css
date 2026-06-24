@@ -2863,7 +2863,7 @@ h1 {
   margin: 0.67em 0;
 }
 
-button {
+{{/* button {
   color: inherit;
   font: inherit;
   margin: 0;
@@ -2901,7 +2901,7 @@ button:-moz-focusring,
 ::-webkit-file-upload-button {
   -webkit-appearance: button;
   font: inherit;
-}
+} */}}
 
 .u-btn {
   /*display: inline-block;*/
