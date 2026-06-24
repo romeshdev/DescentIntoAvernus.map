@@ -59,18 +59,19 @@ export default {
 .image-container {
   display: flex;
   gap: 100px;
-  padding-bottom: 70px;
-  height: 230px;
-  margin-top: -2rem;
+  padding-bottom: 55px;
+  height: 200px;
   justify-content: center;
   align-items: center;
   background-image: url(/banners/avernus-banner.jpeg);
-  background-repeat: no-repeat;
-  background-position: center;
+  background-size: cover;
+  max-width: 1292.4px;
+  margin: -2rem auto 0 auto;
 }
 
 .circular-image-wrapper {
   position: relative;
+  left: -3%;
   width: 120px;
   height: 120px;
   transition: transform 0.3s ease;

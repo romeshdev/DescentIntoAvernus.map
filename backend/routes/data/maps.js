@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { authenticateToken, optionalAuth } = require('../../middleware/auth');
+const { authenticateToken, optionalAuth, noAuth } = require('../../middleware/auth');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
@@ -82,7 +82,7 @@ router.get('/maps/:mapId/locations/:id', optionalAuth, (req, res) => {
 });
 
 // Protected route - only authenticated users can update hex data
-router.put('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
+router.put('/maps/:mapId/locations/:id', noAuth, (req, res) => {
   try {
     const { mapId, id } = req.params;
     const updates = req.body;
@@ -129,7 +129,7 @@ router.put('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
   }
 });
 
-router.delete('/maps/:mapId/locations/:id', authenticateToken, (req, res) => {
+router.delete('/maps/:mapId/locations/:id', noAuth, (req, res) => {
   try {
     const { mapId, id } = req.params;
     

@@ -2,17 +2,15 @@
   <a @click.prevent="openModal" style="cursor: pointer;">
     <div v-if="type == null || type == 'recap'" class="mapNode" :style="positionObject" :class="statusClass" :title="locName">
         <div v-if="type == null || type == 'recap'">{{ label }}</div>
-        <!-- <div v-else-if="type == 'poi'"><v-icon icon="mdi-exclamation-thick"></v-icon></div> -->
-        <!-- <div v-else-if="type == 'unknown'"><v-icon icon="mdi-help"></v-icon></div>
-        <div v-else-if="type == 'danger'"><v-icon icon="mdi-skull"></v-icon></div>
-        <div v-else-if="type == 'treasure'"><v-icon icon="mdi-treasure-chest"></v-icon></div>
-        <div v-else-if="type == 'note'"><v-icon icon="mdi-note-text-outline"></v-icon></div> -->
     </div>
-    <v-icon v-for="(item, i) in locationTypes" :key="i" :style="positionObject" v-tooltip:bottom="locName">
-      <v-icon size="55" color="grey-darken-4" v-if="item.type == type">mdi-map-marker</v-icon>
-      <v-icon size="20" class="position-absolute" style="top: -5px;" color="grey-darken-4" v-if="item.type == type">mdi-circle</v-icon>
-      <v-icon size="20" class="position-absolute" style="top: -3px;" color="white" v-if="item.type == type">{{item.icon}}</v-icon>
-    </v-icon>
+    <div v-else-if="type != 'recap'">
+      <v-icon v-for="(item, i) in locationTypes" :key="i" :style="positionObject" v-tooltip:bottom="locName">
+        <v-icon size="65" class="position-absolute" color="#76d3e2" v-if="item.type == type">mdi-map-marker</v-icon>
+        <v-icon size="55" color="grey-darken-4" v-if="item.type == type">mdi-map-marker</v-icon>
+        <v-icon size="20" class="position-absolute" style="top: -5px;" color="grey-darken-4" v-if="item.type == type">mdi-circle</v-icon>
+        <v-icon size="20" class="position-absolute" style="top: -3px;" color="#76d3e2" v-if="item.type == type">{{item.icon}}</v-icon>
+      </v-icon>
+    </div>
   </a>
 </template>
 

@@ -1,12 +1,13 @@
 <template>
   <div>
+    <HeroImages />
     <MapControls />
 
     <!-- Map View -->
     <HexCrawl v-if="map != null && map.type == 'hexcrawl'" :locations="locations" :map="map" @open-modal="openLocationModal" />
     <NodeMap v-if="map != null && map.type == 'nodemap'" :locations="locations" :map="map" @open-modal="openLocationModal" :filter="nodeFilter" />
 
-    <EditControls />
+    <!-- <EditControls /> -->
 
     <!-- Node Modal Popup -->
     <LocationModal
@@ -30,6 +31,7 @@ import EditControls from '../components/edit-controls/EditControls.vue'
 import MapControls from '../components/edit-controls/MapControls.vue'
 import HexCrawl from '../components/maps/HexCrawl/HexCrawl.vue'
 import NodeMap from '../components/maps/NodeMap/NodeMap.vue'
+import HeroImages from '../components/HeroImages.vue'
 
 const isAuthenticated = inject('isAuthenticated')
 
@@ -44,10 +46,12 @@ const route = useRoute()
 
 const placingMarker = ref(false)
 const placingPOI = ref(false)
+const placingPOIType = ref(null)
 const linkingPoints = ref(false)
 const nodeFilter = ref('poi')
 provide('placingMarker', placingMarker)
 provide('placingPOI', placingPOI)
+provide('placingPOIType', placingPOIType)
 provide('linkingPoints', linkingPoints)
 provide('nodeFilter', nodeFilter)
 
@@ -56,7 +60,9 @@ const locationTypes = ref([
   { name: 'Danger!',           type: "danger",   icon: "mdi-skull",             nodeFilter: "poi",    allowedActions: ["add"] },
   { name: 'Treasure',          type: "treasure", icon: "mdi-treasure-chest",    nodeFilter: "poi",    allowedActions: ["add"] },
   { name: 'Note',              type: "note",     icon: "mdi-note-text-outline", nodeFilter: "poi",    allowedActions: ["add"] },
-  { name: 'Sub-Map',           type: "map",      icon: "mdi-map",               nodeFilter: "poi",    allowedActions: ["add"] },
+  // { name: 'Sub-Map',           type: "map",      icon: "mdi-map",               nodeFilter: "poi",    allowedActions: ["add"] },
+  
+  { name: 'Unknown',           type: "unknown",  icon: "mdi-help",              nodeFilter: "poi",    allowedActions: ["add"] },
 
   { name: 'Recap',             type: "recap",    icon: "mdi-note-text-outline", nodeFilter: "recaps", allowedActions: ["add", "link"] },
 ])

@@ -12,7 +12,7 @@
                             @open-modal="emit('open-modal', location.id)">
           </LocationMarker>
 
-          <div v-for="location in locations" :key="location.id">
+          <div v-for="location in filteredLocations()" :key="location.id">
               <div v-for="connectedId in location.connectedTo" :key="connectedId" :style="calculateLineStyle(location, locations.find(loc => loc.id === connectedId))"></div>
           </div>
           
@@ -104,15 +104,6 @@ const calculateLineStyle = (location1, location2) => {
 </script>
 
 <style scoped>
-/* *,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-} */
-
-
 .ibws-fix {
   /* inline-block whitespace fix */
   font-size: 0;

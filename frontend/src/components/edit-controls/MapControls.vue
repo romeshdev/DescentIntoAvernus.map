@@ -27,9 +27,9 @@ import { inject, ref } from 'vue'
 const nodeFilter = inject('nodeFilter')
 const editMode = inject('editMode')
 const placingPOI = inject('placingPOI')
+const placingPOIType = inject('placingPOIType')
 const placingMarker = inject('placingMarker')
 const linkingPoints = inject('linkingPoints')
-
 
 const locationTypes = inject('locationTypes')
 const editActions = ref([])
@@ -77,6 +77,7 @@ const handleEditAction = (editAction) => {
   switch(editAction.action){
     case 'addPoi':
       placingPOI.value = true
+      placingPOIType.value = editAction.type
       break
     case 'addRecap':
       placingMarker.value = true

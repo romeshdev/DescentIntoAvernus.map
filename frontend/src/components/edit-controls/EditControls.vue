@@ -51,17 +51,18 @@ const isAuthenticated = inject('isAuthenticated', { value: false })
 
 const toggleEdit = () => {
     if (!editMode.value) {
-    // Turning edit mode ON
-    if (isAuthenticated.value) {
-        // Already authenticated, just enable edit mode
-        editMode.value = true
-    } else {
-        // Not authenticated, show login modal
-        showLoginModal.value = true
-    }
+      editMode.value = true
+      // Turning edit mode ON
+      if (isAuthenticated.value) {
+          // Already authenticated, just enable edit mode
+          editMode.value = true
+      } else {
+          // Not authenticated, show login modal
+          showLoginModal.value = true
+      }
     } else {
     // Turning edit mode OFF
-    editMode.value = false
+      editMode.value = false
     }
 }
 

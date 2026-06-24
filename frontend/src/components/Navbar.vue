@@ -5,11 +5,13 @@
         Orphan's of Avernus
       </router-link>
       
-      <div class="tag tag-city">{{ isAuthenticated ? 'DM View' : 'Player View' }}</div>
+      <!-- <div class="tag tag-city">{{ isAuthenticated ? 'DM View' : 'Player View' }}</div> -->
 
       <div class="nav-menu" :class="{ active: isMenuOpen }">
         <!-- <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton> -->
         <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton>
+        <InfernalButton to="/characters" :onClick="closeMenu" :disabled="true">Characters</InfernalButton>
+        <InfernalButton to="/npcs" :onClick="closeMenu" :disabled="true">NPCs</InfernalButton>
         <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
         
         <!-- Edit Mode Toggle -->
@@ -84,9 +86,8 @@ export default {
 }
 
 .nav-container {
-  max-width: 1200px;
+  max-width: 1292.4px;
   margin: 0 auto;
-  padding: 0 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -106,7 +107,6 @@ export default {
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 2rem;
 }
 
 .nav-link {
