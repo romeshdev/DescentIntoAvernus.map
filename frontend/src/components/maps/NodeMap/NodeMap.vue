@@ -39,6 +39,7 @@ provide('map', props.map)
 
 const editMode = inject('editMode')
 const placingPOI = inject('placingPOI')
+const placingPOIType = inject('placingPOIType')
 const placingMarker = inject('placingMarker')
 const linkingPoints = inject('linkingPoints')
 
@@ -50,17 +51,15 @@ const filteredLocations = () => {
     return props.locations.filter(x => x.type == null || x.type == 'recap')
   if (props.filter == 'poi')
     return props.locations.filter(x => x.type != null && x.type != 'recap')
+  return props.locations
 }
 
 const handleMapClickFromOverlay = ({ x, y }) => {
-  if (!editMode?.value || (!placingMarker?.value && !placingPOI?.value)) return
+  if (!editMode?.value || (!placingMarker?.value && (!placingPOI?.value || (placingPOI?.value && !placingPOIType?.value)))) return
 
   const ids = props.locations.map(item => item.id);
   const id = ids.length === 0 ? "1" : Math.max(...ids.map(id => parseInt(String(id).match(/^\d+/)?.[0] ?? 0))) + 1; 
   const name = 'New Location'
-  let type = 'recap'
-  if(placingPOI?.value)
-    type = 'poi'
 
   const newLocation = {
     "x": x, 
@@ -70,12 +69,13 @@ const handleMapClickFromOverlay = ({ x, y }) => {
     "nodeLabel": "",
     "text": "",
     "connectedTo": [],
-    "type": type
+    "type": placingPOIType.value
   }
   
   props.locations.push(newLocation)
   placingPOI.value = false
   placingMarker.value = false
+  placingPOIType.value = null
   emit('open-modal', `${id}`)
 }
 

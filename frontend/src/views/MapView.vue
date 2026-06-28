@@ -48,7 +48,7 @@ const placingMarker = ref(false)
 const placingPOI = ref(false)
 const placingPOIType = ref(null)
 const linkingPoints = ref(false)
-const nodeFilter = ref('poi')
+const nodeFilter = ref('all')
 provide('placingMarker', placingMarker)
 provide('placingPOI', placingPOI)
 provide('placingPOIType', placingPOIType)
@@ -64,7 +64,8 @@ const locationTypes = ref([
   
   { name: 'Unknown',           type: "unknown",  icon: "mdi-help",              nodeFilter: "poi",    allowedActions: ["add"] },
 
-  { name: 'Recap',             type: "recap",    icon: "mdi-note-text-outline", nodeFilter: "recaps", allowedActions: ["add", "link"] },
+  { name: 'Recap',             type: "recap",    icon: "mdi-feather",           nodeFilter: "recaps", allowedActions: ["add", "link"]}//, "group"] },
+  // { name: 'Group',             type: "rcpgrp",   icon: "mdi-arrange-bring-to-front",                      nodeFilter: "recaps", allowedActions: ["add"] },
 ])
 provide('locationTypes', locationTypes)
 

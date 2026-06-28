@@ -10,9 +10,11 @@
       <div class="nav-menu" :class="{ active: isMenuOpen }">
         <!-- <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton> -->
         <InfernalButton to="/" :onClick="closeMenu">Home</InfernalButton>
-        <InfernalButton to="/characters" :onClick="closeMenu" :disabled="true">Characters</InfernalButton>
-        <InfernalButton to="/npcs" :onClick="closeMenu" :disabled="true">NPCs</InfernalButton>
+        <!-- <InfernalButton to="/characters" :onClick="closeMenu" :disabled="true">Characters</InfernalButton>
+        <InfernalButton to="/npcs" :onClick="closeMenu" :disabled="true">NPCs</InfernalButton> -->
         <InfernalButton to="/maps" :onClick="closeMenu">Maps</InfernalButton>
+
+
         
         <!-- Edit Mode Toggle -->
         <!-- <div class="edit-mode-section" style="z-index: 999999">

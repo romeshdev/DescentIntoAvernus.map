@@ -4,17 +4,34 @@
     
     <v-icon icon="mdi-filter" start end></v-icon>
     <v-btn-toggle v-model="nodeFilter" rounded="0" group>
+      <v-btn value="all">All</v-btn>
       <v-btn value="recaps">Session Recaps</v-btn>
       <v-btn value="poi">Points of Interest</v-btn>
     </v-btn-toggle> 
     <v-toolbar-title text=""></v-toolbar-title>
 
-    <v-btn class="mr-3" icon="mdi-dots-vertical" size="small" variant="elevated">
+    <v-btn icon="mdi-dots-vertical" size="small" variant="elevated">
       <v-icon></v-icon>
-      <v-speed-dial activator="parent" open-on-hover>
-          <v-btn v-for="(item, i) in filterEditActions()" :key="i" v-tooltip:bottom="item.tooltip" icon="" @click="handleEditAction(item)">
-            <v-icon>{{item.icon}}</v-icon>
-            <v-icon size="15" class="position-absolute" style="bottom: 0; right: 0;">{{item.editIcon}}</v-icon>
+      <v-speed-dial activator="parent" location="bottom center" open-on-hover>
+          
+          <v-btn icon="mdi-map-marker" size="small" v-tooltip:bottom="'Map Markers'">
+            <v-icon></v-icon>
+            <v-speed-dial activator="parent" location="left center" transition="scale-transition" open-on-hover>
+              <v-btn v-for="(item, i) in filterEditActions('poi')" :key="i" v-tooltip:bottom="item.tooltip" icon="" @click="handleEditAction(item)">
+                <v-icon>{{item.icon}}</v-icon>
+                <v-icon size="15" class="position-absolute" style="bottom: 0; right: 0;">{{item.editIcon}}</v-icon>
+              </v-btn>
+            </v-speed-dial>
+          </v-btn>
+
+          <v-btn icon="mdi-feather" size="small" v-tooltip:bottom="'Recaps'">
+            <v-icon></v-icon>
+            <v-speed-dial activator="parent" location="left center" transition="scale-transition" open-on-hover>
+                <v-btn v-for="(item, i) in filterEditActions('recaps')" :key="i" v-tooltip:bottom="item.tooltip" icon="" @click="handleEditAction(item)">
+                  <v-icon>{{item.icon}}</v-icon>
+                  <v-icon size="15" class="position-absolute" style="bottom: 0; right: 0;">{{item.editIcon}}</v-icon>
+                </v-btn>
+            </v-speed-dial>
           </v-btn>
       </v-speed-dial>
     </v-btn>
@@ -40,6 +57,7 @@ for(let locationType of locationTypes?.value)
     let tooltipPrefix = ''
     let editIcon = ''
     let editAction = ''
+    let icon = locationType.icon
     if (allowedAction == 'add'){
       tooltipPrefix = 'Add'
       editIcon = 'mdi-plus-circle'
@@ -52,13 +70,21 @@ for(let locationType of locationTypes?.value)
     else if (allowedAction == 'link'){
       tooltipPrefix = 'Link'
       editIcon = 'mdi-link-circle'
+      icon = 'mdi-arrow-top-right-bottom-left'
       
       if (locationType.nodeFilter == 'recaps')
         editAction = 'linkRecap'
     }
+    else if (allowedAction == 'group'){
+      tooltipPrefix = 'Group'
+      editIcon = 'mdi-arrange-bring-to-front'
+      
+      if (locationType.nodeFilter == 'recaps')
+        editAction = 'groupRecap'
+    }
 
     editActions?.value.push({
-      icon: locationType.icon, 
+      icon: icon, 
       nodeType: locationType.type, 
       nodeFilter: locationType.nodeFilter, 
       tooltip: `${tooltipPrefix} ${locationType.name}`, 
@@ -68,8 +94,8 @@ for(let locationType of locationTypes?.value)
   }
 }
 
-const filterEditActions = () => {
-  return editActions?.value.filter(x => x.nodeFilter == nodeFilter?.value)
+const filterEditActions = (filter) => {
+  return editActions?.value.filter(x => (nodeFilter?.value == 'all' || nodeFilter?.value == filter) && x.nodeFilter == filter)
 }
 
 const handleEditAction = (editAction) => {
@@ -77,13 +103,17 @@ const handleEditAction = (editAction) => {
   switch(editAction.action){
     case 'addPoi':
       placingPOI.value = true
-      placingPOIType.value = editAction.type
+      placingPOIType.value = editAction.nodeType
       break
     case 'addRecap':
       placingMarker.value = true
       break
     case 'linkRecap':
       linkingPoints.value = true
+      break
+    case 'groupRecap':
+      placingMarker.value = true
+      placingPOIType.value = 'group'
       break
   }
   console.log(editAction.icon + "clicked!")

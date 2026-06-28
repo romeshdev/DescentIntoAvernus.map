@@ -4,7 +4,7 @@
         <div v-if="type == null || type == 'recap'">{{ label }}</div>
     </div>
     <div v-else-if="type != 'recap'">
-      <v-icon v-for="(item, i) in locationTypes" :key="i" :style="positionObject" v-tooltip:bottom="locName">
+      <v-icon v-for="(item, i) in locationTypes" :key="i" :style="positionObject" v-tooltip:bottom="locName" class="poiMarker">
         <v-icon size="45" class="position-absolute" color="#76d3e2" v-if="item.type == type">mdi-map-marker</v-icon>
         <v-icon size="35" color="grey-darken-4" v-if="item.type == type">mdi-map-marker</v-icon>
         <v-icon size="20" class="position-absolute" style="top: -5px;" color="grey-darken-4" v-if="item.type == type">mdi-circle</v-icon>
@@ -62,6 +62,11 @@ const openModal = () => {
 </script>
 
 <style scoped>
+
+.poiMarker {
+  z-index: 100;
+}
+
 .mapNode {
   width: 30px;
   height: 30px;

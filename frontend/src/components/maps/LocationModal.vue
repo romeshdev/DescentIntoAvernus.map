@@ -1,6 +1,6 @@
 <template>
-  <div class="modal-overlay">
-      <v-card width="850">
+  <div class="modal-overlay" @click.self="closeModal()">
+      <v-card width="850" max-height="800" class="overlay">
         <v-toolbar density="compact">
           <v-icon end v-if="locationData.icon && !isEditModeActive">{{ locationData.icon }}</v-icon>
           <v-icon end v-if="!locationData.icon && locationData.type == 'poi' && !isEditModeActive">mdi-exclamation-thick</v-icon>
@@ -10,33 +10,33 @@
           <v-icon end v-if="!locationData.icon && locationData.type == 'unknown' && !isEditModeActive">mdi-help</v-icon>
           <v-icon end v-if="isEditModeActive">mdi-pencil</v-icon>
           <v-toolbar-title>
-            {{ ( isEditModeActive ? 'Editing ' : '' ) + locationData.name }}
+            {{ ( isEditModeActive ? 'Editing ' : '' ) }}
+            <span v-if="locationData.type == null || locationData.type == 'recap'">[Session: {{locationData.nodeLabel }}]</span>
           </v-toolbar-title>
           <v-btn v-if="!isEditModeActive" icon="mdi-pencil" size="small" variant="elevated" @click="isEditModeActive = true"></v-btn>
         </v-toolbar>
-
+        <v-banner v-if="!isEditModeActive" class="justify-center text-headline-small font-weight-light" sticky>
+          {{ locationData.name }} <span v-if="locationData.group">({{ locationData.group }})</span>
+        </v-banner>
         <!-- <div class="modal-content"> -->
-        <v-card-text>
+        <v-card-text v-if="!isDeleting" style="max-height: 500px;" class="overflow-y-auto">
           <div v-if="loading" class="loading">
             Loading location data...
           </div>
           
           <div v-else-if="locationData">
-            <div v-if="!isEditModeActive" class="u-text u-text-1" style="font-size: 2em; font-weight: bold; margin-bottom: 10px;"> 
-              <span v-if="map.type == 'nodemap' && locationData.nodeLabel != ''">[Session: {{ locationData.nodeLabel }}] </span>{{ locationData.name }}
-            </div>
-            <div v-else class="edit-mode">
+            <div v-if="isEditModeActive" class="edit-mode">
               <div v-if="!isDeleting" class="title-inputs">
                 <div v-if="locationData.type == null || locationData.type == 'recap'">
                   <label class="edit-label">Session Number:</label>
                   <input v-model="editableLocationData.nodeLabel"  class="edit-input" placeholder="Enter session number" />
                 </div>
-                <div>
+                <div v-if="locationData.type != null && locationData.type != 'group'">
                   <label class="edit-label">Title*:</label>
                   <input v-model="editableLocationData.name"  class="edit-input" placeholder="Enter location name" />
                 </div>
                 
-                <div v-if="locationData.type != null && locationData.type != 'recap'">
+                <div v-if="locationData.type != null && locationData.type != 'recap' && locationData.type != 'group'">
                   <label class="edit-label">Type*:</label>
                   <v-btn-toggle v-model="editableLocationData.type" border divided>
                     <v-btn v-tooltip:bottom="'Point of Interest'" icon="mdi-exclamation-thick" value="poi"></v-btn>
@@ -47,9 +47,29 @@
                   </v-btn-toggle> 
                 </div>
 
-                <div v-if="locationData.type != null && locationData.type != 'recap'">
+                <div v-if="locationData.type != null && locationData.type != 'recap' && locationData.type != 'group'">
                   <label class="edit-label">Icon Override:</label>
-                  <input v-model="editableLocationData.icon"  class="edit-input" placeholder="Custom mdi icon" />
+                  <input v-model="editableLocationData.icon" class="edit-input" placeholder="Custom mdi icon" />
+                </div>
+    
+                <div v-if="locationData.type == 'recap'">
+                  <label class="edit-label">Group:</label>
+                  <input v-model="editableLocationData.group"  class="edit-input" placeholder="Enter group name (optional)" />
+                </div>
+
+                <div v-if="locationData.type == 'group'" class="edit-mode">
+                  <label class="edit-label">Group*:</label>
+                  <input v-model="editableLocationData.group"  class="edit-input" placeholder="Enter group name" />
+                </div>
+                
+                <div v-if="locationData.type == 'group'" class="edit-mode">
+                  <label class="edit-label">X Offset*:</label>
+                  <input v-model="editableLocationData.xOffset"  class="edit-input" placeholder="Enter X Offset" />
+                </div>
+
+                <div v-if="locationData.type == 'group'" class="edit-mode">
+                  <label class="edit-label">Y Offset:*</label>
+                  <input v-model="editableLocationData.yOffset"  class="edit-input" placeholder="Enter Y Offset" />
                 </div>
               </div>
             </div>
@@ -70,14 +90,20 @@
               </div>
             </div>
             
-            <div v-if="!isEditModeActive" class="u-align-justify u-text u-text-3">
+            <div v-if="!isEditModeActive && locationData.type != 'group'" class="u-align-justify u-text u-text-3">
               <div v-html="locationData.text"></div>
             </div>
-            <div v-else class="edit-mode">
+            <div v-else-if="locationData.type != 'group'" class="edit-mode">
               <label class="edit-label">Location Description:</label>
               <textarea v-model="editableLocationData.text" class="edit-textarea" placeholder="Enter location description (HTML allowed)"></textarea>
             </div>
-            
+          </div>
+          
+          <div v-else class="error">
+            Failed to load location data.
+          </div>
+        </v-card-text>
+        <v-card-text>
             <div id="modal-message-container"></div>
 
             <div v-if="isEditModeActive">
@@ -92,20 +118,16 @@
                 </div>
                 <div class="delete-confirm-buttons">
                   <button @click="sendDelete">Delete</button>
-                  <button class="cancel-button" @click="toggleDelete">Cancel</button>
+                  <button @click="toggleDelete">Cancel</button>
                 </div>
               </div>
             </div>
             <div v-if="!isEditModeActive">
               <div v-if="!isDeleting" class="main-edit-buttons">
                 <button @click="closeModal">Close</button>
+                <!-- <button @click="emit('open-modal', `${locationModel.id + 1}`)">Next</button> -->
               </div>
             </div>
-          </div>
-          
-          <div v-else class="error">
-            Failed to load location data.
-          </div>
         </v-card-text>
         <!-- </div> -->
       </v-card>
@@ -123,19 +145,20 @@ const props = defineProps({
   locationModel: Object
 })
 
-const emit = defineEmits(['close-modal', 'location-updated'])
+const emit = defineEmits(['open-modal', 'close-modal', 'location-updated'])
 
 const editMode = inject('editMode')
 const isAuthenticated = inject('isAuthenticated', { value: false })
 const map = inject('map')
 
-const isEditModeActive = ref(false)// computed(() => editMode.value)
 
 const locationData = ref(null)
 const originalLocationData = ref(null)
 const editableLocationData = ref(null)
 const loading = ref(false)
 const isDeleting = ref(false)
+const isFirstLoad = ref(false)
+const isEditModeActive = ref(props.locationModel.name == 'New Location')
 
 watch(
   () => props.locationModel,
@@ -167,18 +190,36 @@ async function loadLocationFromModel() {
     initializeEditValues()
     return
   } else {
-    locationData.value = {
-      x: props.locationModel.x,
-      y: props.locationModel.y,
-      id: props.locationModel.id,
-      connectedTo: [],
-      nodeLabel: '',
-      name: '',
-      text: '',
-      type: props.locationModel.type
+
+    if (props.locationModel.type == 'group'){
+      locationData.value = {
+        x: props.locationModel.x,
+        y: props.locationModel.y,
+        xOffset: 30,
+        yOffset: 30,
+        id: props.locationModel.id,
+        connectedTo: [],
+        locations: [],
+        name: '',
+        group: '',
+        type: 'group'
+      }
+    } else {
+      locationData.value = {
+        x: props.locationModel.x,
+        y: props.locationModel.y,
+        id: props.locationModel.id,
+        connectedTo: [],
+        nodeLabel: '',
+        name: '',
+        group: '',
+        text: '',
+        type: props.locationModel.type
+      }
     }
   }
 
+  isFirstLoad.value = true
   loading.value = false
   initializeEditValues()
   await updateLocation(props.region, props.locationId, locationData.value).then(handleLocationUpdated)
@@ -235,8 +276,9 @@ function handleLocationUpdated(response)
   initializeEditValues()
   emit('location-updated', { hex: props.locationId, data: response.data })
   showSuccess("Fields updated successfully")
-  // closeModal()
-  isEditModeActive.value = false
+  isEditModeActive.value = isFirstLoad.value
+  if (isFirstLoad.value)
+    isFirstLoad.value = false
 }
 
 function toggleDelete() {
@@ -301,10 +343,6 @@ function renderTerrain(item) {
 <style scoped>
 
 .overlay { 
-  position: fixed;
-  top: 20%;
-  left: 25%;
-  width:50%;
   z-index: 1000;
 }
 
