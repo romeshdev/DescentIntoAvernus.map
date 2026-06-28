@@ -9,7 +9,7 @@
         <v-icon size="35" color="grey-darken-4" v-if="item.type == type">mdi-map-marker</v-icon>
         <v-icon size="20" class="position-absolute" style="top: -5px;" color="grey-darken-4" v-if="item.type == type">mdi-circle</v-icon>
         <v-icon size="20" class="position-absolute" style="top: -2px;" color="#76d3e2" v-if="icon">{{icon}}</v-icon>
-        <v-icon size="15" class="position-absolute" style="top: 0px;" color="#76d3e2" v-if="!icon && item.type == type">{{item.icon}}</v-icon>
+        <v-icon size="20" class="position-absolute" style="top: -2px;" color="#76d3e2" v-if="!icon && item.type == type">{{item.icon}}</v-icon>
       </v-icon>
     </div>
   </a>
@@ -19,14 +19,7 @@
 import { computed, inject } from 'vue'
 
 const props = defineProps({
-  x: Number,
-  y: Number,
-  numId: String,
-  locName: String,
-  label: String,
-  status: String,
-  type: String,
-  icon: String
+  markers: Array,
 })
 
 const locationTypes = inject('locationTypes')
